@@ -55,4 +55,10 @@ void dm9051_rxlog_monitor_rx_all(int hdspc, const uint8_t *buffer, size_t len);
 #define bannerline_log()
 #endif
 
+void debug_tx(const uint8_t *buf, uint16_t len);
+int debug_rx(const uint8_t *buf, uint16_t len);
+
+void debug_rx_inc_count(void);
+void debug_rx_display_count(void);
+
 #endif //__DM9051_DBG_H

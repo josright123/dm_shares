@@ -1,8 +1,8 @@
 //
 // dm9051opts.c
 //
-#include "dm9051_lw_conf.h"
-//#include "dm9051_lw.h"
+#include "dm9051opts.h"
+#include "dm9051_lw.h"
 
 u8 gfirst_log[ETHERNET_COUNT];
 

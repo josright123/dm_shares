@@ -1,3 +1,11 @@
+/**
+  **************************************************************************
+  * @file     "_dm9051opts_.h"
+  * @version  v1.0
+  * @date     2024-02-27
+  * @brief    header file of dm9051 options.
+  **************************************************************************
+  */
 #ifndef __DM9051_OPTS_H
 #define __DM9051_OPTS_H
 
@@ -38,6 +46,40 @@
 #define VER_CHIPID_ONLY							0 //1 //0
 
 /*
+ * dm9051 include files : assembly
+ */
+typedef enum {
+  DM_FALSE = 0,
+  DM_TRUE = !DM_FALSE,
+} enable_t;
+
+typedef enum {
+  CS_EACH = 0,
+  CS_LONG,
+} csmode_t;
+
+typedef enum {
+  BMCR_RST_DEFAULT = 0,
+  BMCR_FORCE_100MF,
+  BMCR_AUTO_NEG,
+} bmcrmode_t;
+
+void cpin_poweron_reset(void);
+void cspi_read_regs(uint8_t reg, u8 *buf, u16 len, csmode_t csmode);
+uint8_t cspi_read_reg(uint8_t reg);
+void cspi_write_reg(uint8_t reg, uint8_t val);
+uint8_t cspi_read_mem2x(void);
+void cspi_read_mem(u8 *buf, u16 len);
+void cspi_write_mem(u8 *buf, u16 len);
+
+#define DM_TYPE		0
+#include "dm_types.h"
+
+//include ["_dm9051opts_.h"]
+#include "dm9051spiopts.h"
+#include "dm9051_lw_conf.h"
+
+/*
  * dm9051_debug_mode selection
  */
 
@@ -55,22 +97,6 @@
 #define HELLO_DRIVER_INTERNAL					1 //To support for being called by the program code from outside this dm9051_lw driver.
 
 #if HELLO_DRIVER_INTERNAL
-
-typedef enum {
-  DM_FALSE = 0,
-  DM_TRUE = !DM_FALSE,
-} enable_t;
-
-typedef enum {
-  CS_EACH = 0,
-  CS_LONG,
-} csmode_t;
-
-typedef enum {
-  BMCR_RST_DEFAULT = 0,
-  BMCR_FORCE_100MF,
-  BMCR_AUTO_NEG,
-} bmcrmode_t;
 
 	#if 0
 	/* sub-extern *//* SET and GET */

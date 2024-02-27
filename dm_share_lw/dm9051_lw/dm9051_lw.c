@@ -38,9 +38,8 @@
  * Here we had the definition header file with : "at32f415_spi.h"
  * for AT32F415 cpu.
  */
-#include "dm9051_lw_conf.h"
+#include "dm9051opts.h"
 #include "dm9051_lw.h"
-#include "dm9051_lw_log_inc.h"
 
 static void dm9051_phycore_on(uint16_t nms);
 static void dm9051_core_reset(void);

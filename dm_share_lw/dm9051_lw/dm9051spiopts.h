@@ -5,7 +5,7 @@
 
 /* 
  * Sanity. ETHERNET COUNT is defined in "dm9051opts.h" 
- * Since the application did declare the ethernet count, firstly.
+ * Since the application has to declare the ethernet count, firstly.
  */
 #if (BOARD_SPI_COUNT < ETHERNET_COUNT)
 #error "Please make sure that _BOARD_SPI_COUNT(config here) must large equal to _ETHERNET_COUNT"

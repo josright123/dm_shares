@@ -25,7 +25,8 @@
   *
   **************************************************************************
   */
-#include "dm9051_lw_conf.h"
+#include "dm9051opts.h"
+#include "dm9051_lw.h"
 #include "dm9051_lw_conf_types.h"
 #include "dm9051_lw_conf_data.h" //1.yicheng
 //#ifdef AT32F437xx

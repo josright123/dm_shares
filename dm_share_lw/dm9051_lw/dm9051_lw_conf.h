@@ -26,11 +26,7 @@
 #ifndef __DM9051_ENV_H
 #define __DM9051_ENV_H
 
-#include "dm9051opts.h" //driver attributes
-#include "dm9051spiopts.h"
-#include "dm9051_lw.h"
-
-//tobe dm9051opts.c
+//tobe "dm9051opts.c"
 //
 // [This _HELLO_DRIVER_INTERNAL compiler option, is for a diagnostic purpose while the program code is to use this dm9051_lw driver.]
 // [Must be 1, for dm9051_lw driver operating.]
@@ -65,8 +61,8 @@
 		char *dm9051opts_desc##field(void);*/
 	#endif
 
-#define DM_TYPE		0
-#include "dm_types.h"
+//#define _DM_TYPE		0
+//#include "_dm_types.h"
 
 /*
  * Below access to OPTs data:
@@ -84,23 +80,19 @@
 //#define isflowcontrolmode			OPTS_DATA(enable_t, flowcontrolmode)
 //#define isrxmode_checksum_offload	OPTS_DATA(enable_t, rxmode_checksum_offload)
 
-//int is_dm9051_board_irq(void);
-
-void cpin_poweron_reset(void);
-//void cspi_read_regsS(uint8_t reg, u8 *buf, u16 len);
-void cspi_read_regs(uint8_t reg, u8 *buf, u16 len, csmode_t csmode);
-uint8_t cspi_read_reg(uint8_t reg);
-void cspi_write_reg(uint8_t reg, uint8_t val);
-uint8_t cspi_read_mem2x(void);
-void cspi_read_mem(u8 *buf, u16 len);
-void cspi_write_mem(u8 *buf, u16 len);
+//void cpin_poweron_reset(void);
+//void cspi_read_regs(uint8_t reg, u8 *buf, u16 len, csmode_t csmode);
+//uint8_t cspi_read_reg(uint8_t reg);
+//void cspi_write_reg(uint8_t reg, uint8_t val);
+//uint8_t cspi_read_mem2x(void);
+//void cspi_read_mem(u8 *buf, u16 len);
+//void cspi_write_mem(u8 *buf, u16 len);
 
 #endif //HELLO_DRIVER_INTERNAL
 
 //init
 #if HELLO_DRIVER_API
 void dm9051_boards_initialize(int n);
-//void ethernet_interfaces_initialize(void);
 #endif
 void exint_menable(nvic_priority_group_type priority); //void dm9051_board_irq_enable(void);
 void dm9051_irqlines_proc(void);
@@ -124,8 +116,8 @@ void mstep_next_net_index(void);
 char *mstep_spi_conf_name(void);
 char *mstep_conf_cpu_spi_ethernet(void);
 #endif
-int mstep_get_net_index(void);
 
+int mstep_get_net_index(void);
 char *mstep_conf_info(void);
 char *mstep_conf_cpu_cs_ethernet(void);
 char *mstep_conf_type(void);

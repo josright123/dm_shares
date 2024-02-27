@@ -120,12 +120,6 @@ void dm_check_tx(const uint8_t *buf, size_t len);
 	} while(0)
 #else
 
-//NOT [place at dm9051opts.h]
-//.#define	_function_monitor_rx(hdspc, buffer, len)
-//.#define	_function_monitor_rx_all(hdspc, buffer, len)
-//.#define _function_monitor_tx(hdspc, buffer, len)
-//.#define _function_monitor_tx_all(hdspc, buffer, len)
-
 //#undef _function_monitor_rx
 //#undef _function_monitor_rx_all
 //#undef _function_monitor_tx
@@ -142,11 +136,5 @@ void dm_check_tx(const uint8_t *buf, size_t len);
 
 int DBG_IS_ARP(void *dataload);
 int DBG_IS_TCP(void *dataload);
-
-void debug_tx(const uint8_t *buf, uint16_t len);
-int debug_rx(const uint8_t *buf, uint16_t len);
-
-void debug_rx_inc_count(void);
-void debug_rx_display_count(void);
 
 #endif //__DM9051_LOGI_H

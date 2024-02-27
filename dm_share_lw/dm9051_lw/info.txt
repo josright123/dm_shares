@@ -1,3 +1,17 @@
+--------------------
+advance versions:
+-------------------- 
+
+dm9051_lw version 5.00, 20240227. Joseph CHANG. (A repository dm_shares which contain dm9051 driver and else every thing.)
+		  Introduce:
+		    v5.00 is start it's work, here.
+			dm9051opts.h is the container for dm9051_lw_conf.h, dm9051_lw_log.h...
+			Include interface can only : dm9051opts.h, dm9051_lw.h
+
+--------------------
+moving versions:
+-------------------- 
+
 dm9051_lw version 3.20, 20240226. Joseph CHANG. (x2web verification, at32f437)
 		  Introduce:
 		    v3.20 is start it's work, here. 

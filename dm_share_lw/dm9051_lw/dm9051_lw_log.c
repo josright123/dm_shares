@@ -2,8 +2,8 @@
 //#include "dm9051_at32_decl.h"
 //#include "dm9051_debug_lw.h"
 #include <stdlib.h>
-#include "dm9051_lw_conf.h"
-#include "dm9051_lw.h" //#include "dm9051opts.h"
+#include "dm9051opts.h"
+#include "dm9051_lw.h"
 #include "dm9051_lw_log_types.h"
 #include "dm9051_lw_log_inc.h"
 
