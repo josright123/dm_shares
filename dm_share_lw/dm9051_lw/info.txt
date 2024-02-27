@@ -2,6 +2,10 @@
 advance versions:
 -------------------- 
 
+dm9051_lw version 5.01, 20240227. Joseph CHANG.
+		  Introduce:
+		    v5.01 support freertos with uvTaskDelay() by #define freeRTOS.
+
 dm9051_lw version 5.00, 20240227. Joseph CHANG. (A repository dm_shares which contain dm9051 driver and else every thing.)
 		  Introduce:
 		    v5.00 is start it's work, here.
