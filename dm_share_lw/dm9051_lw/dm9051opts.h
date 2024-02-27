@@ -13,52 +13,11 @@
 #include <string.h>
 
 /*
- * at32_cm4_device_support
- */
-typedef void (* dly_us_t)(uint32_t nus);
-typedef void (* dly_ms_t)(uint16_t nms);
-
-typedef struct dm_dly_st {
-	dly_us_t	dly_us;
-	dly_ms_t	dly_ms;
-} dm_dly_t;
-
-#ifdef AT32F437xx
-	#include "at32f435_437_board.h" //mcu's board
-	#include "at32f435_437_clock.h" //Also mcu's clock
-#elif defined (AT32F415xx)
-	#include "at32f415_board.h" //mcu's board
-	#include "at32f415_board.h" //Also mcu's clock
-#elif defined (AT32F413xx)
-	#include "at32f413_board.h" //mcu's board
-	#include "at32f413_board.h" //Also mcu's clock
-#elif defined (AT32F403Axx) || defined (AT32F403xx) || defined (AT32F407xx)
-	//mcu's board
-	//Also mcu's clock
-#else
-	/*
-		#error "opts board to be define"
-		While NOT include the mcu-definition in the program code, in advance, previously.
-		Add your board's board & clock header files here! Refer to above cases.
-		
-		Usually, Cn find the expected included files below in main.c
-	*/
-	//mcu's board
-	//Also mcu's clock
-	#include "at32f435_437_board.h"
-	#include "at32f435_437_clock.h"
-	
-	static const dm_dly_t dmf = {
-		delay_us, //here assign, define system's delay us function
-		delay_ms, //here assign, define system's delay ms function
-	};
-#endif
-
-/*
  * dm9051_declaration_support
  */
 #define ETHERNET_COUNT_MAX						4 // Correspond to mcu target board's specification
 #define ETHERNET_COUNT							2 //2 //4 //2 //2 //3 //2 //#define get_eth_interfaces() ETH_COUNT
+#define freeRTOS 								1
 
 /* Sanity.
  */
@@ -73,6 +32,71 @@ typedef struct dm_dly_st {
  */
 #define NON_CHIPID_STOP							1 //0 //0 // stop
 #define VER_CHIPID_ONLY							0 //1 //0
+
+/*
+ * at32_cm4_device_support
+ */
+typedef void (* dly_us_t)(uint32_t nus);
+typedef void (* dly_ms_t)(uint32_t nms);
+
+typedef struct dm_dly_st {
+	dly_us_t	dly_us;
+	dly_ms_t	dly_ms;
+} dm_dly_t;
+
+#ifdef freeRTOS
+#warning "freeRTOS is defined"
+#include "FreeRTOS.h"
+#include "task.h"
+static void uvTaskDelay( const TickType_t xTicksToDelay ) {
+	vTaskDelay((xTicksToDelay + 999)/ 1000);
+}
+// 對於微秒級的延遲，您可能需要使用忙等待迴圈或硬體支援的計時器。
+// void delay_us(uint32_t us)
+// {
+//     // 假設系統時鐘為 100MHz，請根據您的硬體調整此值
+//     const uint32_t us_ticks = 100;
+//     uint32_t i;
+//     for(i = 0; i < us * us_ticks; i++)
+//     {
+//         __NOP();
+//     }
+// }
+#endif
+
+#ifdef AT32F437xx
+	#include "at32f435_437_board.h" //mcu's board
+	#include "at32f435_437_clock.h" //Also mcu's clock
+#elif defined (AT32F415xx)
+	#include "at32f415_board.h" //mcu's board
+	#include "at32f415_board.h" //Also mcu's clock
+#elif defined (AT32F413xx)
+	#include "at32f413_board.h" //mcu's board
+	#include "at32f413_board.h" //Also mcu's clock
+#elif defined (AT32F403Axx) || defined (AT32F403xx) || defined (AT32F407xx)
+	#include "at32f403a_407_board.h" //mcu's board
+	#include "at32f403a_407_clock.h" //Also mcu's clock
+#else
+	/*
+		#error "opts board to be define"
+		While NOT include the mcu-definition in the program code, in advance, previously.
+		Add your board's board & clock header files here! Refer to above cases.
+		
+		Usually, Cn find the expected included files below in main.c
+	*/
+	#include "at32f403a_407_board.h" //mcu's board
+	#include "at32f403a_407_clock.h" //Also mcu's clock
+	
+	static const dm_dly_t dmf = {
+#ifdef freeRTOS
+		uvTaskDelay, //here assign, define system's delay us function
+		vTaskDelay, //here assign, define system's delay ms function
+#else
+		delay_us, //here assign, define system's delay us function
+		delay_ms, //here assign, define system's delay ms function
+#endif
+	};
+#endif
 
 /*
  * dm9051 include files : assembly
