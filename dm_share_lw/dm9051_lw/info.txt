@@ -2,6 +2,10 @@
 advance versions:
 -------------------- 
 
+dm9051_lw version 5.02, 20240227. Joseph CHANG.
+		  Introduce:
+		    v5.02 support freertos with uvTaskDelay() by #define freeRTOS. and #if freeRTOS
+
 dm9051_lw version 5.01, 20240227. Joseph CHANG.
 		  Introduce:
 		    v5.01 support freertos with uvTaskDelay() by #define freeRTOS.

@@ -17,7 +17,7 @@
  */
 #define ETHERNET_COUNT_MAX						4 // Correspond to mcu target board's specification
 #define ETHERNET_COUNT							2 //2 //4 //2 //2 //3 //2 //#define get_eth_interfaces() ETH_COUNT
-#define freeRTOS 								1
+#define freeRTOS 								0
 
 /* Sanity.
  */
@@ -36,18 +36,12 @@
 /*
  * at32_cm4_device_support
  */
-typedef void (* dly_us_t)(uint32_t nus);
-typedef void (* dly_ms_t)(uint32_t nms);
-
-typedef struct dm_dly_st {
-	dly_us_t	dly_us;
-	dly_ms_t	dly_ms;
-} dm_dly_t;
-
-#ifdef freeRTOS
+#if freeRTOS
 #warning "freeRTOS is defined"
 #include "FreeRTOS.h"
 #include "task.h"
+typedef void (* dly_us_t)(uint32_t nus);
+typedef void (* dly_ms_t)(uint32_t nms);
 static void uvTaskDelay( const TickType_t xTicksToDelay ) {
 	vTaskDelay((xTicksToDelay + 999)/ 1000);
 }
@@ -62,7 +56,15 @@ static void uvTaskDelay( const TickType_t xTicksToDelay ) {
 //         __NOP();
 //     }
 // }
+#else
+typedef void (* dly_us_t)(uint32_t nus);
+typedef void (* dly_ms_t)(uint16_t nms);
 #endif
+
+typedef struct dm_dly_st {
+	dly_us_t	dly_us;
+	dly_ms_t	dly_ms;
+} dm_dly_t;
 
 #ifdef AT32F437xx
 	#include "at32f435_437_board.h" //mcu's board
@@ -84,11 +86,11 @@ static void uvTaskDelay( const TickType_t xTicksToDelay ) {
 		
 		Usually, Cn find the expected included files below in main.c
 	*/
-	#include "at32f403a_407_board.h" //mcu's board
-	#include "at32f403a_407_clock.h" //Also mcu's clock
+	#include "at32f435_437_board.h" //mcu's board
+	#include "at32f435_437_clock.h" //Also mcu's clock
 	
 	static const dm_dly_t dmf = {
-#ifdef freeRTOS
+#if freeRTOS
 		uvTaskDelay, //here assign, define system's delay us function
 		vTaskDelay, //here assign, define system's delay ms function
 #else
