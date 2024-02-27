@@ -15,15 +15,44 @@
 /*
  * at32_cm4_device_support
  */
+typedef void (* dly_us_t)(uint32_t nus);
+typedef void (* dly_ms_t)(uint16_t nms);
 
-//#include "at32f413_board.h"
-//#include "at32f413_board.h"
-//#include "at32f415_board.h"
-//#include "at32f415_board.h"
-//#include "at32f435_437_board.h"
+typedef struct dm_dly_st {
+	dly_us_t	dly_us;
+	dly_ms_t	dly_ms;
+} dm_dly_t;
 
-#include "at32f435_437_board.h" //mcu's board
-#include "at32f435_437_clock.h" //Also mcu's clock
+#ifdef AT32F437xx
+	#include "at32f435_437_board.h" //mcu's board
+	#include "at32f435_437_clock.h" //Also mcu's clock
+#elif defined (AT32F415xx)
+	#include "at32f415_board.h" //mcu's board
+	#include "at32f415_board.h" //Also mcu's clock
+#elif defined (AT32F413xx)
+	#include "at32f413_board.h" //mcu's board
+	#include "at32f413_board.h" //Also mcu's clock
+#elif defined (AT32F403Axx) || defined (AT32F403xx) || defined (AT32F407xx)
+	//mcu's board
+	//Also mcu's clock
+#else
+	/*
+		#error "opts board to be define"
+		While NOT include the mcu-definition in the program code, in advance, previously.
+		Add your board's board & clock header files here! Refer to above cases.
+		
+		Usually, Cn find the expected included files below in main.c
+	*/
+	//mcu's board
+	//Also mcu's clock
+	#include "at32f435_437_board.h"
+	#include "at32f435_437_clock.h"
+	
+	static const dm_dly_t dmf = {
+		delay_us, //here assign, define system's delay us function
+		delay_ms, //here assign, define system's delay ms function
+	};
+#endif
 
 /*
  * dm9051_declaration_support

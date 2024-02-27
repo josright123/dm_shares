@@ -202,13 +202,13 @@ static void config_exint(gpio_pull_type gppull, exint_polarity_config_type polar
 #define	board_printf(format, args...) //int board_printf(const char *format, args...) { return 0; }
 
 void dm_delay_us(uint32_t nus) {
-	void delay_us(uint32_t nus);
+//	void delay_us(uint32_t nus);
 	board_printf("test %d ,because rxb %02x (is %d times)\r\n", rstccc, rxbyteee, timesss);
-	delay_us(nus);
+	dmf.dly_us(nus); //delay_us(nus);
 }
 void dm_delay_ms(uint16_t nms) {
-	void delay_ms(uint16_t nms);
-	delay_ms(nms);
+//	void delay_ms(uint16_t nms);
+	dmf.dly_ms(nms); //delay_ms(nms);
 }
 
 // -

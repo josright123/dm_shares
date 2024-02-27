@@ -146,15 +146,15 @@ u8 first_log_get(int i)
  */
 uint16_t TRANS_CONN(trans_t trans_func) { //, uint8_t trans_type
   #if 0
-	if (trans_type == SINGLE_TRANS) {
+  //	if (trans_type == SINGLE_TRANS) {
 		/*
-		 * mstep_get_net_index(); //already has, before enter here!
+		 * mstep_get_net_index();
 		 */
-		return trans_func();
-	}
-	
-	if (trans_type == MULTI_TRANS) {
-	}
+  //		return trans_func();
+  //	}
+  //	
+  //	if (trans_type == MULTI_TRANS) {
+  //	}
   #endif
 
 	  int i;
