@@ -16,8 +16,8 @@
  * dm9051_declaration_support
  */
 #define ETHERNET_COUNT_MAX						4 // Correspond to mcu target board's specification
-#define ETHERNET_COUNT							2 //2 //4 //2 //2 //3 //2 //#define get_eth_interfaces() ETH_COUNT
-#define freeRTOS 								0
+#define ETHERNET_COUNT								2 //2 //4 //2 //2 //3 //2 //#define get_eth_interfaces() ETH_COUNT
+#define freeRTOS											1
 
 /* Sanity.
  */
@@ -66,16 +66,16 @@ typedef struct dm_dly_st {
 	dly_ms_t	dly_ms;
 } dm_dly_t;
 
-#ifdef AT32F437xx
+#ifdef _AT32F437xx
 	#include "at32f435_437_board.h" //mcu's board
 	#include "at32f435_437_clock.h" //Also mcu's clock
-#elif defined (AT32F415xx)
+#elif defined (_AT32F415xx)
 	#include "at32f415_board.h" //mcu's board
 	#include "at32f415_board.h" //Also mcu's clock
-#elif defined (AT32F413xx)
+#elif defined (_AT32F413xx)
 	#include "at32f413_board.h" //mcu's board
 	#include "at32f413_board.h" //Also mcu's clock
-#elif defined (AT32F403Axx) || defined (AT32F403xx) || defined (AT32F407xx)
+#elif defined (_AT32F403Axx) || defined (_AT32F403xx) || defined (_AT32F407xx)
 	#include "at32f403a_407_board.h" //mcu's board
 	#include "at32f403a_407_clock.h" //Also mcu's clock
 #else
@@ -83,22 +83,28 @@ typedef struct dm_dly_st {
 		#error "opts board to be define"
 		While NOT include the mcu-definition in the program code, in advance, previously.
 		Add your board's board & clock header files here! Refer to above cases.
-		
+
 		Usually, Cn find the expected included files below in main.c
 	*/
-	#include "at32f435_437_board.h" //mcu's board
-	#include "at32f435_437_clock.h" //Also mcu's clock
-	
-	static const dm_dly_t dmf = {
+	// #include "at32f435_437_board.h" //mcu's board
+	// #include "at32f435_437_clock.h" //Also mcu's clock
+	#error "Opts board to be define  \r\n \
+		While NOT include the mcu-definition in the program code, in advance, previously. \r\n \
+		Usually, Project find the expected included files below in Options for Target > C/C++ > Preprocessor Definitions > Add > _AT32F4xxxx \r\n \
+		ex: _AT32F407xx,USE_STDPERIPH_DRIVER,AT_START_F407_V1 \r\n \
+		ex: _AT32F437xx,USE_STDPERIPH_DRIVER,AT_START_F437_V1 \r\n \ "
+#endif
+
+static const dm_dly_t dmf = {
 #if freeRTOS
-		uvTaskDelay, //here assign, define system's delay us function
-		vTaskDelay, //here assign, define system's delay ms function
+	uvTaskDelay, //here assign, define system's delay us function
+	vTaskDelay, //here assign, define system's delay ms function
 #else
-		delay_us, //here assign, define system's delay us function
-		delay_ms, //here assign, define system's delay ms function
+	delay_us, //here assign, define system's delay us function
+	delay_ms, //here assign, define system's delay ms function
 #endif
-	};
-#endif
+};
+
 
 /*
  * dm9051 include files : assembly
