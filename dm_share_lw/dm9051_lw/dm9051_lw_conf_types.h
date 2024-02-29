@@ -96,6 +96,13 @@ struct modscfg_st {
 	struct gp_set_st *option; //gp_set_t
 };
 
+typedef struct eth_node_st {
+  uint8_t mac_addresse[MAC_ADDR_LENGTH];
+  uint8_t local_ipaddr[ADDR_LENGTH];
+  uint8_t local_gwaddr[ADDR_LENGTH];
+  uint8_t local_maskaddr[ADDR_LENGTH];
+} eth_node_t;
+
 // -
 
 typedef struct {

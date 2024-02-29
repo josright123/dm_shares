@@ -230,6 +230,7 @@ void dm9051_tx(uint8_t *buf, uint16_t len);
 void hdlr_reset_process(enable_t cfgrcv);
 #endif
 
+void dm9051_mac_adr(const uint8_t *macadd);
 void dm9051_start(const uint8_t *adr);
 uint16_t dm9051_rx_dump(uint8_t *buff);
 

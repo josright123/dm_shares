@@ -272,8 +272,42 @@ optsex_t dm9051optsex[BOARD_SPI_COUNT] = { //const
 	dmopts_test1(MBNDRY_WORD, "16-bit mode"),
 };
 
+
 //(define is as rather than '_ETHERNET_COUNT', refer to as '_ETHERNET_COUNT' counter)
-const uint8_t mac_addresse[BOARD_SPI_COUNT][MAC_ADDR_LENGTH] = { \
+const eth_node_t node_config[BOARD_SPI_COUNT] = { \
+	{ \
+		{0, 0x60, 0x6e, 0x00, 0x01, 0x17,}, \
+		{192, 168, 6,  17}, \
+		{192, 168, 6,   1}, \
+		{255, 255, 255, 0}, \
+	}, \
+	{ \
+		{0, 0x60, 0x6e, 0x00, 0x01, 0x26,}, \
+		{192, 168, 6,  26}, \
+		{192, 168, 6,   1}, \
+		{255, 255, 255, 0}, \
+	}, \
+	{ \
+		{0, 0x60, 0x6e, 0x00, 0x01, 0x25,}, \
+		{192, 168, 6,  25}, \
+		{192, 168, 6,   1}, \
+		{255, 255, 255, 0}, \
+	}, \
+	{ \
+		{0, 0x60, 0x6e, 0x00, 0x01, 0xfe,}, \
+		{192, 168, 6,  66}, \
+		{192, 168, 6,   1}, \
+		{255, 255, 255, 0}, \
+	}, \
+	{ \
+		{0, 0x60, 0x6e, 0x00, 0x01, 0xff,}, \
+		{192, 168, 6,  67}, \
+		{192, 168, 6,   1}, \
+		{255, 255, 255, 0}, \
+	}, \
+};
+ 
+/*const uint8_t mac_addresse[BOARD_SPI_COUNT][MAC_ADDR_LENGTH] = { \
 	{0, 0x60, 0x6e, 0x00, 0x01, 0x17,}, \
 	{0, 0x60, 0x6e, 0x00, 0x01, 0x26,}, \
 	{0, 0x60, 0x6e, 0x00, 0x01, 0x25,}, \
@@ -294,7 +328,7 @@ const uint8_t local_maskaddr[BOARD_SPI_COUNT][ADDR_LENGTH] 	= { \
 	{255, 255, 255, 0}, \
 	{255, 255, 255, 0}, \
 	{255, 255, 255, 0}, \
-};
+};*/
 
 //
 // 'pin_code' always 0. when _ETHERNET_COUNT==1, but _BOARD_SPI_COUNT > 1.
@@ -374,10 +408,14 @@ IS_DECL_FUNCTION(enable_t, generic_core_rst)
 #define mstep_turn_net_index()		//empty for 1 eth project
 
 //[common.mac]
-#define get_eth_mac()				&mac_addresse[pin_code][0]
-#define get_eth_ip()				&local_ipaddr[pin_code][0]
-#define get_eth_gw()				&local_gwaddr[pin_code][0]
-#define get_eth_mask()				&local_maskaddr[pin_code][0]
+#define get_eth_mac()				&node_config[pin_code].mac_addresse[0]
+#define get_eth_ip()				&node_config[pin_code].local_ipaddr[0]
+#define get_eth_gw()				&node_config[pin_code].local_gwaddr[0]
+#define get_eth_mask()				&node_config[pin_code].local_maskaddr[0]
+//#define get_eth_mac()				&mac_addresse[pin_code][0]
+//#define get_eth_ip()				&local_ipaddr[pin_code][0]
+//#define get_eth_gw()				&local_gwaddr[pin_code][0]
+//#define get_eth_mask()			&local_maskaddr[pin_code][0]
 
 //-
 
