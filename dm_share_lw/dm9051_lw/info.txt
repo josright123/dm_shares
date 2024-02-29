@@ -1,6 +1,10 @@
 --------------------
 advance versions:
--------------------- 
+--------------------
+
+dm9051_lw version 5.03, 20240228. yicheng.
+		  Introduce:
+		    v5.03 for Options for Target > C/C++ > Preprocessor Definitions > Add > _AT32F4xxxx
 
 dm9051_lw version 5.02, 20240227. Joseph CHANG.
 		  Introduce:
@@ -18,29 +22,29 @@ dm9051_lw version 5.00, 20240227. Joseph CHANG. (A repository dm_shares which co
 
 --------------------
 moving versions:
--------------------- 
+--------------------
 
 dm9051_lw version 3.20, 20240226. Joseph CHANG. (x2web verification, at32f437)
 		  Introduce:
-		    v3.20 is start it's work, here. 
+		    v3.20 is start it's work, here.
 
 --------------------
 moving versions:
--------------------- 
-		    
+--------------------
+
 dm9051_lw version 3.19, 20240215. Joseph CHANG. (mqttc verification, at32f437)
 		  Introduce:
-		    v3.19 is start it's work, here. 
+		    v3.19 is start it's work, here.
 dm9051_lw version 3.18, 20240207. Joseph CHANG. (mqttc verification, at32f437)
 		  Introduce "cnf_types.h":
-		    v3.17 "dm_types.h" is good for if add new varibles. 
+		    v3.17 "dm_types.h" is good for if add new varibles.
 dm9051_lw version 3.17, 20240205. Joseph CHANG. (mqttc verification, at32f437)
 		  Introduce "dm_types.h":
-		    v3.17 "dm_types.h" is good for if add new varibles. 
+		    v3.17 "dm_types.h" is good for if add new varibles.
 
 --------------------
 Older versions:
--------------------- 
+--------------------
 
 dm9051_lw version 3.0, 20240119. Joseph CHANG.
 dm9051_lw version 3.1, 20240119. Joseph CHANG.
@@ -98,15 +102,14 @@ dm9051_lw version 3.15, 20240129. Joseph CHANG. (Hello x2web verification, at32f
 			}
 dm9051_lw version 3.16, 20240130. Joseph CHANG. (Hello x2web verification, at32f413)
 		  Add APIs:
-		    v3.16 function support integrated to mqttc f437. Both ncr reset and phy pwron 
+		    v3.16 function support integrated to mqttc f437. Both ncr reset and phy pwron
 				  use the same call models.
-		    v3.16 Alicloud mqtt function support OK, 20240202. 
+		    v3.16 Alicloud mqtt function support OK, 20240202.
 
 --------------------
 Options description:
--------------------- 
+--------------------
 	TEST_PLAN_MODE, to be checked whether disable can be ok
 	HELLO_DRIVER_API, a driver essential api (enable for an app plan to use this driver)
 	HELLO_DRIVER_OPTS_DISPLAY_API, some opts info display (disable is possible)
 	HELLO_DRIVER_INTERNAL, a driver essential api (Compiler only with header files, disable to test)
-	
