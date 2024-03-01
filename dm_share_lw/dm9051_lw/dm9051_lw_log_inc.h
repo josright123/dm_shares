@@ -61,7 +61,7 @@ void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
 void dm_check_tx(const uint8_t *buf, size_t len);
 
 #define HEAD_SPC	2	// Head Space
-#define dm9051_rx_log	function_monitor_rx	//as a formal function name
+//#define dm9051_rx_log	function_monitor_rx	//as a formal function name
 //#define dm9051_tx_log	function_monitor_tx	//as a formal function name
 
 #if DM9051_DEBUG_ENABLE

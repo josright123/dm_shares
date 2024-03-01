@@ -10,7 +10,7 @@
 	#define DM_DESC(rtype, field) /* to be usage */ \
 		dm9051opts_desc##field()
 
-	#define DM_SET_FUNC(rtype, field, val) /* extended-set-data */ \
+	#define DM_SET_FIELD(rtype, field, val) /* DM_SET_FUNC(ty,fi,val), extended-set-data */ \
 		dm9051opts_set_##rtype##field(val)
 		
 	//#define set_testplanlog				IS_SET_INSTEAD(enable_t, test_plan_log)

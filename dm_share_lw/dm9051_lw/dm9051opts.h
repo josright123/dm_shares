@@ -46,7 +46,10 @@
  * at32_cm4_device_support
  */
 #if freeRTOS
+#ifndef freeRTOS_CONF
 #warning "freeRTOS is defined"
+#endif
+
 #include "FreeRTOS.h"
 #include "task.h"
 typedef void (* dly_us_t)(uint32_t nus);
@@ -54,6 +57,7 @@ typedef void (* dly_ms_t)(uint32_t nms);
 static void uvTaskDelay( const TickType_t xTicksToDelay ) {
 	vTaskDelay((xTicksToDelay + 999)/ 1000);
 }
+
 // 對於微秒級的延遲，您可能需要使用忙等待迴圈或硬體支援的計時器。
 // void delay_us(uint32_t us)
 // {

@@ -406,7 +406,7 @@ int dm9051_log_rx(const uint8_t *buf, uint16_t len)
 				rx_mult_tcp_count++;
 				printf("Receive Multicast and TCP(%d/2): (%02x:%02x:%02x:%02x:%02x:%02x) ? ---------------\r\n", 
 					rx_mult_tcp_count, buf[0],buf[1],buf[2],buf[3],buf[4],buf[5]);
-				function_monitor_rx(buf, len);
+				function_monitor_rx(HEAD_SPC, buf, len);
 			}
 			return 0;
 		}
@@ -415,14 +415,14 @@ int dm9051_log_rx(const uint8_t *buf, uint16_t len)
 				rx_mult_udp_count++;
 				printf("Receive Multicast(%d/3) and UDP: (%02x:%02x:%02x:%02x:%02x:%02x) Protocol: %s (%d) ---------------\r\n", 
 					rx_mult_udp_count, buf[0],buf[1],buf[2],buf[3],buf[4],buf[5], "TBD", IPBUF->proto);
-				function_monitor_rx(buf, len);
+				function_monitor_rx(HEAD_SPC, buf, len);
 			}
 			return 0;
 		}
 			
 		printf("Receive Multicast and OP: (%02x:%02x:%02x:%02x:%02x:%02x) ? ---------------\r\n", 
 			buf[0],buf[1],buf[2],buf[3],buf[4],buf[5]);
-		function_monitor_rx(buf, len);
+		function_monitor_rx(HEAD_SPC, buf, len);
 		return 0;
 	}
 	
@@ -441,7 +441,7 @@ int dm9051_log_rx(const uint8_t *buf, uint16_t len)
 		if (icmp_count_rx < 2) {
 			icmp_count_rx++;
 			printf("Receive icmp(%d/2) Protocol: %s (%d) ---------------\r\n", icmp_count_rx, "ICMP", IPBUF->proto);
-			function_monitor_rx(buf, len);
+			function_monitor_rx(HEAD_SPC, buf, len);
 		}
 #endif
 		return 0;
@@ -467,7 +467,7 @@ int dm9051_log_rx(const uint8_t *buf, uint16_t len)
 		printf("Receive unit-cast pkt. Protocol: %s (%d) .%d ---------------\r\n", "UDP", IPBUF->proto, master_UDP_unknow);
 	} else
 		printf("Receive unit-cast pkt. Protocol: %s (%d) ---------------\r\n", "TBD", IPBUF->proto);
-	function_monitor_rx(buf, len);
+	function_monitor_rx(HEAD_SPC, buf, len);
 #endif
 	return 0;
   }
