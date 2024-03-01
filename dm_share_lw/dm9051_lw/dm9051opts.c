@@ -140,7 +140,7 @@ u8 first_log_get(int i)
 /*  == SINGLE_TRANS,
  *  return : chip id
  */
-int TRANS_NONDUAL(trn_nonconn_t f) { //, uint8_t trans_type
+int TRANS_NONDUAL(trn_nonconn_t f, uint8_t *arg) { //, uint8_t trans_type
   #if 0
   /* when 'trans_type' == SINGLE_TRANS,
    *  return uint16_t
@@ -159,7 +159,7 @@ int TRANS_NONDUAL(trn_nonconn_t f) { //, uint8_t trans_type
   //	if (trans_type == MULTI_TRANS) {
   //	}
   #endif
-  return f();
+  return f(arg);
 }
 
 /*  == MULTI_TRANS,

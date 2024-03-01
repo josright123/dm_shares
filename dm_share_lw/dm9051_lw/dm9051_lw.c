@@ -439,10 +439,15 @@ static int display_identity(char *spiname, uint16_t id, uint8_t *ids, uint8_t id
 	return 0;
 }
 
+static char *bare_mac_tbl[2] = {
+	": rd-bare device",
+	": wr-bare device",
+};
+
 static void display_mac_action(char *head, const uint8_t *adr) {
 	display_mac_bannerline_defaultN = head; // ": rd-bare device";/ ": wr-bare device";
 	printf("%s[%d] ::: chip-mac %02x%02x%02x%02x%02x%02x\r\n",
-				display_mac_bannerline_defaultN ? display_identity_bannerline_title : display_mac_bannerline_defaultN,
+				display_identity_bannerline_title ? display_identity_bannerline_title : display_mac_bannerline_defaultN,
 				mstep_get_net_index(), adr[0], adr[1], adr[2], adr[3], adr[4], adr[5]);
 }
 
@@ -450,7 +455,7 @@ static void display_baremac(void) {
 	uint8_t buf[6];
 
 	cspi_read_regs(DM9051_PAR, buf, 6, OPT_CS(csmode)); //dm9051opts_csmode_tcsmode()
-	display_mac_action(": rd-bare device", buf);
+	display_mac_action(bare_mac_tbl[0], buf); //[0]= ": rd-bare device"
 }
 
 #define	DM9051_Read_Rxb	DM9051_Read_Mem2X
@@ -896,7 +901,7 @@ uint16_t dm9051_init_setup(const uint8_t *adr)
 void dm9051_start(const uint8_t *adr)
 {	
 	display_baremac();
-	display_mac_action(": wr-bare device", adr);
+	display_mac_action(bare_mac_tbl[1], adr); //[1]= ": wr-bare device"
 
 	dm9051_mac_adr(adr);
 	dm9051_rx_mode();
