@@ -41,7 +41,7 @@ void EepromDisplay(int pin)
 	printf("--EEPROM[%d] word", pin);
 	for (i = 0; i < 9; i++) {
 		uint16_t value;
-		value = eeprom_read(i);
+		value = dm9051_eeprom_read(i);
 		printf("%s%04x", 
 			!(i % 4) ? "  " : " ",
 			value);
@@ -315,7 +315,7 @@ int DBG_IS_TCP(void *dataload) {
 }
 
 int master_UDP_unknow = 0;
-void debug_tx(const uint8_t *buf, uint16_t len)
+void dm9051_log_tx(const uint8_t *buf, uint16_t len)
 {
   static int count = 0;
 #if 0
@@ -373,7 +373,7 @@ void debug_tx(const uint8_t *buf, uint16_t len)
 #endif
 }
 
-int debug_rx(const uint8_t *buf, uint16_t len)
+int dm9051_log_rx(const uint8_t *buf, uint16_t len)
 {
 #if 0
   static int icmp_count_rx = 0;
@@ -541,10 +541,10 @@ void dm9051_txlog_monitor_tx_all(int hdspc, const uint8_t *buffer, size_t len)
 
 uint16_t unitcast_UNKNOW_pkt = 0;
 
-void debug_rx_inc_count(void) {
+void dm9051_log_rx_inc_count(void) {
 	unitcast_UNKNOW_pkt++;
 }
-void debug_rx_display_count(void) {
+void dm9051_log_rx_display_count(void) {
 	#if 1
 	printf("d (... unitcast_UNKNOW_pkt: %d / function_monitor_rx_all ...)\r\n", unitcast_UNKNOW_pkt);
 	#endif
@@ -553,13 +553,13 @@ void debug_rx_display_count(void) {
 void dm9051_rxlog_monitor_rx_all(int hdspc, const uint8_t *buffer, size_t len)
 {
 	function_monitor_rx_all(hdspc, NULL, buffer, len);
-	//.debug_rx_display_count(); NOT here~
+	//.dm9051_log_rx_display_count(); NOT here~
 }
 
 void dm9051_txlog_disp(uint8_t *buffer, int len)
 {
 #if DM9051_DEBUG_ENABLE
-  debug_tx(buffer, len);
+  dm9051_log_tx(buffer, len);
 #endif
 }
 
@@ -574,7 +574,7 @@ void dm9051_rxlog_arp(void *payload, uint16_t tot_len, uint16_t len)
 		printf("[%d]\r\n", 5); //part = 5.
 
 		printf(" rx,(such as 'ARP')\r\n"); //no-need show. such as 'ARP'
-		debug_rx_display_count(); //Put here~
+		dm9051_log_rx_display_count(); //Put here~
 		bannerline_log();
 	#endif
 

@@ -11,14 +11,20 @@
 
 #include "stdint.h"
 #include <string.h>
+#include "../dm9051_lw_usr.h"
 
 /*
  * dm9051_declaration_support
  */
 #define ETHERNET_COUNT_MAX						4 // Correspond to mcu target board's specification
-#define ETHERNET_COUNT								2 //2 //4 //2 //2 //3 //2 //#define get_eth_interfaces() ETH_COUNT
+#define ETHERNET_COUNT								1 //2 //2 //4 //2 //2 //3 //2 //#define get_eth_interfaces() ETH_COUNT
 #define freeRTOS											0
 #define _AT32F437xx
+
+#ifdef freeRTOS_CONF
+#undef freeRTOS
+#define freeRTOS											freeRTOS_CONF
+#endif
 
 /* Sanity.
  */
@@ -26,7 +32,9 @@
 #error "Please make sure that _ETHERNET_COUNT(config here) must less equal to _ETHERNET_COUNT_MAX"
 #endif
 
-#define HELLO_DRIVER_API						1
+#define DM9051OPTS_API							1
+#define DM9051OPTS_LOG_ENABLE					1 //0
+#define DM9051_DEBUG_ENABLE						1 //0
 
 /*
  * Stop if id not corrext!
@@ -144,8 +152,6 @@ void cspi_write_mem(u8 *buf, u16 len);
 /*
  * dm9051_debug_mode selection
  */
-
-#define DM9051_DEBUG_ENABLE						1 //0
 #include "dm9051_lw_log.h"
 
 //tobe dm9051_api.c api
@@ -155,7 +161,6 @@ void cspi_write_mem(u8 *buf, u16 len);
 // [Must be 1, for dm9051_lw driver operating.]
 // [Set to 0, for the program code to observ the using APIs of dm9051_lw driver, before add the dm9051_lw driver implement files.]
 //
-#define HELLO_DRIVER_OPTS_DISPLAY_API			1 //0
 #define HELLO_DRIVER_INTERNAL					1 //To support for being called by the program code from outside this dm9051_lw driver.
 
 #if HELLO_DRIVER_INTERNAL
@@ -186,12 +191,8 @@ void cspi_write_mem(u8 *buf, u16 len);
 
 //dm9051opts.c
 void GpioDisplay(void);
-void dm9051_options_display(void);
 
-#if HELLO_DRIVER_OPTS_DISPLAY_API
-void ethcnt_ifdiplay_iomode(void);
 void ethcnt_ifdiplay(void);
-#endif
 
 //void first_log_clear(int i);
 void first_log_init(void);
@@ -216,15 +217,23 @@ u8 first_log_get(int i);
 //	SINGLE_TRANS,
 //	MULTI_TRANS,
 //};
-typedef uint16_t (* trans_t)(void); //typedef void (* trans_t)(void *arg);
-uint16_t TRANS_CONN(trans_t trans_func); //, uint8_t trans_type
+#if DM9051OPTS_API
+typedef uint16_t (* trn_nonconn_t)(void); //typedef void (* trans_t)(void *arg);
+typedef uint16_t (* trn_conn_t)(int i);
+int TRANS_NONDUAL(trn_nonconn_t f); //return : chip id
+int TRANS_DUAL(trn_conn_t f); //return : found id number
+void dm9051_opts_display(void);
+#else
+#define TRANS_NONDUAL(f)
+#define TRANS_DUAL(f)
+#define dm9051_opts_display()
+#endif
 
 //------------------
-
-typedef void (* voidpin_t)(int pin);
-void ETH_COUNT_VOIDFN(voidpin_t pinfunc);
+typedef void (* voidpin_t)(int i);
 typedef void (* voidtx_t)(int pin, uint8_t *buf, uint16_t len);
-void ETH_COUNT_VOIDTX(voidtx_t pinfunc, uint8_t *buf, uint16_t len);
+void ETH_COUNT_VOIDFN(voidpin_t f); //internal, voidfn_dual
+void ETH_COUNT_VOIDTX(voidtx_t pinfunc, uint8_t *buf, uint16_t len); //internal, voidtx_dual
 
 //------------------
 

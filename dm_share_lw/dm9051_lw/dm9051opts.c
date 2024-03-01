@@ -14,7 +14,7 @@ void GpioDisplay(void) {
   }
 }
 
-void dm9051_options_display(void)
+void dm9051_opts_display(void)
 {
 	int i;
 	GpioDisplay();
@@ -28,8 +28,8 @@ void dm9051_options_display(void)
 	}
 }
 
-#if HELLO_DRIVER_OPTS_DISPLAY_API
-	void ethcnt_ifdiplay_iomode(void)
+#if DM9051OPTS_LOG_ENABLE
+	void dm9051_opts_iomod_etc(void)
 	{
 		int i;
 		GpioDisplay();
@@ -137,42 +137,57 @@ u8 first_log_get(int i)
 //	gfirst_log[i] = 0;
 //}
 
-/* when 'trans_type' == SINGLE_TRANS,
- *  return uint16_t
- *  for some procedures' need.
- * when 'trans_type' == MULTI_TRANS,
- *  return 0
- *  Not to recognize the return value in most cases.
+/*  == SINGLE_TRANS,
+ *  return : chip id
  */
-uint16_t TRANS_CONN(trans_t trans_func) { //, uint8_t trans_type
+int TRANS_NONDUAL(trn_nonconn_t f) { //, uint8_t trans_type
   #if 0
+  /* when 'trans_type' == SINGLE_TRANS,
+   *  return uint16_t
+   *  for some procedures' need.
+   * when 'trans_type' == MULTI_TRANS,
+   *  return 0
+   *  Not to recognize the return value in most cases.
+   */
   //	if (trans_type == SINGLE_TRANS) {
 		/*
 		 * mstep_get_net_index();
 		 */
-  //		return trans_func();
+  //		return f(0);
   //	}
   //	
   //	if (trans_type == MULTI_TRANS) {
   //	}
   #endif
-
-	  int i;
-	  for (i = 0; i < ETHERNET_COUNT; i++) {
-		mstep_set_net_index(i); //+
-		trans_func();; //dm9051_init(mstep_eth_mac());
-	  }
-	return 0;
+  return f();
 }
 
-void ETH_COUNT_VOIDFN(voidpin_t pinfunc) {
+/*  == MULTI_TRANS,
+ *  return : found id number
+ */
+int TRANS_DUAL(trn_conn_t f) {
+  int i;
+  int nID = 0;
+  uint16_t id;
+  for (i = 0; i < ETHERNET_COUNT; i++) {
+	//.mstep_set_net_index(i); //+
+	id = f(i); //dm9051_init(mstep_eth_mac());
+	if (check_chip_id(id))
+	 nID++;
+  }
+return nID;
+}
+
+//voidfn_dual
+void ETH_COUNT_VOIDFN(voidpin_t f) {
   int i;
   for (i = 0; i < ETHERNET_COUNT; i++) {
 	  mstep_set_net_index(i);
-	  pinfunc(i);
+	  f(i);
   }
 }
 
+//voidtx_dual
 void ETH_COUNT_VOIDTX(voidtx_t pinfunc, uint8_t *buf, uint16_t len) {
   int i;
   for (i = 0; i < ETHERNET_COUNT; i++) {

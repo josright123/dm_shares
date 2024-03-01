@@ -788,8 +788,8 @@ uint16_t dm9051_rx(uint8_t *buff)
 	#endif
 	
 	/* An assurence */
-	if (debug_rx(buff, rx_len)) { //ok. only 1st-pbuf
-		debug_rx_inc_count();
+	if (dm9051_log_rx(buff, rx_len)) { //ok. only 1st-pbuf
+		dm9051_log_rx_inc_count();
 		hdlr_reset_process(OPT_CONFIRM(hdlr_confrecv)); //~return ev_rxb(rxbyte);
 		return 0;
 	}
@@ -942,6 +942,9 @@ uint16_t dm9051_phy_read(uint32_t reg) {
 }
 void dm9051_phy_write(uint32_t reg, uint16_t value) {
   phy_write(reg, value);
+}
+uint16_t dm9051_eeprom_read(uint16_t word) {
+  return eeprom_read(word);
 }
 
 static uint16_t bityes(uint8_t *hist) {

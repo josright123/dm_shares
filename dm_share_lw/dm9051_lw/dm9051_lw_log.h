@@ -25,40 +25,39 @@ const tx_monitor_t tx_all_modle = { \
 
 /* Put here, instead. Instead of "dm9051_lw_log.h", some generic called in the other implementation place.
  */
-#if HELLO_DRIVER_API
-#if DM9051_DEBUG_ENABLE == 1
-void dm9051_rxlog_ack(void *payload, uint16_t tot_len, char *result_str);
-void dm9051_rxlog_arp(void *payload, uint16_t tot_len, uint16_t len);
-void dm9051_txlog_disp(uint8_t *buffer, int len);
-void dm9051_txlog_monitor_tx(int hdspc, const uint8_t *buffer, size_t len);
+#if DM9051OPTS_API
+#if DM9051OPTS_LOG_ENABLE
+void dm9051_opts_iomod_etc(void);
 #else
-#define dm9051_rxlog_ack( payload,  tot_len,  result_str)
-#define dm9051_rxlog_arp( payload,  tot_len,  len)
-#define dm9051_txlog_disp(buffer,  len)
-#define dm9051_txlog_monitor_tx( hdspc,   buffer,  len)
+#define dm9051_opts_iomod_etc()
 #endif
-#endif
-
 #if DM9051_DEBUG_ENABLE == 1
-//void dm9051_log_dump0(char *prefix_str, size_t tlen, const void *buf, size_t len);
+#define bannerline_log()   printf("\r\n")
+void dm9051_txlog_monitor_tx(int hdspc, const uint8_t *buffer, size_t len);
+void dm9051_rxlog_monitor_rx_all(int hdspc, const uint8_t *buffer, size_t len);
 void dm9051_rxlog_monitor_rx(int hdspc, const uint8_t *buffer, size_t len);
 void dm9051_txlog_monitor_tx_all(int hdspc, const uint8_t *buffer, size_t len);
-void dm9051_rxlog_monitor_rx_all(int hdspc, const uint8_t *buffer, size_t len);
-#define bannerline_log()   printf("\r\n")
-#endif
-
-#if DM9051_DEBUG_ENABLE == 0
-//.#define dm9051_log_dump0(prefix_str, tlen, buf, len)
-#define dm9051_rxlog_monitor_rx( hdspc,   buffer,  len)
-#define dm9051_txlog_monitor_tx_all( hdspc,   buffer,  len)
-#define dm9051_rxlog_monitor_rx_all( hdspc,   buffer,  len)
+void dm9051_txlog_disp(uint8_t *buffer, int len);
+//void dm9051_log_dump0(char *prefix_str, size_t tlen, const void *buf, size_t len);
+void dm9051_rxlog_ack(void *payload, uint16_t tot_len, char *result_str);
+void dm9051_rxlog_arp(void *payload, uint16_t tot_len, uint16_t len);
+#else
 #define bannerline_log()
+#define dm9051_txlog_monitor_tx( hdspc,   buffer,  len)
+#define dm9051_txlog_monitor_tx_all( hdspc,   buffer,  len)
+#define dm9051_rxlog_monitor_rx( hdspc,   buffer,  len)
+#define dm9051_rxlog_monitor_rx_all( hdspc,   buffer,  len)
+#define dm9051_txlog_disp(buffer,  len)
+//.#define dm9051_log_dump0(prefix_str, tlen, buf, len)
+#define dm9051_rxlog_ack( payload,  tot_len,  result_str)
+#define dm9051_rxlog_arp( payload,  tot_len,  len)
+#endif
 #endif
 
-void debug_tx(const uint8_t *buf, uint16_t len);
-int debug_rx(const uint8_t *buf, uint16_t len);
+void dm9051_log_tx(const uint8_t *buf, uint16_t len);
+int dm9051_log_rx(const uint8_t *buf, uint16_t len);
 
-void debug_rx_inc_count(void);
-void debug_rx_display_count(void);
+void dm9051_log_rx_inc_count(void);
+void dm9051_log_rx_display_count(void);
 
 #endif //__DM9051_DBG_H

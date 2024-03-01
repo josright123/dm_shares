@@ -91,9 +91,14 @@
 #endif //HELLO_DRIVER_INTERNAL
 
 //init
-#if HELLO_DRIVER_API
+#if DM9051OPTS_API
 void dm9051_boards_initialize(int n);
+void mstep_set_net_index(int i);
+void mstep_next_net_index(void);
+char *mstep_spi_conf_name(void);
+char *mstep_conf_cpu_spi_ethernet(void);
 #endif
+
 void exint_menable(nvic_priority_group_type priority); //void dm9051_board_irq_enable(void);
 void dm9051_irqlines_proc(void);
 
@@ -109,13 +114,6 @@ void dm9051_irqlines_proc(void);
 /* dm9051 delay times procedures */
 void dm_delay_us(uint32_t nus);
 void dm_delay_ms(uint16_t nms);
-
-#if HELLO_DRIVER_API
-void mstep_set_net_index(int i);
-void mstep_next_net_index(void);
-char *mstep_spi_conf_name(void);
-char *mstep_conf_cpu_spi_ethernet(void);
-#endif
 
 int mstep_get_net_index(void);
 char *mstep_conf_info(void);

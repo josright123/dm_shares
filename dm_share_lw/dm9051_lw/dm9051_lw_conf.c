@@ -287,7 +287,7 @@ void dm9051_boards_initialize(int n)
 	interface_add(i);
   }*/
   DM_UNUSED_ARG(n);
-  ETH_COUNT_VOIDFN(interface_add);
+  ETH_COUNT_VOIDFN(interface_add); //voidfn_dual
   cpin_poweron_reset();
   dmf.dly_ms(30);
   //dm9051_init(&mac_addresse[0][0]);
