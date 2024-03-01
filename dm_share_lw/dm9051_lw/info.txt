@@ -2,6 +2,12 @@
 advance versions:
 --------------------
 
+dm9051_lw version 5.05, 20240301. Joseph CHANG.
+		  Introduce:
+		    v5.05 rename MACRO, rename function_name, and everythings well renamed!
+		    Add include "dm9051_lw_usr.h" which is only belong to the project's main.
+		    But refered by "dm9051opts.h"
+
 dm9051_lw version 5.03, 20240228. yicheng.
 		  Introduce:
 		    v5.03 for Options for Target > C/C++ > Preprocessor Definitions > Add > _AT32F4xxxx
