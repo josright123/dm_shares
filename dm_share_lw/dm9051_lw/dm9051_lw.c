@@ -884,6 +884,8 @@ uint16_t dm9051_init_setup(const uint8_t *adr)
 	uint16_t id;
 	uint8_t ids[5], id_adv;
 
+	DM_UNUSED_ARG(adr);
+
 	id = read_chip_id();
 	read_chip_revision(ids, &id_adv);
 	
@@ -912,7 +914,7 @@ uint16_t dm9051_init(const uint8_t *adr)
 	uint16_t id;
 
 	first_log_init();
-	printf("%s, device[%d] %s, %s, to set mac/ %02x%02x%02x%02x%02x%02x\r\n",
+	printf("dm9051_init, %s, device[%d] %s, %s, to set mac/ %02x%02x%02x%02x%02x%02x\r\n",
 			mstep_conf_info(),
 			mstep_get_net_index(),
 			mstep_conf_cpu_spi_ethernet(),

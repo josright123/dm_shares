@@ -456,9 +456,16 @@ char *mstep_conf_type(void)
 	return board_conf_type;
 }
 
+#define FREERTOS_ETHERNETIF_MAC_ADDR	1 //0 //1 (netconf.h)
+extern uint8_t MACaddr[6];
+
 const uint8_t *mstep_eth_mac(void)
 {
+#if FREERTOS_ETHERNETIF_MAC_ADDR
+	return MACaddr;
+#else
 	return get_eth_mac();
+#endif
 }
 
 const uint8_t *mstep_eth_ip(void) {

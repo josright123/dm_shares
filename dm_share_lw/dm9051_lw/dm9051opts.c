@@ -137,46 +137,30 @@ u8 first_log_get(int i)
 //	gfirst_log[i] = 0;
 //}
 
-/*  == SINGLE_TRANS,
+/* , uint8_t trans_type
+ * == SINGLE_TRANS,
  *  return : chip id
  */
-int TRANS_NONDUAL(trn_nonconn_t f, uint8_t *arg) { //, uint8_t trans_type
-  #if 0
-  /* when 'trans_type' == SINGLE_TRANS,
-   *  return uint16_t
-   *  for some procedures' need.
-   * when 'trans_type' == MULTI_TRANS,
-   *  return 0
-   *  Not to recognize the return value in most cases.
-   */
-  //	if (trans_type == SINGLE_TRANS) {
-		/*
-		 * mstep_get_net_index();
-		 */
-  //		return f(0);
-  //	}
-  //	
-  //	if (trans_type == MULTI_TRANS) {
-  //	}
-  #endif
+int TRANS_NONDUAL(trn_nonconn_t f, uint8_t *arg) {
   return f(arg);
 }
 
-/*  == MULTI_TRANS,
+/* , uint8_t trans_type
+ * == MULTI_TRANS,
  *  return : found id number
  */
-int TRANS_DUAL(trn_conn_t f) {
-  int i;
-  int nID = 0;
-  uint16_t id;
-  for (i = 0; i < ETHERNET_COUNT; i++) {
-	//.mstep_set_net_index(i); //+
-	id = f(i); //dm9051_init(mstep_eth_mac());
-	if (check_chip_id(id))
-	 nID++;
-  }
-return nID;
-}
+//int TRANS_DUAL(trn_conn_t f) {
+//  int i;
+//  int nID = 0;
+//  uint16_t id;
+//  for (i = 0; i < ETHERNET_COUNT; i++) {
+	//.mstep_set_net_index(i); + //dm9051_init(mstep_eth_mac()); 
+//	id = f(i); //= drviver_init(i)
+//	if (check_chip_id(id))
+//	 nID++;
+//  }
+//return nID;
+//}
 
 //voidfn_dual
 void ETH_COUNT_VOIDFN(voidpin_t f) {
