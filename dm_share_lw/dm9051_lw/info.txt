@@ -2,6 +2,10 @@
 advance versions:
 --------------------
 
+dm9051_lw version 5.06, 20240304. Joseph CHANG.
+		  Introduce:
+		    v5.06 mac address is to re-arranage.
+
 dm9051_lw version 5.05, 20240301. Joseph CHANG.
 		  Introduce:
 		    v5.05 rename MACRO, rename function_name, and everythings well renamed!
