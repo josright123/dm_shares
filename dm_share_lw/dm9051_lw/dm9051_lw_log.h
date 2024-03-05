@@ -26,11 +26,6 @@ const tx_monitor_t tx_all_modle = { \
 /* Put here, instead. Instead of "dm9051_lw_log.h", some generic called in the other implementation place.
  */
 #if DM9051OPTS_API
-#if DM9051OPTS_LOG_ENABLE
-void dm9051_opts_iomod_etc(void);
-#else
-#define dm9051_opts_iomod_etc()
-#endif
 #if DM9051_DEBUG_ENABLE == 1
 #define bannerline_log()   printf("\r\n")
 void dm9051_txlog_monitor_tx(int hdspc, const uint8_t *buffer, size_t len);

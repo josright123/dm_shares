@@ -239,6 +239,16 @@ void dm9051_opts_display(void);
 //#define TRANS_NONDUAL(f,arg)
 #endif
 
+#if DM9051OPTS_API
+#if DM9051OPTS_LOG_ENABLE
+void dm9051_opts_iomod_etc(void);
+
+#else
+
+#define dm9051_opts_iomod_etc()
+#endif
+#endif
+
 //------------------
 typedef void (* voidpin_t)(int i);
 typedef void (* voidtx_t)(int pin, uint8_t *buf, uint16_t len);
