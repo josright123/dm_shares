@@ -187,10 +187,6 @@ void cspi_write_mem(u8 *buf, u16 len);
 
 #endif //HELLO_DRIVER_INTERNAL
 
-/* [Network Config] */
-#define MAC_ADDR_LENGTH                  		(6)
-#define ADDR_LENGTH                      		(4)
-
 //------------------
 
 //dm9051opts.c
@@ -222,15 +218,25 @@ u8 first_log_get(int i);
 //	MULTI_TRANS,
 //};
 #if DM9051OPTS_API
-typedef uint16_t (* trn_nonconn_t)(uint8_t *macadr); //typedef void (* trans_t)(void *arg);
 typedef uint16_t (* trn_conn_t)(int i);
-int TRANS_NONDUAL(trn_nonconn_t f, uint8_t *arg); //return : chip id
 int TRANS_DUAL(trn_conn_t f); //return : found id number
 void dm9051_opts_display(void);
+
+//typedef uint16_t (* trn_nonconn_t)(uint8_t *macadr); //typedef void (* trans_t)(void *arg);
+//int TRANS_NONDUAL(trn_nonconn_t f, uint8_t *arg); //return : chip id
 #else
-#define TRANS_NONDUAL(f,arg)
 #define TRANS_DUAL(f)
 #define dm9051_opts_display()
+
+/* dm9051opts.c
+ * , uint8_t trans_type
+ * == SINGLE_TRANS,
+ *  return : chip id
+ */
+//int TRANS_NONDUAL(trn_nonconn_t f, uint8_t *arg) {
+//  return f(arg);
+//}
+//#define TRANS_NONDUAL(f,arg)
 #endif
 
 //------------------

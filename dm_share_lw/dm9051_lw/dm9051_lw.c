@@ -879,12 +879,10 @@ int display_verify_chipid(char *str, char *spiname, uint16_t id) {
 }
 #endif
 
-uint16_t dm9051_init_setup(const uint8_t *adr)
+uint16_t dm9051_init_setup(void)
 {
 	uint16_t id;
 	uint8_t ids[5], id_adv;
-
-	DM_UNUSED_ARG(adr);
 
 	id = read_chip_id();
 	read_chip_revision(ids, &id_adv);
@@ -913,6 +911,7 @@ uint16_t dm9051_init(const uint8_t *adr)
 {
 	uint16_t id;
 
+	DM_UNUSED_ARG(adr);
 	first_log_init();
 	printf("dm9051_init, %s, device[%d] %s, %s, to set mac/ %02x%02x%02x%02x%02x%02x\r\n",
 			mstep_conf_info(),
@@ -925,7 +924,7 @@ uint16_t dm9051_init(const uint8_t *adr)
 			adr[3],
 			adr[4],
 			adr[5]);
-	id = dm9051_init_setup(adr);
+	id = dm9051_init_setup();
 	if (!check_chip_id(id))
 		return id;
 

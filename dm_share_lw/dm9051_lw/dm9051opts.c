@@ -138,14 +138,6 @@ u8 first_log_get(int i)
 //}
 
 /* , uint8_t trans_type
- * == SINGLE_TRANS,
- *  return : chip id
- */
-int TRANS_NONDUAL(trn_nonconn_t f, uint8_t *arg) {
-  return f(arg);
-}
-
-/* , uint8_t trans_type
  * == MULTI_TRANS,
  *  return : found id number
  */
@@ -154,7 +146,7 @@ int TRANS_NONDUAL(trn_nonconn_t f, uint8_t *arg) {
 //  int nID = 0;
 //  uint16_t id;
 //  for (i = 0; i < ETHERNET_COUNT; i++) {
-	//.mstep_set_net_index(i); + //dm9051_init(mstep_eth_mac()); 
+	//.mstep_set_net_index(i); + //dm9051_init(_mstep_eth_mac()); 
 //	id = f(i); //= drviver_init(i)
 //	if (check_chip_id(id))
 //	 nID++;

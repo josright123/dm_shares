@@ -93,6 +93,10 @@
 //init
 #if DM9051OPTS_API
 void dm9051_boards_initialize(int n);
+void identify_dm9051_mac(uint8_t *macadr);
+void identify_lwip_ip(uint8_t *ip4adr);
+void identify_lwip_gw(uint8_t *ip4adr);
+void identify_lwip_mask(uint8_t *ip4adr);
 void mstep_set_net_index(int i);
 void mstep_next_net_index(void);
 char *mstep_spi_conf_name(void);
@@ -120,10 +124,10 @@ char *mstep_conf_info(void);
 char *mstep_conf_cpu_cs_ethernet(void);
 char *mstep_conf_type(void);
 //int mstep_conf_spi_count(void);
-const uint8_t *mstep_eth_mac(void);
-const uint8_t *mstep_eth_ip(void);
-const uint8_t *mstep_eth_gw(void);
-const uint8_t *mstep_eth_mask(void);
+uint8_t *mstep_eth_mac(void);
+uint8_t *mstep_eth_ip(void);
+uint8_t *mstep_eth_gw(void);
+uint8_t *mstep_eth_mask(void);
 
 int mstep_dm9051_index(void);
 

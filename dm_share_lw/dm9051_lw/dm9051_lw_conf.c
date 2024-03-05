@@ -300,7 +300,7 @@ void dm9051_boards_initialize(int n)
 //  int i;
 //  for (i = 0; i < _ETHERNET_COUNT; i++) {
 //	mstep_set_net_index(i); //+
-//	dm9051_init(get_eth_mac());
+//	dm9051_init(_get_eth_mac());
 //  }
 //}
 

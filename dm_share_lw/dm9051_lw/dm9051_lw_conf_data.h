@@ -164,6 +164,15 @@ optsex_t dm9051optsex[BOARD_SPI_COUNT] = { //const
 			/* .test_plan_include */ \
 			/*DM_FALSE,*/ \
 			\
+			/* to .assign .mac */ \
+			{ 0 }, ".assign .mac", \
+			/* to .assign .ip.addr */ \
+			{ 0 }, ".assign .ip.addr", \
+			/* to .assign .gw.addr */ \
+			{ 0 }, ".assign .gw.addr", \
+			/* to .assign .mask.addr */ \
+			{ 0 }, ".assign .mask.addr", \
+			\
 			/* to .read_chip_id */ \
 			0x0000, "read_chip_id", \
 			/* .test_plan_log */ \
@@ -200,6 +209,15 @@ optsex_t dm9051optsex[BOARD_SPI_COUNT] = { //const
 			/* .test_plan_include */ \
 			/*DM_FALSE,*/ \
 			\
+			/* to .assign .mac */ \
+			{ 0 }, ".assign .mac", \
+			/* to .assign .ip.addr */ \
+			{ 0 }, ".assign .ip.addr", \
+			/* to .assign .gw.addr */ \
+			{ 0 }, ".assign .gw.addr", \
+			/* to .assign .mask.addr */ \
+			{ 0 }, ".assign .mask.addr", \
+			\
 			/* to .read_chip_id */ \
 			0x0000, "read_chip_id", \
 			/* //.test_plan_log */ \
@@ -235,6 +253,15 @@ optsex_t dm9051optsex[BOARD_SPI_COUNT] = { //const
 			/*iomode_name,*/ \
 			/* .test_plan_include */ \
 			/*DM_FALSE,*/ \
+			\
+			/* to .assign .mac */ \
+			{ 0 }, ".assign .mac", \
+			/* to .assign .ip.addr */ \
+			{ 0 }, ".assign .ip.addr", \
+			/* to .assign .gw.addr */ \
+			{ 0 }, ".assign .gw.addr", \
+			/* to .assign .mask.addr */ \
+			{ 0 }, ".assign .mask.addr", \
 			\
 			/* to .read_chip_id */ \
 			0x0000, "read_chip_id", \
@@ -456,26 +483,65 @@ char *mstep_conf_type(void)
 	return board_conf_type;
 }
 
-#define FREERTOS_ETHERNETIF_MAC_ADDR	1 //0 //1 (netconf.h)
-extern uint8_t MACaddr[6];
+// -
 
-const uint8_t *mstep_eth_mac(void)
-{
-#if FREERTOS_ETHERNETIF_MAC_ADDR
-	return MACaddr;
-#else
-	return get_eth_mac();
-#endif
+void identify_dm9051_mac(uint8_t *macadr) {
+	DM_SET_FIELD(mac_t ,mac, macadr ? macadr : get_eth_mac());
+//	if (macadr) {
+//		DM_SET_FIELD(mac_t ,mac, macadr);
+//		return;
+//	}
+//	DM_SET_FIELD(mac_t ,mac, get_eth_mac());
 }
 
-const uint8_t *mstep_eth_ip(void) {
-	return get_eth_ip();
+void identify_lwip_ip(uint8_t *ip4adr) {
+	DM_SET_FIELD(ip_t ,ip, ip4adr ? ip4adr : get_eth_ip());
+//	if (ip4adr) {
+//		DM_SET_FIELD(ip_t ,ip, ip4adr);
+//		return;
+//	}
+//	DM_SET_FIELD(ip_t ,ip, get_eth_ip());
 }
-const uint8_t *mstep_eth_gw(void) {
-	return get_eth_gw();
+void identify_lwip_gw(uint8_t *ip4adr) {
+	DM_SET_FIELD(ip_t ,gw, ip4adr ? ip4adr : get_eth_gw());
+//	if (ip4adr) {
+//		DM_SET_FIELD(ip_t ,gw, ip4adr);
+//		return;
+//	}
+//	DM_SET_FIELD(ip_t ,gw, get_eth_gw());
 }
-const uint8_t *mstep_eth_mask(void) {
-	return get_eth_mask();
+void identify_lwip_mask(uint8_t *ip4adr) {
+	DM_SET_FIELD(ip_t ,mask, ip4adr ? ip4adr : get_eth_mask());
+//	if (ip4adr) {
+//		DM_SET_FIELD(ip_t ,mask, ip4adr);
+//		return;
+//	}
+//	DM_SET_FIELD(ip_t ,mask, get_eth_mask());
+}
+
+//#define FREERTOS_ETHERNETIF_MAC_ADDR	1 //(netconf.h)
+//extern uint8_t MACaddr[6];
+//#if FREERTOS_ETHERNETIF_MAC_ADDR
+//	return MACaddr;
+//#else
+//#endif
+
+//const 
+uint8_t *mstep_eth_mac(void) {
+	return DM_FUNC(mac_t ,mac); //get_eth_mac();
+}
+
+//const 
+uint8_t *mstep_eth_ip(void) {
+	return DM_FUNC(ip_t, ip); //get_eth_ip();
+}
+//const 
+uint8_t *mstep_eth_gw(void) {
+	return DM_FUNC(ip_t, gw); //get_eth_gw();
+}
+//const 
+uint8_t *mstep_eth_mask(void) {
+	return DM_FUNC(ip_t, mask); //get_eth_mask();
 }
 
 //-
