@@ -82,7 +82,7 @@ void dm9051_opts_display(void)
 		for (i = 0; i< ETHERNET_COUNT; i++) {
 			uint8_t *macaddr;
 			mstep_set_net_index(i);
-			macaddr = lwip_get_mac_addresse1();
+			macaddr = mstep_eth_mac();
 			printf("config tobe mac[%d] %02x%02x%02x%02x%02x%02x\r\n", i, macaddr[0], macaddr[1], macaddr[2], macaddr[3], macaddr[4], macaddr[5]);
 		}
 	#endif

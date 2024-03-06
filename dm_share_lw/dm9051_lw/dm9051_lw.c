@@ -119,7 +119,7 @@ static uint16_t phy_read(uint16_t uReg)
   //{
 	//dm9051_phycore_on(0); //if (uReg == PHY_STATUS_REG)
   //}
-  if (DM_FUNC(uint16_t, read_chip_id) == 0x9151 && uReg == PHY_STATUS_REG)
+  if (DM_GET_FIELD(uint16_t, read_chip_id) == 0x9151 && uReg == PHY_STATUS_REG)
 	dm9051_phycore_on(0);
 #endif
 	

@@ -456,10 +456,10 @@ int mstep_get_net_index(void)
 	return mstep_get_index();
 }
 
-void mstep_next_net_index(void)
-{
-	mstep_turn_net_index();
-}
+//void mstep_next_net_index(void)
+//{
+//	mstep_turn_net_index();
+//}
 
 char *mstep_spi_conf_name(void)
 {
@@ -485,38 +485,21 @@ char *mstep_conf_type(void)
 
 // -
 
-void identify_dm9051_mac(uint8_t *macadr) {
+uint8_t *identify_eth_mac(uint8_t *macadr) {
 	DM_SET_FIELD(mac_t ,mac, macadr ? macadr : get_eth_mac());
-//	if (macadr) {
-//		DM_SET_FIELD(mac_t ,mac, macadr);
-//		return;
-//	}
-//	DM_SET_FIELD(mac_t ,mac, get_eth_mac());
+	return DM_GET_FIELD(mac_t ,mac);
 }
-
-void identify_lwip_ip(uint8_t *ip4adr) {
+uint8_t *identify_tcpip_ip(uint8_t *ip4adr) {
 	DM_SET_FIELD(ip_t ,ip, ip4adr ? ip4adr : get_eth_ip());
-//	if (ip4adr) {
-//		DM_SET_FIELD(ip_t ,ip, ip4adr);
-//		return;
-//	}
-//	DM_SET_FIELD(ip_t ,ip, get_eth_ip());
+	return DM_GET_FIELD(ip_t, ip); //get_eth_ip();
 }
-void identify_lwip_gw(uint8_t *ip4adr) {
+uint8_t *identify_tcpip_gw(uint8_t *ip4adr) {
 	DM_SET_FIELD(ip_t ,gw, ip4adr ? ip4adr : get_eth_gw());
-//	if (ip4adr) {
-//		DM_SET_FIELD(ip_t ,gw, ip4adr);
-//		return;
-//	}
-//	DM_SET_FIELD(ip_t ,gw, get_eth_gw());
+	return DM_GET_FIELD(ip_t, gw); //get_eth_gw();
 }
-void identify_lwip_mask(uint8_t *ip4adr) {
+uint8_t *identify_tcpip_mask(uint8_t *ip4adr) {
 	DM_SET_FIELD(ip_t ,mask, ip4adr ? ip4adr : get_eth_mask());
-//	if (ip4adr) {
-//		DM_SET_FIELD(ip_t ,mask, ip4adr);
-//		return;
-//	}
-//	DM_SET_FIELD(ip_t ,mask, get_eth_mask());
+	return DM_GET_FIELD(ip_t, mask); //get_eth_mask();
 }
 
 //#define FREERTOS_ETHERNETIF_MAC_ADDR	1 //(netconf.h)
@@ -528,20 +511,20 @@ void identify_lwip_mask(uint8_t *ip4adr) {
 
 //const 
 uint8_t *mstep_eth_mac(void) {
-	return DM_FUNC(mac_t ,mac); //get_eth_mac();
+	return DM_GET_FIELD(mac_t ,mac); //get_eth_mac();
 }
 
 //const 
 uint8_t *mstep_eth_ip(void) {
-	return DM_FUNC(ip_t, ip); //get_eth_ip();
+	return DM_GET_FIELD(ip_t, ip); //get_eth_ip();
 }
 //const 
 uint8_t *mstep_eth_gw(void) {
-	return DM_FUNC(ip_t, gw); //get_eth_gw();
+	return DM_GET_FIELD(ip_t, gw); //get_eth_gw();
 }
 //const 
 uint8_t *mstep_eth_mask(void) {
-	return DM_FUNC(ip_t, mask); //get_eth_mask();
+	return DM_GET_FIELD(ip_t, mask); //get_eth_mask();
 }
 
 //-

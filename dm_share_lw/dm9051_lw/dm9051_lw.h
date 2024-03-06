@@ -229,12 +229,12 @@ void dm9051_tx(uint8_t *buf, uint16_t len);
 void hdlr_reset_process(enable_t en);
 void dm9051_mac_adr(const uint8_t *macadd);
 uint16_t dm9051_bmsr_update(void);
-uint16_t dm9051_phy_read(uint32_t reg);
-uint16_t dm9051_eeprom_read(uint16_t word);
 int check_chip_id(uint16_t id);
 #endif
 
 void dm9051_start(const uint8_t *adr);
+uint16_t dm9051_phy_read(uint32_t reg);
+uint16_t dm9051_eeprom_read(uint16_t word);
 uint16_t dm9051_rx_dump(uint8_t *buff);
 
 uint16_t read_chip_id(void);

@@ -218,14 +218,14 @@ u8 first_log_get(int i);
 //	MULTI_TRANS,
 //};
 #if DM9051OPTS_API
-typedef uint16_t (* trn_conn_t)(int i);
-int TRANS_DUAL(trn_conn_t f); //return : found id number
+//typedef uint16_t (* trn_conn_t)(int i);
+//int TRANS_DUAL(trn_conn_t f); //return : found id number
 void dm9051_opts_display(void);
 
 //typedef uint16_t (* trn_nonconn_t)(uint8_t *macadr); //typedef void (* trans_t)(void *arg);
 //int TRANS_NONDUAL(trn_nonconn_t f, uint8_t *arg); //return : chip id
 #else
-#define TRANS_DUAL(f)
+//#define TRANS_DUAL(f)
 #define dm9051_opts_display()
 
 /* dm9051opts.c

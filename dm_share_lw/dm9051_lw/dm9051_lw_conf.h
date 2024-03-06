@@ -53,7 +53,7 @@
 //#define OPTS_FUNC_EXT
 //#undef OPTS_FUNC_EXT
 	#if 0
-	/*#define DM_FUNC(rtype, field) \
+	/*#define DM_GET_FIELD(rtype, field) \
 		dm9051opts_##rtype##field()
 
 	#define DM_MACRO(rtype, field) \
@@ -93,18 +93,23 @@
 //init
 #if DM9051OPTS_API
 void dm9051_boards_initialize(int n);
-void identify_dm9051_mac(uint8_t *macadr);
-void identify_lwip_ip(uint8_t *ip4adr);
-void identify_lwip_gw(uint8_t *ip4adr);
-void identify_lwip_mask(uint8_t *ip4adr);
+uint8_t *identify_eth_mac(uint8_t *macadr);
+uint8_t *identify_tcpip_ip(uint8_t *ip4adr);
+uint8_t *identify_tcpip_gw(uint8_t *ip4adr);
+uint8_t *identify_tcpip_mask(uint8_t *ip4adr);
+uint8_t *mstep_eth_mac(void);
+uint8_t *mstep_eth_ip(void);
+uint8_t *mstep_eth_gw(void);
+uint8_t *mstep_eth_mask(void);
 void mstep_set_net_index(int i);
-void mstep_next_net_index(void);
-char *mstep_spi_conf_name(void);
-char *mstep_conf_cpu_spi_ethernet(void);
+int mstep_get_net_index(void);
+void dm9051_irqlines_proc(void);
 #endif
 
+//void mstep_next_net_index(void);
+char *mstep_conf_cpu_spi_ethernet(void);
+char *mstep_spi_conf_name(void);
 void exint_menable(nvic_priority_group_type priority); //void dm9051_board_irq_enable(void);
-void dm9051_irqlines_proc(void);
 
 #if 1 //lw_config
 #define DM9051_Poweron_Reset	cpin_poweron_reset
@@ -119,15 +124,10 @@ void dm9051_irqlines_proc(void);
 void dm_delay_us(uint32_t nus);
 void dm_delay_ms(uint16_t nms);
 
-int mstep_get_net_index(void);
 char *mstep_conf_info(void);
 char *mstep_conf_cpu_cs_ethernet(void);
 char *mstep_conf_type(void);
 //int mstep_conf_spi_count(void);
-uint8_t *mstep_eth_mac(void);
-uint8_t *mstep_eth_ip(void);
-uint8_t *mstep_eth_gw(void);
-uint8_t *mstep_eth_mask(void);
 
 int mstep_dm9051_index(void);
 

@@ -14,20 +14,22 @@
 
 	// - type 0, call
 
-	#define DM_FUNC(mtype, field) \
+//	#define DM_FUNC(mtype, field) \
+//		dm9051opts_##mtype##field()
+	#define DM_GET_FIELD(mtype, field) \
 		dm9051opts_##mtype##field()
-	#define DM_DESC(mtype, field) /* to be usage */ \
+	#define DM_GET_DESC(mtype, field) /* to be usage */ \
 		dm9051opts_desc##field()
 	#define DM_SET_FIELD(mtype, field, val) /* DM_SET_FUNC(ty,fi,val), extended-set-data */ \
 		dm9051opts_set_##mtype##field(val)
 		
 	//#define set_testplanlog				IS_SET_INSTEAD(enable_t, test_plan_log)
 	//#define get_testplanlog				IS_GET_INSTEAD(enable_t, test_plan_log)=
-	#define get_testplanlog(name)			DM_FUNC(enable_t, name)
-	#define OPT_U8(name)					DM_FUNC(uint8_t, name) //appcall
-	#define OPT_CS(name)					DM_FUNC(csmode_t, name) //appcall
-	#define OPT_BMCR(name)					DM_FUNC(bmcrmode_t, name) //appcall
-	#define OPT_CONFIRM(name)				DM_FUNC(enable_t, name) //appcall (define isonlybytemode(), or OPT_CONFIRM(onlybytemode))
+	#define get_testplanlog(name)			DM_GET_FIELD(enable_t, name)
+	#define OPT_U8(name)					DM_GET_FIELD(uint8_t, name) //appcall
+	#define OPT_CS(name)					DM_GET_FIELD(csmode_t, name) //appcall
+	#define OPT_BMCR(name)					DM_GET_FIELD(bmcrmode_t, name) //appcall
+	#define OPT_CONFIRM(name)				DM_GET_FIELD(enable_t, name) //appcall (define isonlybytemode(), or OPT_CONFIRM(onlybytemode))
 
 	// - type 0, extern API
 
