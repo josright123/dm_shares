@@ -6,7 +6,7 @@
  extern "C" {
 #endif
 
-#include <stdint.h>	 
+#include <stdint.h>
 
 #define TEST_PLAN_MODE		0 //1
 
@@ -30,7 +30,7 @@
 #define PHY_STATUS_REG      (0x01)       	/*!< basic mode status register */
 #define PHY_LINKED_BIT   	(0x0004)     	/*!< link status */
 
-/* Exported constants --------------------------------------------------------------------------------------*/ 
+/* Exported constants --------------------------------------------------------------------------------------*/
 #define DM9051_ID           (0x90510A46)		/* DM9051A ID                                               */
 #define DM9052_ID           (0x90550A46)		/* DM9051A ID                                               */
 #define DM9051_PKT_MAX      (1536)          /* Received packet max size                                     */

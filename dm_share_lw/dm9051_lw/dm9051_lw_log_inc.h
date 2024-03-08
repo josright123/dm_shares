@@ -17,12 +17,12 @@
 #define SEG_QUAN		16
 
 #define UIP_PROTO_ICMP  			1
-#define UIP_PROTO_IGMP_JJ  			2
+#define UIP_PROTO_IGMP_JJ  		2
 #define UIP_PROTO_TCP   			6
 #define UIP_PROTO_UDP   			17
 
-#define	DEF_MONITOR_NRX			0 //0 //packet number for rx debug display	//[optional define can be eventually permenently removed~]
-#define	DEF_MONITOR_NTX			1 //0 //packet number for tx debug display
+#define	DEF_MONITOR_NRX				0 //0 //packet number for rx debug display	//[optional define can be eventually permenently removed~]
+#define	DEF_MONITOR_NTX				1 //0 //packet number for tx debug display
 
 #define DHCPC_SERVER_PORT			67
 #define DHCPC_CLIENT_PORT			68
@@ -74,13 +74,13 @@ void dm_check_tx(const uint8_t *buf, size_t len);
 
 #define	function_monitor_rx_allbx(headstr, buffer, len, hdspc) \
 	  sprint_hex_dump0(hdspc, 0, headstr, len, 32, buffer, 0, len, DM_TRUE)
-	
+
 #define	function_monitor_rx_allb(headstr, buffer, len, hdspc) \
 	  do { \
 		if (headstr) \
 			function_monitor_rx_allbx(headstr, buffer, len, hdspc); \
 		else \
-			function_monitor_rx_allbx("dm9 monitor <<rx  ", buffer, len, hdspc); \
+			function_monitor_rx_allbx("dm9 monitor <<rx_allb  ", buffer, len, hdspc); \
 		/*dm_check_rx(buffer, len); */ \
 	  } while (0)
 
@@ -136,5 +136,6 @@ void dm_check_tx(const uint8_t *buf, size_t len);
 
 int DBG_IS_ARP(void *dataload);
 int DBG_IS_TCP(void *dataload);
+
 
 #endif //__DM9051_LOGI_H

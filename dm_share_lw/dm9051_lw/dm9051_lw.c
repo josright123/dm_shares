@@ -40,6 +40,11 @@
  */
 #include "dm9051opts.h"
 #include "dm9051_lw.h"
+#include "dm9051_lw_debug.h"
+
+// printf("(dm9 xfer) %.8x: %s", i, linebuf);
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG, (fmt, ##__VA_ARGS__))
+//#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG, ("lw.c: " fmt, ##__VA_ARGS__))
 
 static void dm9051_phycore_on(uint16_t nms);
 static void dm9051_core_reset(void);
@@ -68,13 +73,13 @@ int check_chip_id(uint16_t id) {
 			|| id == (0x91001c00 >> 16) /* Test CH390 */
 	#endif
 		) ? 1 : 0;
-	
+
 	if (id == (0x91001c00 >> 16)) {
 		printf("---------------------- \r\n");
 		printf("--- warn case %04x --- \r\n", id);
 		printf("---------------------- \r\n");
 	}
-		
+
 	return res;
 }
 
@@ -122,7 +127,7 @@ static uint16_t phy_read(uint16_t uReg)
   if (DM_GET_FIELD(uint16_t, read_chip_id) == 0x9151 && uReg == PHY_STATUS_REG)
 	dm9051_phycore_on(0);
 #endif
-	
+
 	DM9051_Write_Reg(DM9051_EPAR, DM9051_PHY | uReg);
 	DM9051_Write_Reg(DM9051_EPCR, 0xc);
 	dm_delay_us(1);
@@ -131,10 +136,10 @@ static uint16_t phy_read(uint16_t uReg)
 		if (++w >= 500) //5
 			break;
 	} //Wait complete
-	
+
 	DM9051_Write_Reg(DM9051_EPCR, 0x0);
 	uData = (DM9051_Read_Reg(DM9051_EPDRH) << 8) | DM9051_Read_Reg(DM9051_EPDRL);
-	
+
 	#if 0
 	if (uReg == PHY_STATUS_REG) {
 		if (uData  & PHY_LINKED_BIT)
@@ -143,7 +148,7 @@ static uint16_t phy_read(uint16_t uReg)
 			dm9051_clear_flags(lw_flag, DM9051_FLAG_LINK_UP);
 	}
 	#endif
-		
+
 	return uData;
 }
 
@@ -164,7 +169,7 @@ void phy_write(uint16_t reg, uint16_t value)
 			break;
 	} //Wait complete
 
-	DM9051_Write_Reg(DM9051_EPCR, 0x0);    
+	DM9051_Write_Reg(DM9051_EPCR, 0x0);
 }
 
 void test_plan_mbndry(void)
@@ -197,9 +202,9 @@ void test_plan_mbndry(void)
 /*void test_plan_100mf(ncrmode_t ncrmode, u8 first_log)
 {
 	//
-	// explicity, phy write bmcr, 0x3300, 
+	// explicity, phy write bmcr, 0x3300,
 	// Since test mode may stop in 10M Half
-	// We nee Full duplex for using a loopback terminator 
+	// We nee Full duplex for using a loopback terminator
 	// for self xmit/receive in starting test item.
 	// observ, AN did take some more time to link up state
 	// compare to non AN.
@@ -256,9 +261,9 @@ static void dm9051_ncr_reset(uint16_t nms) {
 static void dm9051_core_reset(void)
 {
 	display_identity(mstep_spi_conf_name(), 0, NULL, 0); //printf(".(Rst.process[%d])\r\n", mstep_get_net_index());
-	
+
 	if (OPT_CONFIRM(generic_core_rst)){
-		
+
 		#if 0
 		printf("-----------------------------------------------------------------------------------------\r\n");
 		printf("--------------------- write a long delay type procedure ,for core reset -----------------\r\n");
@@ -270,7 +275,7 @@ static void dm9051_core_reset(void)
 
 		  dm9051_ncr_reset(OPT_U8(hdir_x2ms)*2);
 		  dm9051_phycore_on(250);
-		
+
 		  DM9051_Write_Reg(DM9051_MBNDRY, OPT_U8(iomode));
 		  DM9051_Write_Reg(DM9051_PPCR, PPCR_PAUSE_COUNT); //iow(DM9051_PPCR, PPCR_SETTING); //#define PPCR_SETTING 0x08
 		  DM9051_Write_Reg(DM9051_LMCR, LMCR_MODE1);
@@ -286,7 +291,7 @@ static void dm9051_core_reset(void)
 		  dm9051_clear_flags(lw_flag, DM9051_FLAG_LINK_UP);
 		  unlink_count = unlink_stamp = 0;
 		#endif
-		
+
 	#if 0
 		//DAVICOM
 		  printf("  _core_reset[%d]()\r\n", i);
@@ -299,7 +304,7 @@ static void dm9051_core_reset(void)
 		  printf("  _core_reset[%d]()\r\n", i);
 		  DM9051_Write_Reg(DM9051_NCR, DM9051_REG_RESET); //iow(DM9051_NCR, NCR_RST);
 		  dm_delay_ms(2); //CH390-Est-Extra
-		  
+
 		  dm9051_phycore_on(5);
 	#endif
 
@@ -315,7 +320,7 @@ static void dm9051_core_reset(void)
 		  #if 1
 		  DM9051_Write_Reg(DM9051_INTR, INTR_ACTIVE_LOW); // interrupt active low
 		  #endif
-		
+
 		#if TEST_PLAN_MODE
 		if (OPT_CONFIRM(rxmode_checksum_offload))
 			DM9051_Write_Reg(DM9051_RCSSR, RCSSR_RCSEN);
@@ -341,7 +346,7 @@ static void dm9051_core_reset(void)
 static void dm9051_show_rxbstatistic(u8 *htc, int n)
 {
 	int i, j;
-	
+
 	//dm9051_show_id();
 	printf("SHW rxbStatistic, 254 wrngs\r\n");
 	for (i = 0 ; i < (n+2); i++) {
@@ -364,10 +369,10 @@ void dm9051_mac_adr(const uint8_t *macadd)
 	//show_par();
 }
 void dm9051_rx_mode(void)
-{	
+{
 	dm9051_set_mar();
 	//show_mar();
-	
+
 	dm9051_set_recv();
 }
 
@@ -403,7 +408,7 @@ static void dm9051_set_recv(void)
 	#endif
 
 	DM9051_Write_Reg(DM9051_IMR, IMR_PAR | IMR_PRM); //(IMR_PAR | IMR_PTM | IMR_PRM);
-	
+
 	//#if _TEST_PLAN_MODE //#else //#endif
 	if (OPT_U8(promismode)) {
 		printf("SETRECV: ::: test rx_promiscous (write_reg, 0x05, (1 << 2))\r\n");
@@ -487,9 +492,9 @@ void hdlr_reset_process(enable_t en)
 
 	if (en) {
 		u16 rwpa_w, mdra_ingress;
-		exint_menable(NVIC_PRIORITY_GROUP_0); //dm9051_board_irq_enable(); 
-		dm9051_start(mstep_eth_mac());	
-		
+		exint_menable(NVIC_PRIORITY_GROUP_0); //dm9051_board_irq_enable();
+		dm9051_start(mstep_eth_mac());
+
 		rwpa_w = (uint32_t)DM9051_Read_Reg(0x24) | (uint32_t)DM9051_Read_Reg(0x25) << 8; //DM9051_RWPAL
 		mdra_ingress = (uint32_t)DM9051_Read_Reg(0x74) | (uint32_t)DM9051_Read_Reg(0x75) << 8; //DM9051_MRRL;
 		printf("dm9051_start(pin = %d).e rwpa %04x / ingress %04x\r\n", mstep_get_net_index(), rwpa_w, mdra_ingress);
@@ -508,7 +513,7 @@ u8 ret_fire_time(u8 *histc, int csize, int i, u8 rxb)
   mdra_ingress = (uint32_t)DM9051_Read_Reg(0x74) | (uint32_t)DM9051_Read_Reg(0x75) << 8; //DM9051_MRRL;
   printf("%2d. rwpa %04x / ingress %04x, histc[rxb %02xh], times= %d\r\n",
 		 histc[i], rwpa_w, mdra_ingress, rxb, times);
-				 
+
 	if (times) { //if (histc[i] >= TIMES_TO_RST)
 		dm9051_show_rxbstatistic(histc, csize);
 		histc[i] = 1;
@@ -521,7 +526,8 @@ static u16 err_hdlr(char *errstr, u32 invalue, u8 zerochk)
 {
 	if (zerochk && invalue == 0)
 		return 0; //.printf(": NoError as %u\r\n", valuecode);
-		
+
+	// #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG, ("lw.c: " fmt, ##__VA_ARGS__))
 	printf(errstr, invalue); //or "0x%02x"
 
 	hdlr_reset_process(OPT_CONFIRM(hdlr_confrecv)); //CH390 opts
@@ -533,7 +539,7 @@ static u16 ev_rxb(uint8_t rxb)
 	int i;
 	static u8 histc[254] = { 0 }; //static int rff_c = 0 ...;
 	u8 times = 1;
-	
+
 	for (i = 0 ; i < sizeof(histc); i++) {
 		if (rxb == (i+2)) {
 			histc[i]++;
@@ -550,7 +556,7 @@ static u16 ev_status(uint8_t rx_status)
 	bannerline_log();
 	printf(".(Err.status%2x) _dm9051f:", rx_status);
 	if (rx_status & RSR_RF) printf(" runt-frame");
-	
+
 	if (rx_status & RSR_LCS) printf(" late-collision");
 	if (rx_status & RSR_RWTO) printf(" watchdog-timeout");
 	if (rx_status & RSR_PLE) printf(" physical-layer-err");
@@ -586,13 +592,13 @@ uint16_t dm9051_rx_dump(uint8_t *buff)
 
 	DM9051_RX_BREAK((rxbyte != 0x01 && rxbyte != 0), return ev_rxb(rxbyte));
 	DM9051_RX_BREAK((rxbyte == 0), return 0);
-		
+
 	DM9051_Read_Mem(ReceiveData, 4);
 	DM9051_Write_Reg(DM9051_ISR, 0x80);
-	
+
 	rx_status = ReceiveData[1];
 	rx_len = ReceiveData[2] + (ReceiveData[3] << 8);
-	
+
 	DM9051_RX_BREAK((rx_status & 0xbf), return ev_status(rx_status)); //_err_hdlr("_dm9051f rx_status error : 0x%02x\r\n", rx_status, 0)
 	DM9051_RX_BREAK((rx_len > RX_POOL_BUFSIZE), return err_hdlr("_dm9051f rx_len error : %u\r\n", rx_len, 0));
 
@@ -627,12 +633,12 @@ uint16_t dm9051_rx(uint8_t *buff)
 	u8 rxbyte, rx_status;
 	u8 ReceiveData[4];
 	u16 rx_len;
-	
+
 	#if TEST_PLAN_MODE
 	u8 rxbyte_flg;
 	int ipf = 0, udpf = 0, tcpf = 0;
 	#endif
-	
+
 	#if 0
 	/*if (!dm9051_is_flag_set(lw_flag, DM9051_FLAG_LINK_UP)) {
 		if (unlink_count < UNLINK_COUNT_RESET) {
@@ -641,7 +647,7 @@ uint16_t dm9051_rx(uint8_t *buff)
 		if (unlink_count >= unlink_stamp) {*/
 			#if 0
 			/*uint16_t bmsr = dm9051_bmsr_update();
-			printf("dm9051rx dm9051[%d](while bmsr %04x %s) step counter %04u\r\n", 
+			printf("dm9051rx dm9051[%d](while bmsr %04x %s) step counter %04u\r\n",
 				mstep_get_net_index(),
 				bmsr, !dm9051_is_flag_set(lw_flag, DM9051_FLAG_LINK_UP) ? "PHY DOWN" : "PHY UP",
 				unlink_stamp);*/
@@ -651,7 +657,7 @@ uint16_t dm9051_rx(uint8_t *buff)
 		return 0;
 	}*/
 	#endif
-	
+
 	rxbyte = DM9051_Read_Rxb(); //DM9051_Read_Reg(DM9051_MRCMDX);
 	//DM9051_RXB_Basic(rxbyte); //(todo) Need sevice case.
 
@@ -681,7 +687,7 @@ uint16_t dm9051_rx(uint8_t *buff)
 			  }
 			}
 			//else
-			
+
 			/*if (checksum_re_rxb(rxbyte) == DM9051_PKT_RDY)
 			{
 				//.printf("[rx %d]\r\n", get_testing_rx_count()); //testing_rx_count
@@ -690,7 +696,7 @@ uint16_t dm9051_rx(uint8_t *buff)
 					display_state();
 				}
 			}*/
-			
+
 			if (rxbyte != 0x01 && rxbyte != 0) {
 				if (rxbyte == 0x40)
 					;
@@ -710,7 +716,7 @@ uint16_t dm9051_rx(uint8_t *buff)
 					}
 					#endif
 				}
-								
+
 				if (get_testplanlog(test_plan_log)) { //get_dm9051opts_testplanlog()
 					if ((rxbyte & RCSSR_IPP)) {
 						ipf = 1;
@@ -732,7 +738,7 @@ uint16_t dm9051_rx(uint8_t *buff)
 			}
 
 			//.if (rxbyte != 0x01 && rxbyte != 0) {
-			//.} else 
+			//.} else
 			if (rxbyte == 1) {
 			 #if 1
 			  check_set_done(); //checkrxbcount = 1;
@@ -745,25 +751,25 @@ uint16_t dm9051_rx(uint8_t *buff)
 	else
 		DM9051_RX_RERXB((rxbyte != 0x01 && rxbyte != 0), rxbyte = checksum_re_rxb(rxbyte));
 	#endif
-	
+
 	DM9051_RX_BREAK((rxbyte != 0x01 && rxbyte != 0), return ev_rxb(rxbyte));
 	DM9051_RX_BREAK((rxbyte == 0), return 0);
-		
+
 	DM9051_Read_Mem(ReceiveData, 4);
 	DM9051_Write_Reg(DM9051_ISR, 0x80);
-	
+
 	rx_status = ReceiveData[1];
 	rx_len = ReceiveData[2] + (ReceiveData[3] << 8);
-	
+
   //printf(" :drv.rx %02x %02x %02x %02x (len %u)\r\n",
   //		ReceiveData[0], ReceiveData[1], ReceiveData[2], ReceiveData[3], rx_len);
-	
+
 	#if 0
 	if (rx_len != LEN64)
 		printf(":drv.rx %02x %02x %02x %02x (len %u)\r\n",
 			ReceiveData[0], ReceiveData[1], ReceiveData[2], ReceiveData[3], rx_len);
 	#endif
-	
+
 	#if 0
 	do {
 		static int dump_odd_c = 0;
@@ -772,23 +778,23 @@ uint16_t dm9051_rx(uint8_t *buff)
 		}
 	} while(0);
 	#endif
-	
+
 	DM9051_RX_BREAK((rx_status & 0xbf), return ev_status(rx_status)); //_err_hdlr("_dm9051f rx_status error : 0x%02x\r\n", rx_status, 0)
 	DM9051_RX_BREAK((rx_len > RX_POOL_BUFSIZE), return err_hdlr("_dm9051f rx_len error : %u\r\n", rx_len, 0));
 
 	DM9051_Read_Mem(buff, rx_len);
 	DM9051_Write_Reg(DM9051_ISR, 0x80);
-	
+
 	if (!OPT_CONFIRM(tx_endbit)) //CH390
 		dm_delay_ms(1);
 
-	#if 1 //test.
+	#if 	0 	//test.
 	dm9051_rxlog_monitor_rx(2, buff, rx_len); //HEAD_SPC
 	#endif
 
 	#if TEST_PLAN_MODE
 	if (get_testplanlog(test_plan_log)) { //get_dm9051opts_testplanlog()
-		if (ipf && !tp_all_done()) 
+		if (ipf && !tp_all_done())
 			printf("DM9RX: IP, checksum %02x %02x\r\n", buff[24], buff[25]);
 		if (udpf && !tp_all_done())
 			printf("DM9RX: UDP, checksum %02x %02x\r\n", buff[40], buff[41]);
@@ -802,7 +808,7 @@ uint16_t dm9051_rx(uint8_t *buff)
 				mstep_get_net_index(), ReceiveData[0], ReceiveData[1], ReceiveData[2], ReceiveData[3], rx_len, rxbyte_flg, rxbyte);
 	}
 	#endif
-	
+
 	/* An assurence */
 	if (dm9051_log_rx(buff, rx_len)) { //ok. only 1st-pbuf
 		dm9051_log_rx_inc_count();
@@ -818,7 +824,7 @@ void dm9051_tx(uint8_t *buf, uint16_t len)
 	DM9051_Write_Reg(DM9051_TXPLH, (len >> 8) & 0xff);
 	DM9051_Write_Mem(buf, len);
 	DM9051_Write_Reg(DM9051_TCR, TCR_TXREQ); /* Cleared after TX complete */
-	
+
 	if (OPT_CONFIRM(tx_endbit))
 		DM9051_TX_DELAY((DM9051_Read_Reg(DM9051_TCR) & TCR_TXREQ), dm_delay_us(5));
 	else
@@ -842,7 +848,7 @@ void dm9051_tx(uint8_t *buf, uint16_t len)
 //		 memcpy(ids, &psh_ids[mstep_get_net_index()][0], 5);
 //		 id_adv = psh_id_adv[mstep_get_net_index()];
 //	}
-//	
+//
 //	printf("%s[%d] ::: ids %02x %02x %02x %02x %02x (%s) chip rev %02x, Chip ID %02x (CS_EACH_MODE)%s\r\n",
 //		display_identity_bannerline_title ? display_identity_bannerline_title : display_identity_bannerline_default,
 //		mstep_get_net_index(), ids[0], ids[1], ids[2], ids[3], ids[4], dm9051opts_desccsmode(), id_adv, id,
@@ -886,7 +892,7 @@ uint16_t dm9051_init_setup(void)
 
 	id = read_chip_id();
 	read_chip_revision(ids, &id_adv);
-	
+
 	display_identity(mstep_spi_conf_name(), id, ids, id_adv);
 	//display_chipmac();
 	DM_SET_FIELD(uint16_t, read_chip_id, id); //store into dm9051optsex[i].read_chip_id
@@ -899,7 +905,7 @@ uint16_t dm9051_init_setup(void)
 //x }
 
 void dm9051_start(const uint8_t *adr)
-{	
+{
 	display_baremac();
 	display_mac_action(bare_mac_tbl[1], adr); //[1]= ": wr-bare device"
 
@@ -936,7 +942,7 @@ uint16_t dm9051_init(const uint8_t *adr)
 		dm9051_mac_adr(adr);
 		dm9051_rx_mode();
 	#endif
-		exint_menable(NVIC_PRIORITY_GROUP_0); //dm9051_board_irq_enable(); 
+		exint_menable(NVIC_PRIORITY_GROUP_0); //dm9051_board_irq_enable();
 		dm9051_start(adr);*/
 
 	hdlr_reset_process(DM_TRUE);
@@ -986,10 +992,10 @@ static uint16_t link_show(void) {
 			histlnk[i] += (lnk & 0x04) ? 1 : 0;
 		}
 	} while(n < 20 && !bityes(histnsr) && !bityes(histlnk)); // 20 times for 2 seconds
-	
+
 	rwpa_w = (uint32_t)DM9051_Read_Reg(0x24) | (uint32_t)DM9051_Read_Reg(0x25) << 8; //DM9051_RWPAL
 	mdra_ingress = (uint32_t)DM9051_Read_Reg(0x74) | (uint32_t)DM9051_Read_Reg(0x75) << 8; //DM9051_MRRL;
-	
+
 	printf("(SHW timelink, 20 detects) det %d\r\n", n);
 	for (i= 8; i< 16; i++)
 		printf(" %s%d", (i==8) ? ".nsr " : "", histnsr[i]);

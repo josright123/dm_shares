@@ -1,6 +1,9 @@
 --------------------
 advance versions:
 --------------------
+dm9051_lw version 5.08, 20240308. yicheng.
+		  Introduce:
+		    v5.08 dm9051_lw_debug.h(new), redefine printf to DM9051_DEBUGF.
 
 dm9051_lw version 5.07, 20240305. Joseph CHANG.
 		  Introduce:
