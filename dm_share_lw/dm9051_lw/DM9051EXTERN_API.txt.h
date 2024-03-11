@@ -1,3 +1,42 @@
+//mqttc
+linking...
+//[dm9051_lw_conf.o]
+/*(main.o)*/  dm9051_boards_initialize (referred from main.o).
+/* mqtt_client.o */ mstep_set_net_index (referred from mqtt_client.o).
+/* netconf_b.o */ mstep_get_net_index (referred from netconf_b.o).
+/* stack_init.o */ mstep_eth_mac (referred from stack_init.o).
+/* developer_conf.o */ mstep_eth_gw (referred from developer_conf.o).
+/* developer_conf.o */ mstep_eth_ip (referred from developer_conf.o).
+/* developer_conf.o */ mstep_eth_mask (referred from developer_conf.o).
+//[dm9051opts.o]
+/*(mqtt_main.o)*/  ETH_COUNT_VOIDFN (referred from mqtt_main.o).
+/* ethernetif.o */ ETH_COUNT_VOIDTX (referred from ethernetif.o).
+//[dm9051_lw.o]
+/* ethernetif.o */ dm9051_init (referred from ethernetif.o).
+/* ethernetif.o */ dm9051_rx (referred from ethernetif.o).
+/* ethernetif.o */ dm9051_tx (referred from ethernetif.o).
+/* ethernetif.o */ check_chip_id (referred from ethernetif.o).
+/* netconf_b.o */ dm9051_bmsr_update (referred from netconf_b.o).
+//[dm9051_lw_log.o]
+/* ethernetif.o */ dm9051_rxlog_ack (referred from ethernetif.o).
+/* ethernetif.o */ dm9051_rxlog_arp (referred from ethernetif.o).
+/* ethernetif.o */ dm9051_rxlog_monitor_rx_all (referred from ethernetif.o).
+/* ethernetif.o */ dm9051_txlog_disp (referred from ethernetif.o).
+/* ethernetif.o */ dm9051_txlog_monitor_tx (referred from ethernetif.o).
+//[dmtypes.h]
+#if DM_TYPE == 0
+/* netif.o */ dm9051opts_enable_ttest_plan_log //rtype dm9051opts_##mtype##field(void); //DM_GET_FIELD()
+/* netif.o */ (dm9051opts_desctest_plan_log (referred from netif.o).) //char *dm9051opts_desc##field(void); //DM_GET_DESC
+/* linkhdlr_timeouts.o */ dm9051opts_descbmcrmode (referred from linkhdlr_timeouts.o). //char *dm9051opts_desc##field(void); //DM_GET_DESC()
+#endif
+
+/* linkhdlr_timeouts.o */  dm9051_bmcr_update (referred from linkhdlr_timeouts.o).
+/* ethernetif.o */ cspi_read_reg (referred from ethernetif.o).
+/* comm.o */ mstep_next_net_index (referred from netconf - comm.o).
+/* ethernetif.o */ mstep_spi_conf_name (referred from ethernetif.o).
+/* log.o */ GpioDisplay (referred from netcon2 - log.o).
+
+//X2Web
 //[dm9051_lw.o]
 #if DM9051OPTS_API
 /*(proc_main.o)*/ uint16_t dm9051_init(const uint8_t *adr);
