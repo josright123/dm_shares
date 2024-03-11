@@ -29,6 +29,8 @@
 #include "dm9051_lw.h"
 #include "dm9051_lw_conf_types.h"
 #include "dm9051_lw_conf_data.h" //1.yicheng
+#include "dm9051_lw_debug.h"
+
 //#ifdef AT32F437xx
 //#include "dm9051_lw_conf_at437x2spi.h" //1.yicheng
 //#else
@@ -82,7 +84,7 @@ static void gpio_pin_config(const gpio_t *gpio, gpio_pull_type gppull) //, gpio_
   gpio_init_struct.gpio_pull			= gppull; //exint_cfg.gpio_pull; //GPIO_PULL_DOWN; GPIO_PULL_UP; //GPIO_PULL_NONE;
   gpio_init_struct.gpio_pins			= gpio->pin;
   gpio_init(gpio->gpport, &gpio_init_struct);
-  
+
  #ifdef AT32F437xx
   if ((gpio->gpio_mode == GPIO_MODE_MUX) && (gpio->muxsel != GPIO_MUX_NULL))
 	gpio_pin_mux_config(gpio->gpport, gpio->pinsrc, gpio->muxsel);
@@ -94,7 +96,7 @@ static void gpio_pin_config(const gpio_t *gpio, gpio_pull_type gppull) //, gpio_
   * @param  spi_inf_t* =
   *         struct {
   *         	spi_type *num;        			//= SPIPORT;
-  *         	crm_periph_clock_type spi_crm_clk;	//= SPI_CRM_CLK;	
+  *         	crm_periph_clock_type spi_crm_clk;	//= SPI_CRM_CLK;
   *         } spi_inf_t;
   * @retval None
   */
@@ -140,7 +142,7 @@ static void spi_config(void)
   */
 static void exint_config(const struct extscfg_st *pexint_set, exint_polarity_config_type polarity) {
   exint_init_type exint_init_struct;
-	
+
   crm_periph_clock_enable(scfg_crm(), TRUE); // CRM_SCFG_PERIPH_CLOCK
   crm_periph_clock_enable(exint_crm(), TRUE); // CRM_GPIOC_PERIPH_CLOCK
 
@@ -149,10 +151,10 @@ static void exint_config(const struct extscfg_st *pexint_set, exint_polarity_con
  #else
   scfg_exint_line_config(scfg_port(), scfg_pin()); //SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7
  #endif
-	
+
   exint_default_para_init(&exint_init_struct);
   exint_init_struct.line_enable = TRUE;
-	
+
   exint_init_struct.line_mode = EXINT_LINE_INTERRUPUT;
   exint_init_struct.line_select = pexint_set->extline.extline; //line_no;
   exint_init_struct.line_polarity = polarity; //EXINT_TRIGGER_RISING_EDGE/ EXINT_TRIGGER_FALLING_EDGE
@@ -196,7 +198,7 @@ static void config_exint(gpio_pull_type gppull, exint_polarity_config_type polar
 }
 
 /*********************************
- * dm9051 delay times procedures 
+ * dm9051 delay times procedures
  *********************************/
 
 #define	board_printf(format, args...) //int board_printf(const char *format, args...) { return 0; }
@@ -264,7 +266,7 @@ void exint_add(void)
 void interface_add(int pin)
 {
 	DM_UNUSED_ARG(pin);
-	
+
 	spi_add();
 	rst_add();
 	exint_add();
@@ -272,10 +274,12 @@ void interface_add(int pin)
 
 void dm9051_boards_initialize(int n)
 {
+
+  DM9051_DEBUGF(DM9051_LW_CONF,("DM9051_DEBUGF-->dm9051_boards_initialize() ..\r\n"));
   /*int i;
   for (i = 0; i < n; i++) { //get_eth_interfaces()
 	mstep_set_net_index(i);
-	//.printf("Config %s, %s, %s, %02x%02x%02x%02x%02x%02x\r\n", 
+	//.printf("Config %s, %s, %s, %02x%02x%02x%02x%02x%02x\r\n",
 	//	mstep_conf_info(), mstep_conf_cpu_spi_ethernet(), mstep_conf_cpu_cs_ethernet(),
 	//		mac_addresse[mstep_get_net_index()][0],
 	//		mac_addresse[mstep_get_net_index()][1],
@@ -283,7 +287,7 @@ void dm9051_boards_initialize(int n)
 	//		mac_addresse[mstep_get_net_index()][3],
 	//		mac_addresse[mstep_get_net_index()][4],
 	//		mac_addresse[mstep_get_net_index()][5]);
-	
+
 	interface_add(i);
   }*/
   DM_UNUSED_ARG(n);
@@ -306,7 +310,7 @@ void dm9051_boards_initialize(int n)
 
 // -
 /*********************************
- * dm9051 spi interface accessing 
+ * dm9051 spi interface accessing
  *********************************/
 
 static void spi_cs_lo(void) {
@@ -318,7 +322,7 @@ static void spi_cs_hi(void) {
 
 static uint8_t spi_exc_data(uint8_t byte) {
     while(spi_i2s_flag_get(spi_number(), SPI_I2S_TDBE_FLAG) == RESET);	//while(spi_i2s_flag_get(SPI2, SPI_I2S_TDBE_FLAG) == RESET);
-    spi_i2s_data_transmit(spi_number(), byte);							//spi_i2s_data_transmit(SPI2, byte); //spi2 tx	
+    spi_i2s_data_transmit(spi_number(), byte);							//spi_i2s_data_transmit(SPI2, byte); //spi2 tx
     while(spi_i2s_flag_get(spi_number(), SPI_I2S_RDBF_FLAG) == RESET);	//while(spi_i2s_flag_get(SPI2, SPI_I2S_RDBF_FLAG) == RESET);
     return (uint8_t) spi_i2s_data_receive(spi_number());				//return (uint8_t) spi_i2s_data_receive(SPI2); //spi2 rx (rx_pad)
 }
@@ -330,7 +334,7 @@ static void rst_pin_pulse(void) {
 }
 
 /*********************************
- * functions for driver's ops 
+ * functions for driver's ops
  *********************************/
 
 #define dm9051if_rstb_pulse() rst_pin_pulse() //.dm9051_if->rstb_pulse()

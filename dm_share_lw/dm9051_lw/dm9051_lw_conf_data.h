@@ -304,8 +304,8 @@ optsex_t dm9051optsex[BOARD_SPI_COUNT] = { //const
 const eth_node_t node_config[BOARD_SPI_COUNT] = { \
 	{ \
 		{0, 0x60, 0x6e, 0x00, 0x01, 0x17,}, \
-		{192, 168, 6,  17}, \
-		{192, 168, 6,   1}, \
+		{192, 168, 249,  82}, \
+		{192, 168, 249,   1}, \
 		{255, 255, 255, 0}, \
 	}, \
 	{ \

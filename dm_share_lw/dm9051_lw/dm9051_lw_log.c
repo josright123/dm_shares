@@ -1,11 +1,13 @@
-//#include "stdint.h"
-//#include "dm9051_at32_decl.h"
-//#include "dm9051_debug_lw.h"
 #include <stdlib.h>
 #include "dm9051opts.h"
 #include "dm9051_lw.h"
 #include "dm9051_lw_log_types.h"
 #include "dm9051_lw_log_inc.h"
+#include "dm9051_lw_debug.h"
+
+// printf("(dm9 xfer) %.8x: %s", i, linebuf);
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_LW_LOG, (fmt, ##__VA_ARGS__))
+// #define printf(fmt, ...) DM9051_DEBUGF(DM9051_LW_LOG, ("lw_log.c: " fmt, ##__VA_ARGS__))
 
 #define MMALLOC_MAX_LEN2	250 //#include "main_malloc.h"
 
@@ -24,7 +26,7 @@ tx_monitor_t tx_all_modle_keep = {
 
 static const struct uip_eth_addr log_ethbroadcast = {{0xff, 0xff, 0xff, 0xff, 0xff, 0xff}};
 #define	IsBroadcast(add)	(memcmp(add, log_ethbroadcast.addr, sizeof(struct uip_eth_addr))==0)
-	
+
 #define	IsMulticast(buf)	(((uint8_t *)(buf))[0] & 0x01)
 
 static void sprint_hex_dump(const char *prefix_str, int rowsize, const void *buf, int seg_start, size_t len) { } //large program code.
@@ -42,7 +44,7 @@ void EepromDisplay(int pin)
 	for (i = 0; i < 9; i++) {
 		uint16_t value;
 		value = dm9051_eeprom_read(i);
-		printf("%s%04x", 
+		printf("%s%04x",
 			!(i % 4) ? "  " : " ",
 			value);
 	}
@@ -54,7 +56,7 @@ void arp_unicast_safty_tx(const uint8_t *buf, size_t len) //(struct net_device *
 	/*static uint16_t unila = 0xffff;
 	uint16_t la = BUF->dipaddr[1] >> 8;*/
 	//int local_ttx = 0;
-	//int local_ttx_reach = 1; 
+	//int local_ttx_reach = 1;
 
 	//cb.ram.cas3++;
 	//cb.tmp.arp_safty_cas3_tx_uni++;
@@ -105,7 +107,7 @@ void arp_unicast_safty_tx(const uint8_t *buf, size_t len) //(struct net_device *
 	}*/
 }
 
-//static 
+//static
 void arp_counting_reach_disp_tx(const void *buf, size_t len)
 {
 	//if (cb.tmp.arp_we_trans_count > 2) {
@@ -128,11 +130,11 @@ static void arp_tx(const uint8_t *buf, size_t len, int fullcheck)
 			//if (cb.arp_uni_out_tx.enable) {
 				//cb.tmp.arp_we_trans_count++; //inc 1
 				arp_unicast_safty_tx(buf, len); //(ndev, skb);
-				if (fullcheck) 
+				if (fullcheck)
 					roll_next_tx(0); //cb.tx_total.val
 			//}
 		}
-		
+
 		if (fullcheck) {
 			/* [full-display-] */
 			//.printf("arp_counting_reach_disp_tx [CAS2 ]\r\n");
@@ -157,7 +159,7 @@ static void dhcp_tx(const uint8_t *buf)
 }
 
 static void protocol_tx(const uint8_t *buf, size_t len, int fullcheck)
-{	//const u8 *buf = skb->data; 
+{	//const u8 *buf = skb->data;
 	if (IS_ICMP) {
 		/*if (cb.tmp.msg_print_icmp) {
 			cb.tmp.last_print_icmp = cb.tmp.msg_print_icmp;
@@ -213,7 +215,7 @@ void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
 		si = seg_start;
 		se = seg_start + len;
 		for (i = si; i < se; i += rowsize) {
-			//unsigned 
+			//unsigned
 			char linebuf[(12 * 3) + (3 * 16) + 1 + 32]; //here!
 
 			linelen = kkmin(remaining, rowsize);
@@ -232,11 +234,11 @@ void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
 					nb += snprintf(linebuf+nb, sizeof(linebuf)-nb, "%02x ", *(ptr + i + j));
 				}
 			} while(0);
-			
+
 			hs = head_space;
 			while(hs--)
 				printf(" ");;
-			
+
 			if (prefix_str) {
 				printf("(%s) %.8x: %s", prefix_str, i, linebuf); //"%s", ec->str //CHECK (XXX >> )
 				while (titledn) {
@@ -246,13 +248,13 @@ void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
 			} else {
 				printf("(dm9 xfer) %.8x: %s", i, linebuf); //"%s", ec->str
 			}
-			
+
 			if ((i+rowsize) < se)
 				printf("\r\n");
 			else {
 				if (cast_lf)
 					printf("\r\n");
-				
+
 				if (IS_UDP) {
 					//ptr
 					#if 0
@@ -260,10 +262,10 @@ void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
 					ulen = UIP_LLH_LEN;
 					ulen += HTONS(UDPBUF->udplen) - 8;
 					ulen += sizeof(struct uip_udpip_hdr); // correct for without 4-bytes CRC (htons)
-					
+
 					if (cast_lf)
 						printf("\r\n");
-				
+
 					printf(" ..SrcIP %d.%d.%d.%d", (IPBUF->srcipaddr[0] >> 0) & 0xff, (IPBUF->srcipaddr[0] >> 8),
 						(IPBUF->srcipaddr[1] >> 0) & 0xff, (IPBUF->srcipaddr[1] >> 8));
 					printf("  DestIP %d.%d.%d.%d", (IPBUF->destipaddr[0] >> 0) & 0xff, (IPBUF->destipaddr[0] >> 8),
@@ -272,7 +274,7 @@ void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
 					printf("  (%5d -> %d Len %d)", UDPBUF->srcport, UDPBUF->destport, HTONS(UDPBUF->udplen) - 8);
 					printf("\r\n");
 					#endif
-				} 
+				}
 				//else
 				//	printf("\r\n");
 			}
@@ -324,7 +326,7 @@ void dm9051_log_tx(const uint8_t *buf, uint16_t len)
   static int udp_count = 0;
 #endif
   count++;
-	
+
   if (IS_ICMP) {
 #if 0
 	if (icmp_count < 2) {
@@ -334,7 +336,7 @@ void dm9051_log_tx(const uint8_t *buf, uint16_t len)
 	}
 #endif
 	return;
-  } 
+  }
 
   if (IS_ARP) {
 #if 0
@@ -346,8 +348,8 @@ void dm9051_log_tx(const uint8_t *buf, uint16_t len)
 	//}
 #endif
 	return;
-  } 
-  
+  }
+
   if (IS_UDP) {
 	  if (IS_DHCPTX) {
 		printf("---------------Sending DHCP total_tx(%d) Len %u\r\n", count, len);
@@ -364,7 +366,7 @@ void dm9051_log_tx(const uint8_t *buf, uint16_t len)
 #endif
 	  return;
   }
-  
+
 #if 0
   if (len > 70) { //add.
     printf("---------------Sending total_tx(%d)\r\n", count);
@@ -381,13 +383,13 @@ int dm9051_log_rx(const uint8_t *buf, uint16_t len)
   static int rx_mult_udp_count = 0;
 #endif
   static int master_TCP_count = 0;
-	
-  if (IsMulticast(buf)) { 
+
+  if (IsMulticast(buf)) {
     if (IS_ARP)
 		return 0;
-	
+
 	if (IS_DHCPRX) {
-		printf("Receive DHCP pkt (%02x:%02x:%02x:%02x:%02x:%02x) len %d ---------------\r\n", 
+		printf("Receive DHCP pkt (%02x:%02x:%02x:%02x:%02x:%02x) len %d ---------------\r\n",
 			buf[0],buf[1],buf[2],buf[3],buf[4],buf[5], len);
 #if 0
 		//function_monitor_rx_all(buf, len);
@@ -404,7 +406,7 @@ int dm9051_log_rx(const uint8_t *buf, uint16_t len)
 		if (IS_TCP) {
 			if (rx_mult_tcp_count < 2) {
 				rx_mult_tcp_count++;
-				printf("Receive Multicast and TCP(%d/2): (%02x:%02x:%02x:%02x:%02x:%02x) ? ---------------\r\n", 
+				printf("Receive Multicast and TCP(%d/2): (%02x:%02x:%02x:%02x:%02x:%02x) ? ---------------\r\n",
 					rx_mult_tcp_count, buf[0],buf[1],buf[2],buf[3],buf[4],buf[5]);
 				function_monitor_rx(HEAD_SPC, buf, len);
 			}
@@ -413,29 +415,29 @@ int dm9051_log_rx(const uint8_t *buf, uint16_t len)
 		if (IS_UDP) {
 			if (rx_mult_udp_count < 3) {
 				rx_mult_udp_count++;
-				printf("Receive Multicast(%d/3) and UDP: (%02x:%02x:%02x:%02x:%02x:%02x) Protocol: %s (%d) ---------------\r\n", 
+				printf("Receive Multicast(%d/3) and UDP: (%02x:%02x:%02x:%02x:%02x:%02x) Protocol: %s (%d) ---------------\r\n",
 					rx_mult_udp_count, buf[0],buf[1],buf[2],buf[3],buf[4],buf[5], "TBD", IPBUF->proto);
 				function_monitor_rx(HEAD_SPC, buf, len);
 			}
 			return 0;
 		}
-			
-		printf("Receive Multicast and OP: (%02x:%02x:%02x:%02x:%02x:%02x) ? ---------------\r\n", 
+
+		printf("Receive Multicast and OP: (%02x:%02x:%02x:%02x:%02x:%02x) ? ---------------\r\n",
 			buf[0],buf[1],buf[2],buf[3],buf[4],buf[5]);
 		function_monitor_rx(HEAD_SPC, buf, len);
 		return 0;
 	}
-	
-	printf("Receive Multicast and UNKNOW Multicast packet: (%02x:%02x:%02x:%02x:%02x:%02x) ---------------\r\n", 
+
+	printf("Receive Multicast and UNKNOW Multicast packet: (%02x:%02x:%02x:%02x:%02x:%02x) ---------------\r\n",
 				buf[0],buf[1],buf[2],buf[3],buf[4],buf[5]);
 	//function_monitor_rx_all(buf, len);
 #endif
 	return 0;
   }
-  
+
   if (IS_ARP)
 	return 0; //uni-cast arp
- 
+
   if (IS_ICMP) {
 #if 0
 		if (icmp_count_rx < 2) {
@@ -446,7 +448,7 @@ int dm9051_log_rx(const uint8_t *buf, uint16_t len)
 #endif
 		return 0;
   }
-  
+
   if (IS_IP) {
 	if (IS_TCP) {
 		if (IS_TCP) {
@@ -471,7 +473,7 @@ int dm9051_log_rx(const uint8_t *buf, uint16_t len)
 #endif
 	return 0;
   }
-  
+
   printf("Receive unit-cast UNKNOW pkt ---------------\r\n");
   function_monitor_rx(HEAD_SPC, buf, len); //(buffer, l);
   return 1; //err
@@ -508,7 +510,7 @@ void dm9051_txlog_monitor_tx(int hdspc, const uint8_t *buffer, size_t len)
 			  //=sprintf(heads, "%d/%d tx[%d]>>", tx_modle_keep.allow_num, tx_modle.allow_num, mstep_get_net_index());
 			  n = sprintf(heads, "%d/%d", tx_modle_keep.allow_num, tx_modle.allow_num);
 			  sprintf(heads, "%d/%d tx[%d]>>", tx_modle_keep.allow_num, tx_modle.allow_num, mstep_get_net_index());
-			
+
 			  function_monitor_tx(hdspc, n, /*NULL*/ heads, buffer, len);
 			free(heads);
 		} while(0);
@@ -531,10 +533,10 @@ void dm9051_txlog_monitor_tx_all(int hdspc, const uint8_t *buffer, size_t len)
 		heads = (char *) malloc(HEAD_LEN); // note: memory allocation WITH <stdlib.h>!
 		  n = sprintf(heads, "%d/%d", tx_all_modle_keep.allow_num, tx_all_modle.allow_num);
 		  sprintf(heads, "%d/%d tx[%d]>>", tx_all_modle_keep.allow_num, tx_all_modle.allow_num, mstep_get_net_index());
-		
+
 		  bannerline_log();
 		  function_monitor_tx_all(hdspc, n, heads, buffer, len);
-		
+
 		free(heads);
 	}
 }
@@ -568,7 +570,7 @@ void dm9051_rxlog_arp(void *payload, uint16_t tot_len, uint16_t len)
 #if DM9051_DEBUG_ENABLE
   if (tot_len == LEN64) {
 	if (DBG_IS_ARP(payload)) {
-	
+
 	#if 0 //tobe-used~
 		printf("\r\n");
 		printf("[%d]\r\n", 5); //part = 5.
