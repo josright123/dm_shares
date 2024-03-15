@@ -96,9 +96,11 @@
 #else
 	#define DM9051_DEBUGF(debug, message)
 #endif
-
 // example usage: DM9051_DEBUGF(DM9051_DBG_ON, ("dm9051_lw: %s: %d\n", __func__, __LINE__));
 // example usage: DM9051_DEBUGF(DM9051_LW_CONF, ("dm9051_lw: %s: %d\n", __func__, __LINE__));
+
+void dm9051_debug_init(void);
+
 
 #ifdef __cplusplus
 }

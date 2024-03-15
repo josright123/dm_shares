@@ -47,9 +47,9 @@
  * at32_cm4_device_support
  */
 #if freeRTOS
-#ifndef freeRTOS_CONF
+// #ifndef freeRTOS_CONF
 #warning "freeRTOS is defined"
-#endif
+// #endif
 
 #include "FreeRTOS.h"
 #include "task.h"
