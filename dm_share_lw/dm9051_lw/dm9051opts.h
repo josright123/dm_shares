@@ -72,7 +72,7 @@ static void uvTaskDelay( const TickType_t xTicksToDelay ) {
 // }
 #else
 typedef void (* dly_us_t)(uint32_t nus);
-typedef void (* dly_ms_t)(uint16_t nms);
+typedef void (* dly_ms_t)(uint32_t nms);
 #endif
 
 typedef struct dm_dly_st {

@@ -47,13 +47,52 @@
 	 * @param debug The debug flag.
 	 * @param message The debug message to be printed.
 	 */
+
+	// main.c
+	// #include "semphr.h" // Include the header file for FreeRTOS semaphore
+	// // Declare the mutex handle globally so it can be accessed in different tasks
+	// SemaphoreHandle_t mutex_print;
+
+	// int main(void)
+	// {
+	// 	// ...
+
+	// 	// Create a mutex
+	// 	mutex_print = xSemaphoreCreateMutex();
+
+	// 	if (mutex_print == NULL) {
+	// 		printf("Mutex could not be created.\r\n");
+	// 		while(1); // Handle the error, e.g., by entering an infinite loop
+	// 	}
+
+	// 	// ...
+
+	// 	/* start scheduler */
+	// 	vTaskStartScheduler();
+	// }
+
+	#if 	freeRTOS
+	#include "semphr.h"
+	extern SemaphoreHandle_t mutex_print;
 	#define DM9051_DEBUGF(debug, message) do { \
-			if ( \
-				((debug) & DM9051_DBG_ON) && \
-				((debug) & DM9051_DBG_TYPES_ON) && \
-				(DM9051_DBG_LEVEL >= DM9051_DBG_MIN_LEVEL)) { \
-				DM9051_DRIVER_DIAG(message); \
+			if (xSemaphoreTake(mutex_print, portMAX_DELAY) == pdTRUE) { \
+					if ( \
+							((debug) & DM9051_DBG_ON) && \
+							((debug) & DM9051_DBG_TYPES_ON) && \
+							(DM9051_DBG_LEVEL >= DM9051_DBG_MIN_LEVEL)) { \
+							DM9051_DRIVER_DIAG(message); \
+					} \
+					xSemaphoreGive(mutex_print); \
 			}} while(0)
+	#else
+	#define DM9051_DEBUGF(debug, message) do { \
+					if ( \
+							((debug) & DM9051_DBG_ON) && \
+							((debug) & DM9051_DBG_TYPES_ON) && \
+							(DM9051_DBG_LEVEL >= DM9051_DBG_MIN_LEVEL)) { \
+							DM9051_DRIVER_DIAG(message); \
+					}} while(0)
+	#endif
 #else
 	#define DM9051_DEBUGF(debug, message)
 #endif
