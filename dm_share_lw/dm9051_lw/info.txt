@@ -1,9 +1,14 @@
 --------------------
 advance versions:
 --------------------
-dm9051_lw version 5.09, 20240315. yicheng.
+dm9051_lw version 5.09, 20240324. yicheng.
 		  Introduce:
-		    v5.09 dm9051_lw_debug.h(update), DM9051_DEBUGF xSemaphoreTake & xSemaphoreGive added.
+			Version 5.09
+			This version includes the following changes:
+			- Added the `freeRTOS` macro definition.
+			- Added the `dm9051_freertos_init` function.
+			- Added the `define LOCK_SPI_CORE() sys_mutex_lock(&lock_spi_core) macro definition.`
+			Please refer to the code implementation for more details.
 
 dm9051_lw version 5.08, 20240308. yicheng.
 		  Introduce:

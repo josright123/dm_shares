@@ -25,7 +25,8 @@
   */
 #ifndef __DM9051_ENV_H
 #define __DM9051_ENV_H
-
+#include <stdint.h>
+#include "at32f403a_407_conf.h"
 //tobe "dm9051opts.c"
 //
 // [This _HELLO_DRIVER_INTERNAL compiler option, is for a diagnostic purpose while the program code is to use this dm9051_lw driver.]
@@ -106,6 +107,15 @@ int mstep_get_net_index(void);
 void dm9051_irqlines_proc(void);
 #endif
 
+void cpin_poweron_reset(void);
+uint8_t cspi_read_reg(uint8_t reg);
+void cspi_read_regnx(uint8_t reg, uint8_t length, uint8_t *buf);
+void cspi_write_reg(uint8_t reg, uint8_t val);
+void cspi_write_regnx(uint8_t reg, uint8_t length, uint8_t *buf);
+uint8_t cspi_read_mem2x(void);
+void cspi_read_mem(u8 *buf, u16 len);
+void cspi_write_mem(u8 *buf, u16 len);
+
 //void mstep_next_net_index(void);
 char *mstep_conf_cpu_spi_ethernet(void);
 char *mstep_spi_conf_name(void);
@@ -114,7 +124,9 @@ void exint_menable(nvic_priority_group_type priority); //void dm9051_board_irq_e
 #if 1 //lw_config
 #define DM9051_Poweron_Reset	cpin_poweron_reset
 #define DM9051_Read_Reg			cspi_read_reg
+#define DM9051_Read_Regnx 	cspi_read_regnx
 #define DM9051_Write_Reg		cspi_write_reg
+#define DM9051_Write_Regnx  cspi_write_regnx
 #define DM9051_Read_Mem2X		cspi_read_mem2x
 #define DM9051_Read_Mem			cspi_read_mem
 #define DM9051_Write_Mem		cspi_write_mem

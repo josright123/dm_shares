@@ -34,8 +34,8 @@
 #endif
 
 #define DM9051OPTS_API							1
-#define DM9051OPTS_LOG_ENABLE					1 //0
-#define DM9051_DEBUG_ENABLE						1 //0
+#define DM9051OPTS_LOG_ENABLE				1 //0
+#define DM9051_DEBUG_ENABLE					1 //0
 
 /*
  * Stop if id not corrext!

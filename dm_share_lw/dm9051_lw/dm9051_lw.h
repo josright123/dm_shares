@@ -259,6 +259,17 @@ uint16_t dm9051_link_show(void);
 int display_identity(char *spiname, uint16_t id, uint8_t *ids, uint8_t id_adv);
 int display_verify_chipid(char *str, char *spiname, uint16_t id);
 void display_chipmac(void);
+uint16_t dm9051_init_setup(void);
+void read_chip_revision(uint8_t *ids, uint8_t *rev_ad);
+void dm9051_freertos_init(void);
+
+#if 	freeRTOS
+	#define LOCK_SPI_CORE() sys_mutex_lock(&lock_spi_core)
+	#define UNLOCK_SPI_CORE() sys_mutex_unlock(&lock_spi_core)
+#else
+	#define LOCK_SPI_CORE()
+	#define UNLOCK_SPI_CORE()
+#endif
 
 /*
  * export open functions

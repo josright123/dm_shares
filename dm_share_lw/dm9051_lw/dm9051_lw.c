@@ -57,11 +57,31 @@ static u8 lw_flag[ETHERNET_COUNT];
 static u16 unlink_count[ETHERNET_COUNT], unlink_stamp[ETHERNET_COUNT];
 #endif
 
+#if  freeRTOS
+	#include "lwip/sys.h"
+
+	// Declare the mutex handle globally so it can be accessed in different tasks
+	sys_mutex_t lock_spi_core;
+	void dm9051_freertos_init(void)
+	{
+		// Create a mutex
+		if (sys_mutex_new(&lock_spi_core) != ERR_OK) {
+			LWIP_ASSERT("failed to create lock_spi_core", 0);
+		}
+	}
+
+#else
+	void dm9051_freertos_init(void) {}
+#endif
+
+
 //#define UNLINK_COUNT_RESET	60000
 
 void dm9051_poweron_rst(void)
 {
+	LOCK_SPI_CORE();
 	DM9051_Poweron_Reset();
+	UNLOCK_SPI_CORE();
 }
 
 int check_chip_id(uint16_t id) {
@@ -83,20 +103,27 @@ int check_chip_id(uint16_t id) {
 	return res;
 }
 
-static uint16_t read_chip_id(void) {
+//static uint16_t read_chip_id(void) {
+uint16_t read_chip_id(void) {
 	u8 buff[2];
+	LOCK_SPI_CORE();
 	cspi_read_regs(DM9051_PIDL, buff, 2, CS_EACH);
+	UNLOCK_SPI_CORE();
 	return buff[0] | buff[1] << 8;
 }
 
-static void read_chip_revision(u8 *ids, u8 *rev_ad) {
+//static void read_chip_revision(u8 *ids, u8 *rev_ad) {
+void read_chip_revision(uint8_t *ids, uint8_t *rev_ad) {
+	LOCK_SPI_CORE();
 	cspi_read_regs(DM9051_VIDL, ids, 5, OPT_CS(csmode)); //dm9051opts_csmode_tcsmode()
 	cspi_read_regs(0x5C, rev_ad, 1, OPT_CS(csmode)); //dm9051opts_csmode_tcsmode()
+	UNLOCK_SPI_CORE();
 }
 
 uint16_t eeprom_read(uint16_t wordnum)
 {
 	u16 uData;
+	LOCK_SPI_CORE();
 	do {
 		int w = 0;
 		DM9051_Write_Reg(DM9051_EPAR, wordnum);
@@ -110,6 +137,7 @@ uint16_t eeprom_read(uint16_t wordnum)
 		DM9051_Write_Reg(DM9051_EPCR, 0x0);
 		uData = (DM9051_Read_Reg(DM9051_EPDRH) << 8) | DM9051_Read_Reg(DM9051_EPDRL);
 	} while(0);
+	UNLOCK_SPI_CORE();
 	return uData;
 }
 
@@ -128,6 +156,7 @@ static uint16_t phy_read(uint16_t uReg)
 	dm9051_phycore_on(0);
 #endif
 
+	LOCK_SPI_CORE();
 	DM9051_Write_Reg(DM9051_EPAR, DM9051_PHY | uReg);
 	DM9051_Write_Reg(DM9051_EPCR, 0xc);
 	dm_delay_us(1);
@@ -139,6 +168,7 @@ static uint16_t phy_read(uint16_t uReg)
 
 	DM9051_Write_Reg(DM9051_EPCR, 0x0);
 	uData = (DM9051_Read_Reg(DM9051_EPDRH) << 8) | DM9051_Read_Reg(DM9051_EPDRL);
+	UNLOCK_SPI_CORE();
 
 	#if 0
 	if (uReg == PHY_STATUS_REG) {
@@ -157,6 +187,7 @@ void phy_write(uint16_t reg, uint16_t value)
 {
 	int w = 0;
 
+	LOCK_SPI_CORE();
 	DM9051_Write_Reg(DM9051_EPAR, DM9051_PHY | reg);
 	DM9051_Write_Reg(DM9051_EPDRL, (value & 0xff));
 	DM9051_Write_Reg(DM9051_EPDRH, ((value >> 8) & 0xff));
@@ -170,6 +201,7 @@ void phy_write(uint16_t reg, uint16_t value)
 	} //Wait complete
 
 	DM9051_Write_Reg(DM9051_EPCR, 0x0);
+	UNLOCK_SPI_CORE();
 }
 
 void test_plan_mbndry(void)
@@ -177,6 +209,7 @@ void test_plan_mbndry(void)
 	uint8_t isr0, isr1, mbndry0, mbndry1;
 	char *str0, *str1;
 
+	LOCK_SPI_CORE();
 	isr0 = DM9051_Read_Reg(DM9051_ISR);
 
 	mbndry0 = OPT_U8(iomode);
@@ -194,6 +227,7 @@ void test_plan_mbndry(void)
 				mbndry1, str1); //"(read diff, be an elder revision chip bit7 can't write)"
 
 	isr1 = DM9051_Read_Reg(DM9051_ISR);
+	UNLOCK_SPI_CORE();
 
 	printf("  RESET: ISR.read.s %02x %s\r\n", isr0, isr0 & 0x80 ? "(8-bit mode)" : "(16-bit mode)");
 	printf("  RESET: ISR.read.e %02x %s\r\n", isr1, isr1 & 0x80 ? "(8-bit mode)" : "(16-bit mode)");
@@ -628,7 +662,7 @@ uint16_t dm9051_rx_dump(uint8_t *buff)
  //#endif
  #endif
 
-uint16_t dm9051_rx(uint8_t *buff)
+uint16_t dm9051_rx_lock(uint8_t *buff)
 {
 	u8 rxbyte, rx_status;
 	u8 ReceiveData[4];
@@ -818,8 +852,18 @@ uint16_t dm9051_rx(uint8_t *buff)
 	return rx_len;
 }
 
+uint16_t dm9051_rx(uint8_t *buff)
+{
+	u16 rx_len;
+	LOCK_SPI_CORE();
+	rx_len = dm9051_rx_lock(buff);
+	UNLOCK_SPI_CORE();
+	return rx_len;
+}
+
 void dm9051_tx(uint8_t *buf, uint16_t len)
 {
+	LOCK_SPI_CORE();
 	DM9051_Write_Reg(DM9051_TXPLL, len & 0xff);
 	DM9051_Write_Reg(DM9051_TXPLH, (len >> 8) & 0xff);
 	DM9051_Write_Mem(buf, len);
@@ -829,6 +873,8 @@ void dm9051_tx(uint8_t *buf, uint16_t len)
 		DM9051_TX_DELAY((DM9051_Read_Reg(DM9051_TCR) & TCR_TXREQ), dm_delay_us(5));
 	else
 		dm_delay_ms(1); //CH390
+
+	UNLOCK_SPI_CORE();
 }
 
 //char *display_identity_bannerline_title = NULL;
