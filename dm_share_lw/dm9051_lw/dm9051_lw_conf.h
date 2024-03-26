@@ -25,8 +25,12 @@
   */
 #ifndef __DM9051_ENV_H
 #define __DM9051_ENV_H
+#include "dm9051opts.h"
+#if defined (AT32F403Axx)
 #include <stdint.h>
 #include "at32f403a_407_conf.h"
+#endif
+
 //tobe "dm9051opts.c"
 //
 // [This _HELLO_DRIVER_INTERNAL compiler option, is for a diagnostic purpose while the program code is to use this dm9051_lw driver.]

@@ -387,6 +387,7 @@ uint8_t cspi_read_reg(uint8_t reg) //static (todo)
 void cspi_read_regnx(uint8_t reg, uint8_t length, uint8_t *buf) // static (todo)
 {
 	dm9051if_cs_lo();
+	// Complier Code Generation C99 Mode enabled
 	for (uint8_t i = 0; i < length; i++)
 	{
 		dm9051_spi_command_write(reg + i | OPC_REG_R);
@@ -406,6 +407,7 @@ void cspi_write_reg(uint8_t reg, uint8_t val)
 void cspi_write_regnx(uint8_t reg, uint8_t length, uint8_t *buf)
 {
 	dm9051if_cs_lo();
+	// Complier Code Generation C99 Mode enabled
 	for (uint8_t i = 0; i < length; i++)
 	{
 		dm9051_spi_command_write(reg + i | OPC_REG_W);
