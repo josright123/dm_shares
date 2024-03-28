@@ -264,6 +264,10 @@ static void dm9051_core_reset(void)
 
 	if (OPT_CONFIRM(generic_core_rst)){
 
+		/*		{	DM_MACRO (enable_t, generic_core_rst) } v.s.
+		 * 		{	optsex_t dm9051optsex {DM_TRUE, "Long_delay core rst",} }
+		 */
+
 		#if 0
 		printf("-----------------------------------------------------------------------------------------\r\n");
 		printf("--------------------- write a long delay type procedure ,for core reset -----------------\r\n");
@@ -544,14 +548,17 @@ u8 ret_fire_time(u8 *histc, int csize, int i, u8 rxb)
 
 /*static*/ u16 err_hdlr(char *errstr, u32 invalue, u8 zerochk)
 {
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
 	if (zerochk && invalue == 0)
 		return 0; //.printf(": NoError as %u\r\n", valuecode);
 
-	// #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG, ("lw.c: " fmt, ##__VA_ARGS__))
 	printf(errstr, invalue); //or "0x%02x"
 
 	hdlr_reset_process(OPT_CONFIRM(hdlr_confrecv)); //CH390 opts
 	return 0;
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
 
 static u16 ev_rxb(uint8_t rxb)
@@ -829,13 +836,20 @@ uint16_t dm9051_rx(uint8_t *buff)
 	}
 	#endif
 
-	/* Any after linup */
-	dm9051_link_log_rx(buff, rx_len);
+	/* Any after linkup */
+	dm9051_link_log_reset_hexdump(buff, rx_len);
 	/* An assurence */
-	if (dm9051_log_rx(buff, rx_len)) { //ok. only 1st-pbuf
-		dm9051_log_rx_inc_count();
+	if (dm9051_disp_and_check_rx(buff, rx_len)) { //ok. only 1st-pbuf
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
+		dm9051_rx_unknow_pkt_inc_count();
+		
+		printf("dm9051_disp_and_check_rx : Receive unit-cast UNKNOW pkt (err: %d) ---------------\r\n", DM9051_NUM_RXLOG_RST); //or "0x%02x"
+
 		hdlr_reset_process(OPT_CONFIRM(hdlr_confrecv)); //CH390 opts //~return ev_rxb(rxbyte);
 		return 0;
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 	}
 	return rx_len;
 }

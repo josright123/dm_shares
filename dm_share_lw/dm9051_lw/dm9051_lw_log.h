@@ -24,7 +24,7 @@ void EepromDisplay(int pin);
 //}
 
 void dm9051_link_log_reset(void);
-void dm9051_link_log_rx(const void *buffer, size_t len);
+void dm9051_link_log_reset_hexdump(const void *buffer, size_t len);
 
 /* Put here, instead. Instead of "dm9051_lw_log.h", some generic called in the other implementation place.
  */
@@ -52,10 +52,10 @@ void dm9051_rxlog_arp(void *payload, uint16_t tot_len, uint16_t len);
 #endif
 #endif
 
-void dm9051_log_tx(const uint8_t *buf, uint16_t len);
-int dm9051_log_rx(const uint8_t *buf, uint16_t len);
+void dm9051_disp_tx(const uint8_t *buf, uint16_t len);
+int dm9051_disp_and_check_rx(const uint8_t *buf, uint16_t len);
 
-void dm9051_log_rx_inc_count(void);
-void dm9051_log_rx_display_count(void);
+void dm9051_rx_unknow_pkt_inc_count(void);
+void dm9051_rx_unknow_pkt_display_count(void);
 
 #endif //__DM9051_DBG_H

@@ -245,6 +245,7 @@ void dm9051_phy_write(uint32_t reg, uint16_t value);
 uint16_t dm9051_link_show(void);
 
 #define DM9051_NUM_LINKUP_RST	9
+#define DM9051_NUM_RXLOG_RST	7
 
 u16 err_hdlr(char *errstr, u32 invalue, u8 zerochk);
 

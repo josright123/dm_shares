@@ -50,7 +50,7 @@ void dm9051_link_log_reset(void) {
 #if 1
 void set_tcpip_thread_state(int state); //temp //extern int tcpip_thread_init;
 #endif
-void dm9051_link_log_rx(const void *buffer, size_t len) {
+void dm9051_link_log_reset_hexdump(const void *buffer, size_t len) {
 	#undef printf
 	#define printf(fmt, ...) TASK_DM9051_DEBUGF(TASK_SEMAPHORE_HEX_DUMP, /*SEMA_OFF*/ SEMA_ON, /* "[D]" */ NULL, (fmt, ##__VA_ARGS__))
 	uint16_t rwpa_w, mdra_ingress;
@@ -386,7 +386,7 @@ int DBG_IS_TCP(void *dataload) {
 }
 
 int master_UDP_unknow = 0;
-void dm9051_log_tx(const uint8_t *buf, uint16_t len)
+void dm9051_disp_tx(const uint8_t *buf, uint16_t len)
 {
   static int count = 0;
 #if 0
@@ -450,7 +450,7 @@ void dm9051_log_tx(const uint8_t *buf, uint16_t len)
 #endif
 }
 
-int dm9051_log_rx(const uint8_t *buf, uint16_t len)
+int dm9051_disp_and_check_rx(const uint8_t *buf, uint16_t len)
 {
 #if 0
   static int icmp_count_rx = 0;
@@ -628,25 +628,26 @@ void dm9051_txlog_monitor_tx_all(int hdspc, const uint8_t *buffer, size_t len)
 
 uint16_t unitcast_UNKNOW_pkt = 0;
 
-void dm9051_log_rx_inc_count(void) {
+void dm9051_rx_unknow_pkt_inc_count(void) {
 	unitcast_UNKNOW_pkt++;
 }
-void dm9051_log_rx_display_count(void) {
-	#if 1
+
+#if 0
+void dm9051_rx_unknow_pkt_display_count(void) {
 	printf("d (... unitcast_UNKNOW_pkt: %d / function_monitor_rx_all ...)\r\n", unitcast_UNKNOW_pkt);
-	#endif
 }
+#endif
 
 void dm9051_rxlog_monitor_rx_all(int hdspc, const uint8_t *buffer, size_t len)
 {
 	function_monitor_rx_all(hdspc, NULL, buffer, len);
-	//.dm9051_log_rx_display_count(); NOT here~
+	//.dm9051_rx_unknow_pkt_display_count(); NOT here~
 }
 
 void dm9051_txlog_disp(uint8_t *buffer, int len)
 {
 #if DM9051_DEBUG_ENABLE
-  dm9051_log_tx(buffer, len);
+  dm9051_disp_tx(buffer, len);
 #endif
 }
 
@@ -661,7 +662,7 @@ void dm9051_rxlog_arp(void *payload, uint16_t tot_len, uint16_t len)
 		printf("[%d]\r\n", 5); //part = 5.
 
 		printf(" rx,(such as 'ARP')\r\n"); //no-need show. such as 'ARP'
-		dm9051_log_rx_display_count(); //Put here~
+		dm9051_rx_unknow_pkt_display_count(); //Put here~
 		bannerline_log();
 	#endif
 
