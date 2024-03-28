@@ -144,4 +144,8 @@ struct ethip_hdr {
     destipaddr[2];
 };
 
+typedef struct {
+	int allow_num;
+} pkt_monitor_t;
+
 #endif //__DM9051_DECL_TYPE_H

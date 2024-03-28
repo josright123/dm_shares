@@ -18,13 +18,13 @@
  */
 #define ETHERNET_COUNT_MAX						4 // Correspond to mcu target board's specification
 #define ETHERNET_COUNT								1 //2 //2 //4 //2 //2 //3 //2 //#define get_eth_interfaces() ETH_COUNT
-#define freeRTOS											0
 // #define _AT32F403Axx
 #define _AT32F437xx
 
 #ifdef freeRTOS_CONF
-#undef freeRTOS
 #define freeRTOS											freeRTOS_CONF
+#else
+#define freeRTOS											0
 #endif
 
 /* Sanity.
@@ -47,18 +47,15 @@
  * at32_cm4_device_support
  */
 #if freeRTOS
+#include "FreeRTOS.h"
+#include "task.h"
+
 #ifndef freeRTOS_CONF
 #warning "freeRTOS is defined"
 #endif
 
-#include "FreeRTOS.h"
-#include "task.h"
 typedef void (* dly_us_t)(uint32_t nus);
 typedef void (* dly_ms_t)(uint32_t nms);
-static void uvTaskDelay( const TickType_t xTicksToDelay ) {
-	vTaskDelay((xTicksToDelay + 999)/ 1000);
-}
-
 // 對於微秒級的延遲，您可能需要使用忙等待迴圈或硬體支援的計時器。
 // void delay_us(uint32_t us)
 // {
@@ -70,6 +67,9 @@ static void uvTaskDelay( const TickType_t xTicksToDelay ) {
 //         __NOP();
 //     }
 // }
+static void uvTaskDelay( const TickType_t xTicksToDelay ) {
+	vTaskDelay(pdMS_TO_TICKS((xTicksToDelay + 999)/ 1000));
+}
 #else
 typedef void (* dly_us_t)(uint32_t nus);
 typedef void (* dly_ms_t)(uint16_t nms);
@@ -200,6 +200,9 @@ void first_log_init(void);
 u8 first_log_get(int i);
 
 //------------------
+	
+#define PTR_SPIDEV(pin) /* new */ \
+	&devconf[pin]
 
 #define FIELD_SPIDEV(field) \
 	devconf[pin_code].field
@@ -218,6 +221,9 @@ u8 first_log_get(int i);
 //	SINGLE_TRANS,
 //	MULTI_TRANS,
 //};
+
+void dm9051_board_counts(void);
+
 #if DM9051OPTS_API
 //typedef uint16_t (* trn_conn_t)(int i);
 //int TRANS_DUAL(trn_conn_t f); //return : found id number

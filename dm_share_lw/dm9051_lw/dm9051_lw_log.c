@@ -3,11 +3,12 @@
 #include "dm9051_lw.h"
 #include "dm9051_lw_log_types.h"
 #include "dm9051_lw_log_inc.h"
-#include "dm9051_lw_debug.h"
 
-// printf("(dm9 xfer) %.8x: %s", i, linebuf);
-#define printf(fmt, ...) DM9051_DEBUGF(DM9051_LW_LOG, (fmt, ##__VA_ARGS__))
-// #define printf(fmt, ...) DM9051_DEBUGF(DM9051_LW_LOG, ("lw_log.c: " fmt, ##__VA_ARGS__))
+#include "../freertos_tasks_debug.h"
+#define printf(fmt, ...) TASK_DM9051_DEBUGF(0, SEMA_OFF, "[xx]", (fmt, ##__VA_ARGS__))
+
+//#include "dm9051_lw_debug.h"
+//#define printf(fmt, ...) DM9051_DEBUGF(DM9051_LW_LOG, (fmt, ##__VA_ARGS__))
 
 #define MMALLOC_MAX_LEN2	250 //#include "main_malloc.h"
 
@@ -16,11 +17,16 @@
  Or to HAVE packets dump functions you can define DM9051_DEBUG_ENABLE to 1 in the 'dm9051opts.h'"
 #endif
 
+RX_MODLE_DECLARATION;
+pkt_monitor_t rx_modle_count[RX_DUMP_NUM] = {
+	0, 0,
+};
+
 TX_MODLE_DECLARATION;
-tx_monitor_t tx_modle_keep = {
+pkt_monitor_t tx_modle_keep = {
 	0,
 };
-tx_monitor_t tx_all_modle_keep = {
+pkt_monitor_t tx_all_modle_keep = {
 	0,
 };
 
@@ -36,6 +42,36 @@ static void arp_counting_to_safty_tx(int to_must_safty) { }
 	//	cb.tmp.arp_we_trans_count = 0;
 	//	cb.tmp.flg_wait_uni_arp_finish = 1; //=(cb.tmp.flg_has_arp_unicast_enter = 0;) //back-to-search-a-one.
 	//}
+	
+void dm9051_link_log_reset(void) {
+	rx_modle_count[RX_ANY].allow_num = 0;
+}
+
+#if 1
+void set_tcpip_thread_state(int state); //temp //extern int tcpip_thread_init;
+#endif
+void dm9051_link_log_rx(const void *buffer, size_t len) {
+	#undef printf
+	#define printf(fmt, ...) TASK_DM9051_DEBUGF(TASK_SEMAPHORE_HEX_DUMP, /*SEMA_OFF*/ SEMA_ON, /* "[D]" */ NULL, (fmt, ##__VA_ARGS__))
+	uint16_t rwpa_w, mdra_ingress;
+	if (rx_modle_count[RX_ANY].allow_num < rx_modle[RX_ANY].allow_num) {
+			rx_modle_count[RX_ANY].allow_num++;
+			sprint_hex_dump0(rx_modle_count[RX_ANY].allow_num, 0, "ANY <<rx ", len, 32, buffer, 0, (len < 32) ? len : 32, /*DM_FALSE*/ DM_TRUE); /*, DM_TRUE, DGROUP_NONE */
+			/* dm_check_rx(buffer, len); */
+			
+		    hdlr_rx_pointer(&rwpa_w, &mdra_ingress);
+		    printf("  rwpa %04x / ingress %04x\r\n", /*rx_modle_count[RX_ANY].allow_num,*/ rwpa_w, mdra_ingress);
+#if 1
+			if (rx_modle_count[RX_ANY].allow_num == rx_modle[RX_ANY].allow_num) {
+				set_tcpip_thread_state(6); //tcpip_thread_init = 6; //temp
+//				printf("%d rwpa %04x / ingress %04x, _tcpip_thread_init = %d\r\n",
+//					rx_modle_count[RX_ANY].allow_num, rwpa_w, mdra_ingress, _tcpip_thread_init);
+			}
+#endif
+	}
+	#undef printf
+	#define printf(fmt, ...) TASK_DM9051_DEBUGF(0, SEMA_OFF, "[xx]", (fmt, ##__VA_ARGS__))
+}
 
 void EepromDisplay(int pin)
 {
@@ -208,9 +244,15 @@ void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
 		    size_t tlen, int rowsize, const void *buf, int seg_start, size_t len, /*int useflg*/ int cast_lf) //, int must, int dgroup
 {
 #if 1
+	//#undef	printf
+	//#define printf(fmt, ...) DM9051_DEBUGF(1, (fmt, ##__VA_ARGS__))
+	#undef printf
+	#define printf(fmt, ...) TASK_DM9051_DEBUGF(TASK_SEMAPHORE_HEX_DUMP, /*SEMA_OFF*/ SEMA_ON, /* "[D]" */ NULL, (fmt, ##__VA_ARGS__))
+#endif
+#if 1
 	//if (useflg) {
 		int si, se, titlec = 0;
-		int hs, i, linelen, remaining = len; //const eth_class_t *ec = &eclass[10];
+		int i, linelen, remaining = len; //hs, const eth_class_t *ec = &eclass[10];
 
 		si = seg_start;
 		se = seg_start + len;
@@ -235,9 +277,14 @@ void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
 				}
 			} while(0);
 
+#if 1
+			printf("%d", head_space);
+#endif
+#if 0
 			hs = head_space;
 			while(hs--)
-				printf(" ");;
+#endif
+				printf(" ");
 
 			if (prefix_str) {
 				printf("(%s) %.8x: %s", prefix_str, i, linebuf); //"%s", ec->str //CHECK (XXX >> )
@@ -275,11 +322,33 @@ void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
 					printf("\r\n");
 					#endif
 				}
+				if (IS_TCP) {
+					size_t ulen = tlen; // larger for with 4-bytes CRC
+					printf(" ..SrcIP %d.%d.%d.%d", (IPBUF->srcipaddr[0] >> 0) & 0xff, (IPBUF->srcipaddr[0] >> 8),
+						(IPBUF->srcipaddr[1] >> 0) & 0xff, (IPBUF->srcipaddr[1] >> 8));
+					printf("  DestIP %d.%d.%d.%d", (IPBUF->destipaddr[0] >> 0) & 0xff, (IPBUF->destipaddr[0] >> 8),
+						(IPBUF->destipaddr[1] >> 0) & 0xff, (IPBUF->destipaddr[1] >> 8));
+					printf("  Len %d", ulen);
+					
+					if (TCPBUF->flags == 0x18)
+						printf("  (%5d -> %d) flags %02x (PSH, ACK)", HTONS(TCPBUF->srcport), HTONS(TCPBUF->destport), TCPBUF->flags);
+					else
+						printf("  (%5d -> %d) flags %02x", HTONS(TCPBUF->srcport), HTONS(TCPBUF->destport), TCPBUF->flags);
+					
+					printf("\r\n");
+				}
+				
 				//else
 				//	printf("\r\n");
 			}
 		}
 	//}
+#endif
+#if 1
+	//#undef	printf
+	//#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG, (fmt, ##__VA_ARGS__))
+	#undef printf
+	#define printf(fmt, ...) TASK_DM9051_DEBUGF(0, SEMA_OFF, "[xx]", (fmt, ##__VA_ARGS__))
 #endif
 }
 
@@ -366,11 +435,17 @@ void dm9051_log_tx(const uint8_t *buf, uint16_t len)
 #endif
 	  return;
   }
+  
+  if (IS_TCP) {
+	  function_monitor_tx_all(HEAD_SPC, 0, "<TCP>", buf, len);
+	  return;
+  }
 
 #if 0
   if (len > 70) { //add.
     printf("---------------Sending total_tx(%d)\r\n", count);
     function_monitor_tx_all(HEAD_SPC, 0, NULL, buf, len);
+	return;
   }
 #endif
 }
@@ -508,8 +583,8 @@ void dm9051_txlog_monitor_tx(int hdspc, const uint8_t *buffer, size_t len)
 				heads, HEAD_LEN);
 			#endif
 			  //=sprintf(heads, "%d/%d tx[%d]>>", tx_modle_keep.allow_num, tx_modle.allow_num, mstep_get_net_index());
-			  n = sprintf(heads, "%d/%d", tx_modle_keep.allow_num, tx_modle.allow_num);
-			  sprintf(heads, "%d/%d tx[%d]>>", tx_modle_keep.allow_num, tx_modle.allow_num, mstep_get_net_index());
+			  n = sprintf(heads, "%d/%d len %lu", tx_modle_keep.allow_num, tx_modle.allow_num, len);
+			  sprintf(heads, "%d/%d len %lu tx[%d]>>", tx_modle_keep.allow_num, tx_modle.allow_num, len, mstep_get_net_index());
 
 			  function_monitor_tx(hdspc, n, /*NULL*/ heads, buffer, len);
 			free(heads);
@@ -522,20 +597,30 @@ void dm9051_rxlog_monitor_rx(int hdspc, const uint8_t *buffer, size_t len)
 	function_monitor_rx(hdspc, buffer, len);
 }
 
+/*
+ * TX log is design as: dm9051_txlog_monitor_tx_all()
+ *   hdspc: 0 ,must print-out
+ *          ~0, only print-out 'rx_modle.allow_num' times.
+ * *Will exechange to ~0 must print-out, and others 'rx_modle.allow_num' times.
+ */
 void dm9051_txlog_monitor_tx_all(int hdspc, const uint8_t *buffer, size_t len)
 {
-	if (tx_all_modle_keep.allow_num < tx_all_modle.allow_num) {
+	if (hdspc == 0) {
+		bannerline_log();
+		function_monitor_tx_all(0, 0, "[tx_all]", buffer, len);
+	} else if (tx_all_modle_keep.allow_num < tx_all_modle.allow_num) {
 		#define HEAD_LEN	MMALLOC_MAX_LEN2 //3KB --> 1kb
 		char *heads;
 		int n;
 		tx_all_modle_keep.allow_num++;
 
 		heads = (char *) malloc(HEAD_LEN); // note: memory allocation WITH <stdlib.h>!
-		  n = sprintf(heads, "%d/%d", tx_all_modle_keep.allow_num, tx_all_modle.allow_num);
-		  sprintf(heads, "%d/%d tx[%d]>>", tx_all_modle_keep.allow_num, tx_all_modle.allow_num, mstep_get_net_index());
+		  n = sprintf(heads, "%d/%d len %lu", tx_all_modle_keep.allow_num, tx_all_modle.allow_num, len);
+		  sprintf(heads, "tx_all[%d]>> len %lu %d/%d", mstep_get_net_index(), len,
+			tx_all_modle_keep.allow_num, tx_all_modle.allow_num);
 
 		  bannerline_log();
-		  function_monitor_tx_all(hdspc, n, heads, buffer, len);
+		  function_monitor_tx_all(/*hdspc*/ tx_all_modle_keep.allow_num, n, heads, buffer, len);
 
 		free(heads);
 	}

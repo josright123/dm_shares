@@ -6,6 +6,13 @@
 
 u8 gfirst_log[ETHERNET_COUNT];
 
+void dm9051_board_counts(void)
+{
+	bannerline_log();
+	bannerline_log();
+	printf("x2web start: [BOARD_SPI COUNT] %d  /  Operating: [ETHERNET COUNT] %d\r\n", BOARD_SPI_COUNT, ETHERNET_COUNT);
+}
+
 void GpioDisplay(void) {
   int i;
   for (i = 0; i < ETHERNET_COUNT; i++) {
@@ -24,6 +31,7 @@ void dm9051_opts_display(void)
 		printf("dm9051[%d]_options_display:\r\n", mstep_get_net_index());
 		printf(" - core rst mode, %s\r\n", dm9051opts_descgeneric_core_rst());
 		printf(" - tx_endbit mode, %s\r\n", dm9051opts_desctx_endbit());
+		bannerline_log();
 		//..
 	}
 }
@@ -50,7 +58,7 @@ void dm9051_opts_display(void)
 		
 		for (i = 0; i< ETHERNET_COUNT; i++) {
 			mstep_set_net_index(i);
-			printf("rx's mode[%d] %s\r\n", i, dm9051opts_descpromismode());
+			printf("rxmode[%d] %s\r\n", i, dm9051opts_descpromismode());
 		}
 		
 	for (i = 0; i< ETHERNET_COUNT; i++) {

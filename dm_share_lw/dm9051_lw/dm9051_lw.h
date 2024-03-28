@@ -226,6 +226,7 @@ void dm9051_poweron_rst(void);
 uint16_t dm9051_init(const uint8_t *adr);
 uint16_t dm9051_rx(uint8_t *buff);
 void dm9051_tx(uint8_t *buf, uint16_t len);
+void hdlr_rx_pointer(u16 *rwpa_wt, u16 *mdra_rd);
 void hdlr_reset_process(enable_t en);
 void dm9051_mac_adr(const uint8_t *macadd);
 uint16_t dm9051_bmsr_update(void);
@@ -242,6 +243,10 @@ uint16_t dm9051_bmcr_update(void);
 uint16_t dm9051_link_update(void);
 void dm9051_phy_write(uint32_t reg, uint16_t value);
 uint16_t dm9051_link_show(void);
+
+#define DM9051_NUM_LINKUP_RST	9
+
+u16 err_hdlr(char *errstr, u32 invalue, u8 zerochk);
 
 #define DM9051_FLAG_LINK_UP							0x01U
 

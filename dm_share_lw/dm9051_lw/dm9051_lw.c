@@ -43,7 +43,7 @@
 #include "dm9051_lw_debug.h"
 
 // printf("(dm9 xfer) %.8x: %s", i, linebuf);
-#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG, (fmt, ##__VA_ARGS__))
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 //#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG, ("lw.c: " fmt, ##__VA_ARGS__))
 
 static void dm9051_phycore_on(uint16_t nms);
@@ -423,25 +423,37 @@ char *display_mac_bannerline_defaultN = ": Display Bare device";
 char *display_identity_bannerline_defaultN = ": Bare device";
 char *display_identity_bannerline_default =  ": Read device";
 
-uint16_t psh_id[ETHERNET_COUNT];
-uint8_t psh_ids[ETHERNET_COUNT][5], psh_id_adv[ETHERNET_COUNT];
-
 static int display_identity(char *spiname, uint16_t id, uint8_t *ids, uint8_t id_adv) {
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
+
+	static uint16_t psh_id1[ETHERNET_COUNT];
+	static uint8_t psh_ids1[ETHERNET_COUNT][5], psh_id_adv1[ETHERNET_COUNT];
 	if (ids) {
-		psh_id[mstep_get_net_index()] = id;
-		memcpy(&psh_ids[mstep_get_net_index()][0], ids, 5);
-		psh_id_adv[mstep_get_net_index()] = id_adv;
+		psh_id1[mstep_get_net_index()] = id;
+		memcpy(&psh_ids1[mstep_get_net_index()][0], ids, 5);
+		psh_id_adv1[mstep_get_net_index()] = id_adv;
 	} else {
-		 id = psh_id[mstep_get_net_index()];
-		 memcpy(ids, &psh_ids[mstep_get_net_index()][0], 5);
-		 id_adv = psh_id_adv[mstep_get_net_index()];
+//		 id = psh_id1[mstep_get_net_index()];
+//		 memcpy(ids, &psh_ids1[mstep_get_net_index()][0], 5);
+//		 id_adv = psh_id_adv1[mstep_get_net_index()];
 	}
 
-	printf("%s[%d] ::: ids %02x %02x %02x %02x %02x (%s) chip rev %02x, Chip ID %02x (CS_EACH_MODE)%s\r\n",
+	printf("%s[%d] ::: ids %02x %02x %02x %02x (%s) chip rev %02x, Chip ID %02x (CS_EACH_MODE)%s\r\n",
 		display_identity_bannerline_title ? display_identity_bannerline_title : display_identity_bannerline_default,
-		mstep_get_net_index(), ids[0], ids[1], ids[2], ids[3], ids[4], dm9051opts_desccsmode(), id_adv, id,
+		mstep_get_net_index(),
+		psh_ids1[mstep_get_net_index()][0], psh_ids1[mstep_get_net_index()][1],
+		psh_ids1[mstep_get_net_index()][2], psh_ids1[mstep_get_net_index()][3], 
+		dm9051opts_desccsmode(),
+		psh_id_adv1[mstep_get_net_index()], psh_id1[mstep_get_net_index()],
 		ids ? "" : ".(Rst.process)");
+//	printf("%s[%d] ::: ids %02x %02x %02x %02x %02x (%s) chip rev %02x, Chip ID %02x (CS_EACH_MODE)%s\r\n",
+//		display_identity_bannerline_title ? display_identity_bannerline_title : display_identity_bannerline_default,
+//		mstep_get_net_index(), ids[0], ids[1], ids[2], ids[3], ids[4], dm9051opts_desccsmode(), id_adv, id,
+//		ids ? "" : ".(Rst.process)");
 	return 0;
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
 
 static char *bare_mac_tbl[2] = {
@@ -466,6 +478,12 @@ static void display_baremac(void) {
 #define	DM9051_Read_Rxb	DM9051_Read_Mem2X
 
 #define	TIMES_TO_RST	10
+
+void hdlr_rx_pointer(u16 *rwpa_wt, u16 *mdra_rd)
+{
+	*rwpa_wt = (uint32_t)DM9051_Read_Reg(0x24) | (uint32_t)DM9051_Read_Reg(0x25) << 8; //DM9051_RWPAL
+	*mdra_rd = (uint32_t)DM9051_Read_Reg(0x74) | (uint32_t)DM9051_Read_Reg(0x75) << 8; //DM9051_MRRL;
+}
 
 void hdlr_reset_process(enable_t en)
 {
@@ -495,8 +513,9 @@ void hdlr_reset_process(enable_t en)
 		exint_menable(NVIC_PRIORITY_GROUP_0); //dm9051_board_irq_enable();
 		dm9051_start(mstep_eth_mac());
 
-		rwpa_w = (uint32_t)DM9051_Read_Reg(0x24) | (uint32_t)DM9051_Read_Reg(0x25) << 8; //DM9051_RWPAL
-		mdra_ingress = (uint32_t)DM9051_Read_Reg(0x74) | (uint32_t)DM9051_Read_Reg(0x75) << 8; //DM9051_MRRL;
+//		rwpa_w = (uint32_t)DM9051_Read_Reg(0x24) | (uint32_t)DM9051_Read_Reg(0x25) << 8; //DM9051_RWPAL
+//		mdra_ingress = (uint32_t)DM9051_Read_Reg(0x74) | (uint32_t)DM9051_Read_Reg(0x75) << 8; //DM9051_MRRL;
+		hdlr_rx_pointer(&rwpa_w, &mdra_ingress);
 		printf("dm9051_start(pin = %d).e rwpa %04x / ingress %04x\r\n", mstep_get_net_index(), rwpa_w, mdra_ingress);
 	}
     #endif
@@ -509,8 +528,9 @@ u8 ret_fire_time(u8 *histc, int csize, int i, u8 rxb)
 	u8 times = (histc[i] >= TIMES_TO_RST) ? histc[i] : 0;
 //	printf(" _dm9051f rxb %02x (times %2d)%c\r\n", rxb, histc[i], (histc[i]==2) ? '*': ' ');
 
-  rwpa_w = (uint32_t)DM9051_Read_Reg(0x24) | (uint32_t)DM9051_Read_Reg(0x25) << 8; //DM9051_RWPAL
-  mdra_ingress = (uint32_t)DM9051_Read_Reg(0x74) | (uint32_t)DM9051_Read_Reg(0x75) << 8; //DM9051_MRRL;
+//  rwpa_w = (uint32_t)DM9051_Read_Reg(0x24) | (uint32_t)DM9051_Read_Reg(0x25) << 8; //DM9051_RWPAL
+//  mdra_ingress = (uint32_t)DM9051_Read_Reg(0x74) | (uint32_t)DM9051_Read_Reg(0x75) << 8; //DM9051_MRRL;
+  hdlr_rx_pointer(&rwpa_w, &mdra_ingress);
   printf("%2d. rwpa %04x / ingress %04x, histc[rxb %02xh], times= %d\r\n",
 		 histc[i], rwpa_w, mdra_ingress, rxb, times);
 
@@ -522,7 +542,7 @@ u8 ret_fire_time(u8 *histc, int csize, int i, u8 rxb)
 	return times; //0;
 }
 
-static u16 err_hdlr(char *errstr, u32 invalue, u8 zerochk)
+/*static*/ u16 err_hdlr(char *errstr, u32 invalue, u8 zerochk)
 {
 	if (zerochk && invalue == 0)
 		return 0; //.printf(": NoError as %u\r\n", valuecode);
@@ -809,6 +829,8 @@ uint16_t dm9051_rx(uint8_t *buff)
 	}
 	#endif
 
+	/* Any after linup */
+	dm9051_link_log_rx(buff, rx_len);
 	/* An assurence */
 	if (dm9051_log_rx(buff, rx_len)) { //ok. only 1st-pbuf
 		dm9051_log_rx_inc_count();
@@ -993,8 +1015,9 @@ static uint16_t link_show(void) {
 		}
 	} while(n < 20 && !bityes(histnsr) && !bityes(histlnk)); // 20 times for 2 seconds
 
-	rwpa_w = (uint32_t)DM9051_Read_Reg(0x24) | (uint32_t)DM9051_Read_Reg(0x25) << 8; //DM9051_RWPAL
-	mdra_ingress = (uint32_t)DM9051_Read_Reg(0x74) | (uint32_t)DM9051_Read_Reg(0x75) << 8; //DM9051_MRRL;
+//	rwpa_w = (uint32_t)DM9051_Read_Reg(0x24) | (uint32_t)DM9051_Read_Reg(0x25) << 8; //DM9051_RWPAL
+//	mdra_ingress = (uint32_t)DM9051_Read_Reg(0x74) | (uint32_t)DM9051_Read_Reg(0x75) << 8; //DM9051_MRRL;
+	hdlr_rx_pointer(&rwpa_w, &mdra_ingress);
 
 	printf("(SHW timelink, 20 detects) det %d\r\n", n);
 	for (i= 8; i< 16; i++)

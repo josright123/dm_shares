@@ -12,6 +12,23 @@
 #include <stdio.h>
 #include <string.h>
 
+#define RX_ANY	0
+#define RX_MON	1
+#define RX_DUMP_NUM	2
+						
+#define RX_MODLE_DECLARATION \
+const pkt_monitor_t rx_modle[RX_DUMP_NUM] = { \
+	2, 1, \
+}
+						
+#define TX_MODLE_DECLARATION \
+const pkt_monitor_t tx_modle = { \
+	16, \
+}; \
+const pkt_monitor_t tx_all_modle = { \
+	2, \
+}
+
 #define kkmin(a, b) (a < b) ? a : b
 
 #define SEG_QUAN		16
@@ -51,6 +68,7 @@
 
 #define	IS_DHCPTX			(HTONS(UDPBUF->srcport) == DHCPC_CLIENT_PORT &&	\
 							HTONS(UDPBUF->destport) == DHCPC_SERVER_PORT)
+
 /*
 #define DGROUP_NONE			5*/
 /*#define DM_FALSE			0
@@ -66,10 +84,21 @@ void dm_check_tx(const uint8_t *buf, size_t len);
 
 #if DM9051_DEBUG_ENABLE
 
+/*
+ * RX log is design as: function_monitor_rx()
+ *   hdspc: 0 ,must print-out
+ *          ~0, only print-out 'rx_modle.allow_num' times.
+ * *Will exechange to ~0 must print-out, and others 'rx_modle.allow_num' times.
+ */
 #define	function_monitor_rx(hdspc, buffer, len) \
 	do { \
-	sprint_hex_dump0(hdspc, 0, "dm9 monitor <<rx  ", len, 32, buffer, 0, (len < 70) ? len : 70, DM_FALSE); /*, DM_TRUE, DGROUP_NONE */ \
-  /* dm_check_rx(buffer, len); */ \
+		if (hdspc == 0) \
+			sprint_hex_dump0(rx_modle_count[RX_MON].allow_num, 0, "dm9 monitor <<rx  ", len, 32, buffer, 0, (len < 70) ? len : 70, /*DM_FALSE*/ DM_TRUE); \
+		else if (rx_modle_count[RX_MON].allow_num < rx_modle[RX_MON].allow_num) { \
+			rx_modle_count[RX_MON].allow_num++; \
+			sprint_hex_dump0(rx_modle_count[RX_MON].allow_num, 0, "dm9 monitor <<rx  ", len, 32, buffer, 0, (len < 70) ? len : 70, /*DM_FALSE*/ DM_TRUE); /*, DM_TRUE, DGROUP_NONE */ \
+			/* dm_check_rx(buffer, len); */ \
+		} \
 	} while(0)
 
 #define	function_monitor_rx_allbx(headstr, buffer, len, hdspc) \
@@ -110,13 +139,14 @@ void dm_check_tx(const uint8_t *buf, size_t len);
 	/*dm_check_tx(buffer, len);*/ \
 	} while(0)
 
+#define TX_ALL_LEN	32 //50
 #define function_monitor_tx_all(hdspc, ttn, heads, buffer, len) \
 	do { \
 	dm_check_tx(buffer, len); \
 	if (heads) \
-		sprint_hex_dump0(hdspc, ttn, heads, len, 32, buffer, 0, (len < 50) ? len : 50, DM_TRUE); /*, DM_TRUE, DGROUP_NONE */ \
+		sprint_hex_dump0(hdspc, ttn, heads, len, 32, buffer, 0, (len < TX_ALL_LEN) ? len : TX_ALL_LEN, DM_TRUE); /*, DM_TRUE, DGROUP_NONE */ \
 	else \
-		sprint_hex_dump0(hdspc, ttn, "dm9 monitor-all   tx>>", len, 32, buffer, 0, (len < 50) ? len : 50, DM_TRUE); /*, DM_TRUE, DGROUP_NONE */ \
+		sprint_hex_dump0(hdspc, ttn, "dm9 monitor-all   tx>>", len, 32, buffer, 0, (len < TX_ALL_LEN) ? len : TX_ALL_LEN, DM_TRUE); /*, DM_TRUE, DGROUP_NONE */ \
 	} while(0)
 #else
 

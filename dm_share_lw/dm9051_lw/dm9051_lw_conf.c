@@ -272,9 +272,11 @@ void interface_add(int pin)
 	exint_add();
 }
 
+const spi_dev_t *pDevObj[BOARD_SPI_COUNT]; //To be used, in case 'pin_code' can be eliminated mass-quantity.
+
 void dm9051_boards_initialize(int n)
 {
-
+  int i;
   DM9051_DEBUGF(DM9051_LW_CONF,("DM9051_DEBUGF-->dm9051_boards_initialize() ..\r\n"));
   /*int i;
   for (i = 0; i < n; i++) { //get_eth_interfaces()
@@ -290,7 +292,10 @@ void dm9051_boards_initialize(int n)
 
 	interface_add(i);
   }*/
-  DM_UNUSED_ARG(n);
+  
+  for (i = 0; i < n; i++) //v.s. DM_UNUSED_ARG(n);
+	pDevObj[i] = PTR_SPIDEV(i); //'pin_code'
+  
   ETH_COUNT_VOIDFN(interface_add); //voidfn_dual
   cpin_poweron_reset();
   dmf.dly_ms(30);
@@ -343,12 +348,41 @@ static void rst_pin_pulse(void) {
 #define dm9051_spi_command_write(rd) spi_exc_data(rd)
 #define dm9051_spi_dummy_read() spi_exc_data(0)
 
+/*
+ * Include user defined options first. Anything not defined in these files
+ * will be set to standard values. Override anything you don't like!
+ */
+#include "lwipopts.h"
+
+int cspiSemaphoreDoOwn(int pntlog, char *headstr, SemaphoreHandle_t semaphore_hdlr);
+void cspiSemaphoreDoYield(int pntlog, char *headstr, SemaphoreHandle_t semaphore_hdlr);
+
+#define INIT_CSPI_CORE() \
+	int rc;
+	
+#define LOCK_CSPI_CORE(log) \
+	if (freeRTOS_ENABLE_MUTEX) \
+		rc = cspiSemaphoreDoOwn(log, "empty", NULL);
+#define UNLOCK_CSPI_CORE() \
+	if (freeRTOS_ENABLE_MUTEX) \
+		if (rc) cspiSemaphoreDoYield(0, "empty", NULL);
+
+void cpin_poweron_reset(void)
+{
+	if (rst_pin_exister())
+		dm9051if_rstb_pulse();
+}
+
 void cspi_read_regs(uint8_t reg, u8 *buf, u16 len, csmode_t csmode)
 {
 	int i;
 	int par_regs = (reg == DM9051_PAR);
 
 	if (csmode == CS_LONG) {
+#if freeRTOS_ENABLE_MUTEX && (JOS_MUTEX_LO_INIT || JOS_MUTEX_LINK || JOS_MUTEX_RX || JOS_MUTEX_TX)
+	INIT_CSPI_CORE()
+	LOCK_CSPI_CORE(0)
+#endif
 	  dm9051if_cs_lo();
 	  for(i=0; i < len; i++, reg++) {
 		dm9051_spi_command_write(reg | OPC_REG_R);
@@ -357,6 +391,9 @@ void cspi_read_regs(uint8_t reg, u8 *buf, u16 len, csmode_t csmode)
 		  printf("long read reg %02x = %02x\r\n", reg, buf[i]);
 	  }
 	  dm9051if_cs_hi();
+#if freeRTOS_ENABLE_MUTEX && (JOS_MUTEX_LO_INIT || JOS_MUTEX_LINK || JOS_MUTEX_RX || JOS_MUTEX_TX)
+	UNLOCK_CSPI_CORE()
+#endif
 	}
 	else { //CS_EACH
 	  for(i=0; i < len; i++, reg++) {
@@ -368,41 +405,60 @@ void cspi_read_regs(uint8_t reg, u8 *buf, u16 len, csmode_t csmode)
 	}
 }
 
-void cpin_poweron_reset(void)
-{
-	if (rst_pin_exister())
-		dm9051if_rstb_pulse();
-}
-
 uint8_t cspi_read_reg(uint8_t reg) //static (todo)
 {
 	uint8_t val;
+#if freeRTOS_ENABLE_MUTEX && (JOS_MUTEX_LO_INIT || JOS_MUTEX_LINK || JOS_MUTEX_RX || JOS_MUTEX_TX)
+	INIT_CSPI_CORE()
+	LOCK_CSPI_CORE(0)
+#endif
 	dm9051if_cs_lo();
 	dm9051_spi_command_write(reg | OPC_REG_R);
 	val = dm9051_spi_dummy_read();
 	dm9051if_cs_hi();
+#if freeRTOS_ENABLE_MUTEX && (JOS_MUTEX_LO_INIT || JOS_MUTEX_LINK || JOS_MUTEX_RX || JOS_MUTEX_TX)
+	UNLOCK_CSPI_CORE()
+#endif
 	return val;
 }
 void cspi_write_reg(uint8_t reg, uint8_t val)
 {
+#if freeRTOS_ENABLE_MUTEX && (JOS_MUTEX_LO_INIT || JOS_MUTEX_LINK || JOS_MUTEX_RX || JOS_MUTEX_TX)
+	INIT_CSPI_CORE()
+	LOCK_CSPI_CORE(0)
+#endif
 	dm9051if_cs_lo();
 	dm9051_spi_command_write(reg | OPC_REG_W);
 	dm9051_spi_command_write(val);
 	dm9051if_cs_hi();
+#if freeRTOS_ENABLE_MUTEX && (JOS_MUTEX_LO_INIT || JOS_MUTEX_LINK || JOS_MUTEX_RX || JOS_MUTEX_TX)
+	UNLOCK_CSPI_CORE()
+#endif
 }
 uint8_t cspi_read_mem2x(void)
 {
 	uint8_t rxb;
+#if freeRTOS_ENABLE_MUTEX && (JOS_MUTEX_LO_INIT || JOS_MUTEX_LINK || JOS_MUTEX_RX || JOS_MUTEX_TX)
+	INIT_CSPI_CORE()
+	LOCK_CSPI_CORE(1)
+#endif
 	dm9051if_cs_lo();
 	dm9051_spi_command_write(DM9051_MRCMDX | OPC_REG_R);
 	rxb = dm9051_spi_dummy_read();
 	rxb = dm9051_spi_dummy_read();
 	dm9051if_cs_hi();
+#if freeRTOS_ENABLE_MUTEX && (JOS_MUTEX_LO_INIT || JOS_MUTEX_LINK || JOS_MUTEX_RX || JOS_MUTEX_TX)
+	UNLOCK_CSPI_CORE()
+#endif
 	return rxb;
 }
 void cspi_read_mem(u8 *buf, u16 len)
 {
 	int i;
+#if freeRTOS_ENABLE_MUTEX && (JOS_MUTEX_LO_INIT || JOS_MUTEX_LINK || JOS_MUTEX_RX || JOS_MUTEX_TX)
+	INIT_CSPI_CORE()
+	LOCK_CSPI_CORE(1)
+#endif
 	dm9051if_cs_lo();
 	dm9051_spi_command_write(DM9051_MRCMD | OPC_REG_R);
 	if (!OPT_CONFIRM(onlybytemode) && (OPT_U8(iomode) == MBNDRY_WORD)) //u8iomode() == MBNDRY_WORD, dm9051opts_iomode(), MBNDRY_DEFAULT == MBNDRY_WORD
@@ -411,10 +467,17 @@ void cspi_read_mem(u8 *buf, u16 len)
 	for(i=0; i<len; i++)
 		buf[i] = dm9051_spi_dummy_read();
 	dm9051if_cs_hi();
+#if freeRTOS_ENABLE_MUTEX && (JOS_MUTEX_LO_INIT || JOS_MUTEX_LINK || JOS_MUTEX_RX || JOS_MUTEX_TX)
+	UNLOCK_CSPI_CORE()
+#endif
 }
 void cspi_write_mem(u8 *buf, u16 len)
 {
 	int i;
+#if freeRTOS_ENABLE_MUTEX && (JOS_MUTEX_LO_INIT || JOS_MUTEX_LINK || JOS_MUTEX_RX || JOS_MUTEX_TX)
+	INIT_CSPI_CORE()
+	LOCK_CSPI_CORE(0)
+#endif
 	dm9051if_cs_lo();
 	dm9051_spi_command_write(DM9051_MWCMD | OPC_REG_W);
 	if (!OPT_CONFIRM(onlybytemode) && (OPT_U8(iomode) == MBNDRY_WORD)) //u8iomode() == MBNDRY_WORD, dm9051opts_iomode(), MBNDRY_DEFAULT == MBNDRY_WORD
@@ -423,4 +486,7 @@ void cspi_write_mem(u8 *buf, u16 len)
 	for(i=0; i<len; i++)
 		dm9051_spi_command_write(buf[i]);
 	dm9051if_cs_hi();
+#if freeRTOS_ENABLE_MUTEX && (JOS_MUTEX_LO_INIT || JOS_MUTEX_LINK || JOS_MUTEX_RX || JOS_MUTEX_TX)
+	UNLOCK_CSPI_CORE()
+#endif
 }

@@ -50,8 +50,8 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				cs_setting_name, \
 				GPIO_PINOUT(GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK), /* //(PA15) */ \
 			}
-		devconf_at437_spi4("AT32F437 ETHERNET SPI4", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4"),
 		devconf_at437_spi2("AT32F437 ETHERNET SPI2", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
+		devconf_at437_spi4("AT32F437 ETHERNET SPI4", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4"),
 		devconf_at437_spi2("AT32F437 ETHERNET SPI2", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"), //-
 		devconf_at437_spi2("AT32F437 ETHERNET SPI2", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
 		devconf_at437_spi1("AT32F437 ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15"),
@@ -303,9 +303,9 @@ optsex_t dm9051optsex[BOARD_SPI_COUNT] = { //const
 //(define is as rather than '_ETHERNET_COUNT', refer to as '_ETHERNET_COUNT' counter)
 const eth_node_t node_config[BOARD_SPI_COUNT] = { \
 	{ \
-		{0, 0x60, 0x6e, 0x00, 0x01, 0x17,}, \
-		{192, 168, 249,  82}, \
-		{192, 168, 249,   1}, \
+		{0, 0x60, 0x6e, 0x00, 0x00, 0x17,}, \
+		{192, 168, 6,  17}, \
+		{192, 168, 6,   1}, \
 		{255, 255, 255, 0}, \
 	}, \
 	{ \

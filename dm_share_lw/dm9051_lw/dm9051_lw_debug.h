@@ -15,19 +15,21 @@
  * This file contains the definitions and macros used for debugging the DM9051 driver.
  * It provides options to enable or disable debugging messages based on different debug levels.
  */
-#ifndef DM9051_DRIVER_DIAG
+//#ifndef DM9051_DRIVER_DIAG
 #define DM9051_DRIVER_DIAG(x) do {printf x;} while(0)
-#else
-#define DM9051_DRIVER_DIAG(x)
-#endif
+//#else
+//#define DM9051_DRIVER_DIAG(x)
+//#endif
+//#define DM9051_DRIVER_DIAG1(x) do {printf x;} while(0)
 
 #define DM9051_DRIVER_DEBUG
 
 #ifdef DM9051_DRIVER_DEBUG
-	#define DM9051_LW_CONF              1
-  #define DM9051_TRACE_DEBUG          1
-  #define DM9051_LW_LOG               1
+	#define DM9051_LW_CONF            0  //1
+  #define DM9051_LW_LOG               0 //1
 
+  #define DM9051_TRACE_DEBUG_OFF      0
+  #define DM9051_TRACE_DEBUG_ON       1
 
 
 	#define DM9051_DBG_ON              0x01

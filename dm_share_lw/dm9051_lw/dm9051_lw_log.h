@@ -11,17 +11,20 @@
 
 void EepromDisplay(int pin);
 
-typedef struct {
-	int allow_num;
-} tx_monitor_t;
+//typedef struct {
+//	int allow_num;
+//} pkt_monitor_t;
 
-#define TX_MODLE_DECLARATION \
-const tx_monitor_t tx_modle = { \
-	16, /*10,*/ \
-}; \
-const tx_monitor_t tx_all_modle = { \
-	5, \
-}
+//#define TX_MODLE_DECLARATION \
+//const pkt_monitor_t tx_modle = { \
+//	16, \
+//}; \
+//const pkt_monitor_t tx_all_modle = { \
+//	0, \
+//}
+
+void dm9051_link_log_reset(void);
+void dm9051_link_log_rx(const void *buffer, size_t len);
 
 /* Put here, instead. Instead of "dm9051_lw_log.h", some generic called in the other implementation place.
  */
