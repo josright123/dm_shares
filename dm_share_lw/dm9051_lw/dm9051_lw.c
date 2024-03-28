@@ -842,11 +842,17 @@ uint16_t dm9051_rx(uint8_t *buff)
 	if (dm9051_disp_and_check_rx(buff, rx_len)) { //ok. only 1st-pbuf
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
+		uint16_t rwpa_w, mdra_ingress;
+
 		dm9051_rx_unknow_pkt_inc_count();
-		
-		printf("dm9051_disp_and_check_rx : Receive unit-cast UNKNOW pkt (err: %d) ---------------\r\n", DM9051_NUM_RXLOG_RST); //or "0x%02x"
+		hdlr_rx_pointer(&rwpa_w, &mdra_ingress);
+		printf("dm9051_disp_and_check_rx : Receive unit-cast UNKNOW pkt (err: %d) --------------- %04x / %04x\r\n",
+			   DM9051_NUM_RXLOG_RST, rwpa_w, mdra_ingress); //or "0x%02x"
 
 		hdlr_reset_process(OPT_CONFIRM(hdlr_confrecv)); //CH390 opts //~return ev_rxb(rxbyte);
+		
+		hdlr_rx_pointer(&rwpa_w, &mdra_ingress);
+		printf("  rwpa %04x / ingress %04x\r\n", rwpa_w, mdra_ingress);
 		return 0;
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
