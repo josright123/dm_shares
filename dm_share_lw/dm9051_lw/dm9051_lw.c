@@ -871,7 +871,7 @@ uint16_t dm9051_rx(uint8_t *buff)
 		dm_delay_ms(1);
 
 	#if 	0 	//test.
-	dm9051_rxlog_monitor_rx(2, buff, rx_len); //HEAD_SPC
+	dm9051_rxlog_monitor_rx(2, "Test <<rx  ", buff, rx_len); //HEAD_SPC
 	#endif
 
 	#if TEST_PLAN_MODE

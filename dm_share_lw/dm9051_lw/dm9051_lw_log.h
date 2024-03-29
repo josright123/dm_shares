@@ -33,7 +33,7 @@ void dm9051_link_log_reset_hexdump(const void *buffer, size_t len);
 #define bannerline_log()   printf("\r\n")
 void dm9051_txlog_monitor_tx(int hdspc, const uint8_t *buffer, size_t len);
 void dm9051_rxlog_monitor_rx_all(int hdspc, const uint8_t *buffer, size_t len);
-void dm9051_rxlog_monitor_rx(int hdspc, const uint8_t *buffer, size_t len);
+void dm9051_rxlog_monitor_rx(int hdspc, char *cause_str, const uint8_t *buffer, size_t len);
 void dm9051_txlog_monitor_tx_all(int hdspc, const uint8_t *buffer, size_t len);
 void dm9051_txlog_disp(uint8_t *buffer, int len);
 //void dm9051_log_dump0(char *prefix_str, size_t tlen, const void *buf, size_t len);
@@ -43,7 +43,7 @@ void dm9051_rxlog_arp(void *payload, uint16_t tot_len, uint16_t len);
 #define bannerline_log()
 #define dm9051_txlog_monitor_tx( hdspc,   buffer,  len)
 #define dm9051_txlog_monitor_tx_all( hdspc,   buffer,  len)
-#define dm9051_rxlog_monitor_rx( hdspc,   buffer,  len)
+#define dm9051_rxlog_monitor_rx( hdspc,	cause_str,   buffer,  len)
 #define dm9051_rxlog_monitor_rx_all( hdspc,   buffer,  len)
 #define dm9051_txlog_disp(buffer,  len)
 //.#define dm9051_log_dump0(prefix_str, tlen, buf, len)

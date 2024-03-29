@@ -53,7 +53,7 @@ void dm9051_link_log_reset_hexdump(const void *buffer, size_t len) {
 	uint16_t rwpa_w, mdra_ingress;
 	if (rx_modle_count[RX_ANY].allow_num < rx_modle[RX_ANY].allow_num) {
 			rx_modle_count[RX_ANY].allow_num++;
-			sprint_hex_dump0(rx_modle_count[RX_ANY].allow_num, 0, "ANY <<rx ", len, 32, buffer, 0, (len < 32) ? len : 32, /*DM_FALSE*/ DM_TRUE); /*, DM_TRUE, DGROUP_NONE */
+			sprint_hex_dump0(rx_modle_count[RX_ANY].allow_num, 0, "ANY<<rx ", len, 32, buffer, 0, (len < 32) ? len : 32, /*DM_FALSE*/ DM_TRUE); /*, DM_TRUE, DGROUP_NONE */
 			/* dm_check_rx(buffer, len); */
 
 		    read_rx_pointers(&rwpa_w, &mdra_ingress);
@@ -479,7 +479,7 @@ int dm9051_disp_and_check_rx(const uint8_t *buf, uint16_t len)
 				rx_mult_tcp_count++;
 				printf("Receive Multicast and TCP(%d/2): (%02x:%02x:%02x:%02x:%02x:%02x) ? ---------------\r\n",
 					rx_mult_tcp_count, buf[0],buf[1],buf[2],buf[3],buf[4],buf[5]);
-				function_monitor_rx(HEAD_SPC, buf, len);
+				function_monitor_rx(HEAD_SPC, NULL, buf, len);
 			}
 			return 0;
 		}
@@ -488,14 +488,14 @@ int dm9051_disp_and_check_rx(const uint8_t *buf, uint16_t len)
 				rx_mult_udp_count++;
 				printf("Receive Multicast(%d/3) and UDP: (%02x:%02x:%02x:%02x:%02x:%02x) Protocol: %s (%d) ---------------\r\n",
 					rx_mult_udp_count, buf[0],buf[1],buf[2],buf[3],buf[4],buf[5], "TBD", IPBUF->proto);
-				function_monitor_rx(HEAD_SPC, buf, len);
+				function_monitor_rx(HEAD_SPC, NULL, buf, len);
 			}
 			return 0;
 		}
 
 		printf("Receive Multicast and OP: (%02x:%02x:%02x:%02x:%02x:%02x) ? ---------------\r\n",
 			buf[0],buf[1],buf[2],buf[3],buf[4],buf[5]);
-		function_monitor_rx(HEAD_SPC, buf, len);
+		function_monitor_rx(HEAD_SPC, NULL, buf, len);
 		return 0;
 	}
 
@@ -514,7 +514,7 @@ int dm9051_disp_and_check_rx(const uint8_t *buf, uint16_t len)
 		if (icmp_count_rx < 2) {
 			icmp_count_rx++;
 			printf("Receive icmp(%d/2) Protocol: %s (%d) ---------------\r\n", icmp_count_rx, "ICMP", IPBUF->proto);
-			function_monitor_rx(HEAD_SPC, buf, len);
+			function_monitor_rx(HEAD_SPC, NULL, buf, len);
 		}
 #endif
 		return 0;
@@ -528,7 +528,7 @@ int dm9051_disp_and_check_rx(const uint8_t *buf, uint16_t len)
 				printf("\r\n");
 				printf("Receive unit-cast pkt. Protocol %s (%d), Listen port %d len %d (%d) ---------------\r\n", "TCP",
 						IPBUF->proto, HTONS(TCPBUF->destport), len, master_TCP_count);
-				function_monitor_rx(HEAD_SPC, buf, len);
+				function_monitor_rx(HEAD_SPC, NULL, buf, len);
 			}
 			return 0;
 		}
@@ -540,13 +540,13 @@ int dm9051_disp_and_check_rx(const uint8_t *buf, uint16_t len)
 		printf("Receive unit-cast pkt. Protocol: %s (%d) .%d ---------------\r\n", "UDP", IPBUF->proto, master_UDP_unknow);
 	} else
 		printf("Receive unit-cast pkt. Protocol: %s (%d) ---------------\r\n", "TBD", IPBUF->proto);
-	function_monitor_rx(HEAD_SPC, buf, len);
+	function_monitor_rx(HEAD_SPC, NULL, buf, len);
 #endif
 	return 0;
   }
 
   printf("Receive unit-cast UNKNOW pkt ---------------\r\n");
-  function_monitor_rx(HEAD_SPC, buf, len); //(buffer, l);
+  function_monitor_rx(HEAD_SPC, "UNKNOW pkt <<rx  ", buf, len); //(buffer, l);
   return 1; //err
 }
 
@@ -588,9 +588,9 @@ void dm9051_txlog_monitor_tx(int hdspc, const uint8_t *buffer, size_t len)
 	}
 }
 
-void dm9051_rxlog_monitor_rx(int hdspc, const uint8_t *buffer, size_t len)
+void dm9051_rxlog_monitor_rx(int hdspc, char *cause_str, const uint8_t *buffer, size_t len)
 {
-	function_monitor_rx(hdspc, buffer, len);
+	function_monitor_rx(hdspc, cause_str, buffer, len);
 }
 
 /*

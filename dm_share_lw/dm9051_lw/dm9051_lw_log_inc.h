@@ -90,13 +90,15 @@ void dm_check_tx(const uint8_t *buf, size_t len);
  *          ~0, only print-out 'rx_modle.allow_num' times.
  * *Will exechange to ~0 must print-out, and others 'rx_modle.allow_num' times.
  */
-#define	function_monitor_rx(hdspc, buffer, len) \
+#define	function_monitor_rx(hdspc, cause_str, buffer, len) \
 	do { \
 		if (hdspc == 0) \
-			sprint_hex_dump0(rx_modle_count[RX_MON].allow_num, 0, "dm9 monitor <<rx  ", len, 32, buffer, 0, (len < 70) ? len : 70, /*DM_FALSE*/ DM_TRUE); \
+			sprint_hex_dump0(rx_modle_count[RX_MON].allow_num, 0, cause_str ? cause_str : "dm9 monitor <<rx  ", \
+				len, 32, buffer, 0, (len < 70) ? len : 70, /*DM_FALSE*/ DM_TRUE); \
 		else if (rx_modle_count[RX_MON].allow_num < rx_modle[RX_MON].allow_num) { \
 			rx_modle_count[RX_MON].allow_num++; \
-			sprint_hex_dump0(rx_modle_count[RX_MON].allow_num, 0, "dm9 monitor <<rx  ", len, 32, buffer, 0, (len < 70) ? len : 70, /*DM_FALSE*/ DM_TRUE); /*, DM_TRUE, DGROUP_NONE */ \
+			sprint_hex_dump0(rx_modle_count[RX_MON].allow_num, 0, cause_str ? cause_str : "dm9 monitor <<rx  ", \
+				len, 32, buffer, 0, (len < 70) ? len : 70, /*DM_FALSE*/ DM_TRUE); /*, DM_TRUE, DGROUP_NONE */ \
 			/* dm_check_rx(buffer, len); */ \
 		} \
 	} while(0)
@@ -155,7 +157,7 @@ void dm_check_tx(const uint8_t *buf, size_t len);
 //#undef _function_monitor_tx
 //#undef _function_monitor_tx_all
 
-#define function_monitor_rx(hdspc, buffer, len)
+#define function_monitor_rx(hdspc, cause_str, buffer, len)
 #define function_monitor_rx_all(hdspc, headstr, buffer, len)
 #define function_monitor_tx(hdspc, ttn, headstr, buffer, len)
 #define function_monitor_tx_all(hdspc, ttn, heads, buffer, len)
