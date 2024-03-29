@@ -50,11 +50,16 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				cs_setting_name, \
 				GPIO_PINOUT(GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK), /* //(PA15) */ \
 			}
-		devconf_at437_spi2("AT32F437 ETHERNET SPI2", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
-		devconf_at437_spi4("AT32F437 ETHERNET SPI4", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4"),
-		devconf_at437_spi2("AT32F437 ETHERNET SPI2", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"), //-
-		devconf_at437_spi2("AT32F437 ETHERNET SPI2", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
-		devconf_at437_spi1("AT32F437 ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15"),
+		devconf_at437_spi2("AT32F437 ETHERNET", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
+		devconf_at437_spi4("AT32F437 ETHERNET", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4"),
+		devconf_at437_spi2("AT32F437 ETHERNET", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
+		devconf_at437_spi2("AT32F437 ETHERNET", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
+		devconf_at437_spi1("AT32F437 ETHERNET", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15"),
+//		devconf_at437_spi2("AT32F437 ETHERNET SPI2", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
+//		devconf_at437_spi4("AT32F437 ETHERNET SPI4", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4"),
+//		devconf_at437_spi2("AT32F437 ETHERNET SPI2", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
+//		devconf_at437_spi2("AT32F437 ETHERNET SPI2", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
+//		devconf_at437_spi1("AT32F437 ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15"),
 	#elif defined (AT32F413xx) || defined (AT32F415xx)
 		//(AT32F413/415)
 		#define GPIO_PININ(gpport,pin,crm_clk)		{gpport,pin,crm_clk, GPIO_MODE_INPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL}

@@ -42,14 +42,11 @@ static void arp_counting_to_safty_tx(int to_must_safty) { }
 	//	cb.tmp.arp_we_trans_count = 0;
 	//	cb.tmp.flg_wait_uni_arp_finish = 1; //=(cb.tmp.flg_has_arp_unicast_enter = 0;) //back-to-search-a-one.
 	//}
-	
+
 void dm9051_link_log_reset(void) {
 	rx_modle_count[RX_ANY].allow_num = 0;
 }
 
-#if 1
-void set_tcpip_thread_state(int state); //temp //extern int tcpip_thread_init;
-#endif
 void dm9051_link_log_reset_hexdump(const void *buffer, size_t len) {
 	#undef printf
 	#define printf(fmt, ...) TASK_DM9051_DEBUGF(TASK_SEMAPHORE_HEX_DUMP, /*SEMA_OFF*/ SEMA_ON, /* "[D]" */ NULL, (fmt, ##__VA_ARGS__))
@@ -58,15 +55,14 @@ void dm9051_link_log_reset_hexdump(const void *buffer, size_t len) {
 			rx_modle_count[RX_ANY].allow_num++;
 			sprint_hex_dump0(rx_modle_count[RX_ANY].allow_num, 0, "ANY <<rx ", len, 32, buffer, 0, (len < 32) ? len : 32, /*DM_FALSE*/ DM_TRUE); /*, DM_TRUE, DGROUP_NONE */
 			/* dm_check_rx(buffer, len); */
-			
-		    hdlr_rx_pointer(&rwpa_w, &mdra_ingress);
+
+		    read_rx_pointers(&rwpa_w, &mdra_ingress);
 		    printf("  rwpa %04x / ingress %04x\r\n", /*rx_modle_count[RX_ANY].allow_num,*/ rwpa_w, mdra_ingress);
+
 #if 1
-			if (rx_modle_count[RX_ANY].allow_num == rx_modle[RX_ANY].allow_num) {
-				set_tcpip_thread_state(6); //tcpip_thread_init = 6; //temp
-//				printf("%d rwpa %04x / ingress %04x, _tcpip_thread_init = %d\r\n",
-//					rx_modle_count[RX_ANY].allow_num, rwpa_w, mdra_ingress, _tcpip_thread_init);
-			}
+//			if (rx_modle_count[RX_ANY].allow_num == rx_modle[RX_ANY].allow_num) {
+//				set_tcpip_thread_state(6); //temp
+//			}
 #endif
 	}
 	#undef printf
@@ -616,7 +612,7 @@ void dm9051_txlog_monitor_tx_all(int hdspc, const uint8_t *buffer, size_t len)
 
 		heads = (char *) malloc(HEAD_LEN); // note: memory allocation WITH <stdlib.h>!
 		  n = sprintf(heads, "%d/%d len %lu", tx_all_modle_keep.allow_num, tx_all_modle.allow_num, len);
-		  sprintf(heads, "tx_all[%d]>> len %lu %d/%d", mstep_get_net_index(), len,
+		  sprintf(heads, "txALL[%d]>> len %lu %d/%d", mstep_get_net_index(), len,
 			tx_all_modle_keep.allow_num, tx_all_modle.allow_num);
 
 		  bannerline_log();

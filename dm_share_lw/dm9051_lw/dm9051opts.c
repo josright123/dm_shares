@@ -17,7 +17,8 @@ void GpioDisplay(void) {
   int i;
   for (i = 0; i < ETHERNET_COUNT; i++) {
 	mstep_set_net_index(i);
-	printf("@%s, %s, %s\r\n", mstep_conf_info(), mstep_conf_cpu_spi_ethernet(), mstep_conf_cpu_cs_ethernet());
+	printf("@%s %s, %s, %s\r\n", mstep_conf_info(), mstep_conf_cpu_spi_ethernet(),
+		mstep_conf_cpu_cs_ethernet(), mstep_spi_conf_name());
   }
 }
 
