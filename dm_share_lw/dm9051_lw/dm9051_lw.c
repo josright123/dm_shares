@@ -40,11 +40,12 @@
  */
 #include "dm9051opts.h"
 #include "dm9051_lw.h"
-#include "dm9051_lw_debug.h"
 
-// printf("(dm9 xfer) %.8x: %s", i, linebuf);
-#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG, (fmt, ##__VA_ARGS__))
-//#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG, ("lw.c: " fmt, ##__VA_ARGS__))
+//#include "dm9051_lw_debug.h"
+//#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG, (fmt, ##__VA_ARGS__))
+
+#include "../freertos_tasks_debug.h" //#include "dm9051_lw_debug.h"
+#define printf(fmt, ...) TASK_DM9051_DEBUGF(TASK_SEMAPHORE_MAIN_ON, /*SEMA_OFF*/ SEMA_ON, "[w]", (fmt, ##__VA_ARGS__))
 
 static void dm9051_phycore_on(uint16_t nms);
 static void dm9051_core_reset(void);
@@ -57,7 +58,7 @@ static u8 lw_flag[ETHERNET_COUNT];
 static u16 unlink_count[ETHERNET_COUNT], unlink_stamp[ETHERNET_COUNT];
 #endif
 
-#if  freeRTOS
+#if  freeRTOS && freeRTOS_LOCK_SPI_MUTEX
 	#include "lwip/sys.h"
 
 	// Declare the mutex handle globally so it can be accessed in different tasks
@@ -561,7 +562,6 @@ static u16 err_hdlr(char *errstr, u32 invalue, u8 zerochk)
 	if (zerochk && invalue == 0)
 		return 0; //.printf(": NoError as %u\r\n", valuecode);
 
-	// #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG, ("lw.c: " fmt, ##__VA_ARGS__))
 	printf(errstr, invalue); //or "0x%02x"
 
 	hdlr_reset_process(OPT_CONFIRM(hdlr_confrecv)); //CH390 opts

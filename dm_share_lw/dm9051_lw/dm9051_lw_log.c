@@ -3,11 +3,13 @@
 #include "dm9051_lw.h"
 #include "dm9051_lw_log_types.h"
 #include "dm9051_lw_log_inc.h"
-#include "dm9051_lw_debug.h"
 
-// printf("(dm9 xfer) %.8x: %s", i, linebuf);
-#define printf(fmt, ...) DM9051_DEBUGF(DM9051_LW_LOG, (fmt, ##__VA_ARGS__))
-// #define printf(fmt, ...) DM9051_DEBUGF(DM9051_LW_LOG, ("lw_log.c: " fmt, ##__VA_ARGS__))
+//#include "dm9051_lw_debug.h"
+//#define printf(fmt, ...) DM9051_DEBUGF(DM9051_LW_LOG, (fmt, ##__VA_ARGS__))
+
+#include "../freertos_tasks_debug.h" //#include "dm9051_lw_debug.h"
+//#define printf(fmt, ...) TASK_DM9051_DEBUGF(TASK_SEMAPHORE_MAIN_ON, /*SEMA_OFF*/ SEMA_ON, "[.]", (fmt, ##__VA_ARGS__))
+#define printf(fmt, ...) TASK_DM9051_DEBUGF(TASK_SEMAPHORE_MAIN_ON, /*SEMA_OFF*/ SEMA_ON, "", (fmt, ##__VA_ARGS__))
 
 #define MMALLOC_MAX_LEN2	250 //#include "main_malloc.h"
 

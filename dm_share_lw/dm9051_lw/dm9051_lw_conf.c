@@ -29,7 +29,12 @@
 #include "dm9051_lw.h"
 #include "dm9051_lw_conf_types.h"
 #include "dm9051_lw_conf_data.h"
-#include "dm9051_lw_debug.h"
+
+//#include "dm9051_lw_debug.h"
+//#define printf(fmt, ...) DM9051_DEBUGF(DM9051_LW_CONF, (fmt, ##__VA_ARGS__))
+
+#include "../freertos_tasks_debug.h" //#include "dm9051_lw_debug.h"
+#define printf(fmt, ...) TASK_DM9051_DEBUGF(TASK_SEMAPHORE_MAIN_ON, /*SEMA_OFF*/ SEMA_ON, "[c]", (fmt, ##__VA_ARGS__))
 
 //#ifdef AT32F437xx
 //#include "dm9051_lw_conf_at437x2spi.h" //1.yicheng
@@ -201,11 +206,10 @@ static void config_exint(gpio_pull_type gppull, exint_polarity_config_type polar
  * dm9051 delay times procedures
  *********************************/
 
-#define	board_printf(format, args...) //int board_printf(const char *format, args...) { return 0; }
+//#define	board_printf(format, args...) //int board_printf(const char *format, args...) { return 0; }
 
 void dm_delay_us(uint32_t nus) {
 //	void delay_us(uint32_t nus);
-	board_printf("test %d ,because rxb %02x (is %d times)\r\n", rstccc, rxbyteee, timesss);
 	dmf.dly_us(nus); //delay_us(nus);
 }
 void dm_delay_ms(uint16_t nms) {
@@ -275,7 +279,8 @@ void interface_add(int pin)
 void dm9051_boards_initialize(int n)
 {
 
-  DM9051_DEBUGF(DM9051_LW_CONF,("DM9051_DEBUGF-->dm9051_boards_initialize() ..\r\n"));
+	//  DM9051_DEBUGF(DM9051_LW_CONF,("DM9051_DEBUGF-->dm9051_boards_initialize() ..\r\n"));
+	printf("DM9051_DEBUGF-->dm9051_boards_initialize() ..\r\n");
   /*int i;
   for (i = 0; i < n; i++) { //get_eth_interfaces()
 	mstep_set_net_index(i);

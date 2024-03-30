@@ -263,7 +263,7 @@ uint16_t dm9051_init_setup(void);
 void read_chip_revision(uint8_t *ids, uint8_t *rev_ad);
 void dm9051_freertos_init(void);
 
-#if 	freeRTOS
+#if  freeRTOS && freeRTOS_LOCK_SPI_MUTEX
 	#define LOCK_SPI_CORE() sys_mutex_lock(&lock_spi_core)
 	#define UNLOCK_SPI_CORE() sys_mutex_unlock(&lock_spi_core)
 #else

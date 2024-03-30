@@ -1,6 +1,14 @@
 --------------------
 advance versions:
 --------------------
+dm9051_lw version 5.10, 20240330. yicheng.
+		  Introduce:
+			Version 5.10
+			This version includes the following changes:
+			- Added the #define freeRTOS_LOCK_SPI_MUTEX  1
+			- Added the SemaphoreHandle_t mutex_lw_print;
+			- Added the #include "../freertos_tasks_debug.h" //#include "dm9051_lw_debug.h"
+
 dm9051_lw version 5.09, 20240324. yicheng.
 		  Introduce:
 			Version 5.09

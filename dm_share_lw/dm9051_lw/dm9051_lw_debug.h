@@ -24,7 +24,7 @@
 #define DM9051_DRIVER_DEBUG
 
 #ifdef DM9051_DRIVER_DEBUG
-	#define DM9051_LW_CONF              1
+  #define DM9051_LW_CONF              1
   #define DM9051_TRACE_DEBUG          1
   #define DM9051_LW_LOG               1
 
