@@ -9,7 +9,7 @@
 #ifndef __DM9051_DBG_H
 #define __DM9051_DBG_H
 
-void EepromDisplay(int pin);
+void lEepromDisplay(int pin);
 
 //typedef struct {
 //	int allow_num;

@@ -38,6 +38,8 @@
  * Here we had the definition header file with : "at32f415_spi.h"
  * for AT32F415 cpu.
  */
+#include <lwip/sys.h> //.temp
+#include "lwip/tcpip.h" //.temp
 #include "dm9051opts.h"
 #include "dm9051_lw.h"
 #include "dm9051_lw_debug.h"
@@ -64,15 +66,7 @@ void dm9051_poweron_rst(void)
 	DM9051_Poweron_Reset();
 }
 
-int check_chip_id(uint16_t id) {
-	int res = (id == (DM9051_ID >> 16)
-			|| id == (DM9052_ID >> 16)
-	#if 1
-	//_CH390
-			|| id == (0x91511c00 >> 16)
-			|| id == (0x91001c00 >> 16) /* Test CH390 */
-	#endif
-		) ? 1 : 0;
+static int check_chip_id(uint16_t id) {
 
 	if (id == (0x91001c00 >> 16)) {
 		printf("---------------------- \r\n");
@@ -80,13 +74,29 @@ int check_chip_id(uint16_t id) {
 		printf("---------------------- \r\n");
 	}
 
-	return res;
+	return (id == (DM9051_ID >> 16)
+			|| id == (DM9052_ID >> 16)
+	#if 1
+	//_CH390
+			|| id == (0x91511c00 >> 16)
+			|| id == (0x91001c00 >> 16) /* Test CH390 */
+	#endif
+		) ? 1 : 0;
 }
 
-/*static*/ uint16_t read_chip_id(void) {
+/*static*/ static uint16_t read_chip_id(void) {
 	u8 buff[2];
 	cspi_read_regs(DM9051_PIDL, buff, 2, CS_EACH);
 	return buff[0] | buff[1] << 8;
+}
+
+uint16_t lread_chip_id(void)
+{
+	uint16_t id;
+LOCK_TCPIP_COREx();
+	id = read_chip_id();
+ULOCK_TCPIP_COREx();
+	return id;
 }
 
 static void read_chip_revision(u8 *ids, u8 *rev_ad) {
@@ -97,6 +107,12 @@ static void read_chip_revision(u8 *ids, u8 *rev_ad) {
 void read_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd) {
 	*rwpa_wt = (uint32_t)DM9051_Read_Reg(0x24) | (uint32_t)DM9051_Read_Reg(0x25) << 8; //DM9051_RWPAL
 	*mdra_rd = (uint32_t)DM9051_Read_Reg(0x74) | (uint32_t)DM9051_Read_Reg(0x75) << 8; //DM9051_MRRL;
+}
+
+void lread_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd) {
+LOCK_TCPIP_COREx();
+	read_rx_pointers(rwpa_wt, mdra_rd);
+ULOCK_TCPIP_COREx();
 }
 
 uint16_t eeprom_read(uint16_t wordnum)
@@ -180,9 +196,6 @@ void phy_write(uint16_t reg, uint16_t value)
 uint16_t dm9051_bmcr_update(void) {
   return phy_read(PHY_CONTROL_REG);
 }
-uint16_t dm9051_bmsr_update(void) {
-  return phy_read(PHY_STATUS_REG);
-}
 uint16_t dm9051_link_update(void) {
   return phy_read(PHY_STATUS_REG);
 }
@@ -192,6 +205,19 @@ uint16_t dm9051_phy_read(uint32_t reg) {
 void dm9051_phy_write(uint32_t reg, uint16_t value) {
   phy_write(reg, value);
 }
+
+//.static uint16_t .dm9051_bmsr_update(void) {
+//  return phy_read(PHY_STATUS_REG);
+//}
+uint16_t ldm9051_bmsr_update(void)
+{
+  uint16_t val;
+  LOCK_TCPIP_COREx();
+  val = phy_read(PHY_STATUS_REG);
+  ULOCK_TCPIP_COREx();
+  return val;
+}
+
 uint16_t dm9051_eeprom_read(uint16_t word) {
   return eeprom_read(word);
 }
@@ -391,11 +417,18 @@ static void dm9051_show_rxbstatistic(u8 *htc, int n)
 	printf("\r\n");
 }
 
-void dm9051_mac_adr(const uint8_t *macadd)
-{
+static void dm9051_mac_adr(const uint8_t *macadd) {
 	dm9051_set_par(macadd);
 	//show_par();
 }
+
+void ldm9051_mac_adr(const uint8_t *macadd)
+{
+	LOCK_TCPIP_COREx();
+	dm9051_set_par(macadd);
+	ULOCK_TCPIP_COREx();
+}
+
 void dm9051_rx_mode(void)
 {
 	dm9051_set_mar();
@@ -544,7 +577,7 @@ static void display_mac_action(char *head, const uint8_t *adr) {
 
 #define	TIMES_TO_RST	10
 
-void hdlr_reset_process(enable_t en)
+static void hdlr_reset_process(enable_t en)
 {
 	dm9051_core_reset(); //As: printf("rstc %d ,because rxb %02x (is %d times)\r\n", rstc, rxbyte, times);
 
@@ -601,7 +634,7 @@ u8 ret_fire_time(u8 *histc, int csize, int i, u8 rxb)
 	return times; //0;
 }
 
-/*static*/ u16 err_hdlr(char *errstr, u32 invalue, u8 zerochk)
+/*static*/ static u16 dm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk)
 {
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
@@ -616,6 +649,15 @@ u8 ret_fire_time(u8 *histc, int csize, int i, u8 rxb)
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
 
+u16 ldm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk)
+{
+	u16 ret;
+	LOCK_TCPIP_COREx();
+	ret = dm9051_err_hdlr(errstr, invalue, zerochk);
+	ULOCK_TCPIP_COREx();
+	return ret;
+}
+
 static u16 ev_rxb(uint8_t rxb)
 {
 	int i;
@@ -626,11 +668,11 @@ static u16 ev_rxb(uint8_t rxb)
 		if (rxb == (i+2)) {
 			histc[i]++;
 			times = ret_fire_time(histc, sizeof(histc), i, rxb);
-			return err_hdlr(" : rxbErr %u times :: dm9051_core_reset()\r\n", times, 1); //As: Hdlr (times : TIMES_TO_RST or 0)
+			return dm9051_err_hdlr(" : rxbErr %u times :: dm9051_core_reset()\r\n", times, 1); //As: Hdlr (times : TIMES_TO_RST or 0)
 			                //: Read device[0] :::
 		}
 	}
-	return err_hdlr(" _dm9051f rxb error times (No way!) : %u\r\n", times, 0); //As: Hdlr (times : 1, zerochk : 0)
+	return dm9051_err_hdlr(" _dm9051f rxb error times (No way!) : %u\r\n", times, 0); //As: Hdlr (times : 1, zerochk : 0)
 }
 
 static u16 ev_status(uint8_t rx_status)
@@ -646,7 +688,7 @@ static u16 ev_status(uint8_t rx_status)
 	if (rx_status & RSR_CE) printf(" crc-err");
 	if (rx_status & RSR_FOE) printf(" rx-memory-overflow-err");
 	bannerline_log();
-	return err_hdlr("_dm9051f rx_status error : 0x%02x\r\n", rx_status, 0);
+	return dm9051_err_hdlr("_dm9051f rx_status error : 0x%02x\r\n", rx_status, 0);
 }
 
 /* if "expression" is true, then execute "handler" expression */
@@ -682,7 +724,7 @@ uint16_t dm9051_rx_dump(uint8_t *buff)
 	rx_len = ReceiveData[2] + (ReceiveData[3] << 8);
 
 	DM9051_RX_BREAK((rx_status & 0xbf), return ev_status(rx_status)); //_err_hdlr("_dm9051f rx_status error : 0x%02x\r\n", rx_status, 0)
-	DM9051_RX_BREAK((rx_len > RX_POOL_BUFSIZE), return err_hdlr("_dm9051f rx_len error : %u\r\n", rx_len, 0));
+	DM9051_RX_BREAK((rx_len > RX_POOL_BUFSIZE), return dm9051_err_hdlr("_dm9051f rx_len error : %u\r\n", rx_len, 0));
 
 	DM9051_Read_Mem(buff, rx_len);
 	DM9051_Write_Reg(DM9051_ISR, 0x80);
@@ -710,7 +752,7 @@ uint16_t dm9051_rx_dump(uint8_t *buff)
  //#endif
  #endif
 
-uint16_t dm9051_rx(uint8_t *buff)
+static uint16_t dm9051_rx(uint8_t *buff)
 {
 	u8 rxbyte, rx_status;
 	u8 ReceiveData[4];
@@ -862,7 +904,7 @@ uint16_t dm9051_rx(uint8_t *buff)
 	#endif
 
 	DM9051_RX_BREAK((rx_status & 0xbf), return ev_status(rx_status)); //_err_hdlr("_dm9051f rx_status error : 0x%02x\r\n", rx_status, 0)
-	DM9051_RX_BREAK((rx_len > RX_POOL_BUFSIZE), return err_hdlr("_dm9051f rx_len error : %u\r\n", rx_len, 0));
+	DM9051_RX_BREAK((rx_len > RX_POOL_BUFSIZE), return dm9051_err_hdlr("_dm9051f rx_len error : %u\r\n", rx_len, 0));
 
 	DM9051_Read_Mem(buff, rx_len);
 	DM9051_Write_Reg(DM9051_ISR, 0x80);
@@ -915,7 +957,7 @@ uint16_t dm9051_rx(uint8_t *buff)
 	return rx_len;
 }
 
-void dm9051_tx(uint8_t *buf, uint16_t len)
+static void dm9051_tx(uint8_t *buf, uint16_t len)
 {
 	DM9051_Write_Reg(DM9051_TXPLL, len & 0xff);
 	DM9051_Write_Reg(DM9051_TXPLH, (len >> 8) & 0xff);
@@ -926,6 +968,8 @@ void dm9051_tx(uint8_t *buf, uint16_t len)
 		DM9051_TX_DELAY((DM9051_Read_Reg(DM9051_TCR) & TCR_TXREQ), dm_delay_us(5));
 	else
 		dm_delay_ms(1); //CH390
+
+	dm9051_txlog_monitor_tx_all(2, buf, len); //_dm9051_txlog_monitor_tx
 }
 
 #if 0
@@ -961,6 +1005,19 @@ uint16_t dm9051_init_setup(void)
 	return id;
 }
 
+static void dm9051_init_eeprom_dump(void)
+{
+	int i;
+	printf("--EEPROM[%d] word", mstep_get_net_index);
+	for (i = 0; i < 9; i++) {
+		uint16_t value = dm9051_eeprom_read(i);
+		printf("%s%04x",
+			!(i % 4) ? "  " : " ",
+			value);
+	}
+//	bannerline_log();
+}
+
 //x void dm9051_board_irq_enable(void) //void net_irq_enable(void)
 //x {
 //x 	exint_menable(NVIC_PRIORITY_GROUP_0); //if (exint_conf_mptr()) _exint_enable(_exint_conf_ptr(), NVIC_PRIORITY_GROUP_0);
@@ -982,7 +1039,7 @@ void dm9051_start(const uint8_t *adr)
 	dm9051_rx_mode();
 }
 
-uint16_t dm9051_init(const uint8_t *adr)
+static uint16_t dm9051_init(const uint8_t *adr)
 {
 	uint16_t id;
 
@@ -1001,8 +1058,9 @@ uint16_t dm9051_init(const uint8_t *adr)
 			adr[5]);
 	id = dm9051_init_setup();
 	if (!check_chip_id(id))
-		return id;
+		return 0;
 
+	dm9051_init_eeprom_dump();
 	/*=	printf(".(Rst.setup[%d])\r\n", mstep_get_net_index());
 		dm9051_core_reset();
 
@@ -1015,48 +1073,73 @@ uint16_t dm9051_init(const uint8_t *adr)
 		dm9051_start(adr);*/
 
 	hdlr_reset_process(DM_TRUE);
+	return id; //as is true
+}
+
+uint16_t ldm9051_init(const uint8_t *adr)
+{
+	uint16_t id;
+	LOCK_TCPIP_COREx();
+	id = dm9051_init(adr);
+	ULOCK_TCPIP_COREx();
 	return id;
 }
 
-static uint16_t bityes(uint8_t *hist) {
-	uint16_t i;
-	for (i = 0; i< 16; i++)
-		if (hist[i])
-			return 1;
-	return 0;
-}
-
-static uint16_t link_show(void) {
-	u8 n = 0, i, histnsr[16] = { 0, }, histlnk[16] = { 0, };
-	u8 val;
-	u16 lnk;
-	u16 rwpa_w, mdra_ingress;
-
-	//.dm9051_show_id(); //Also [test][test][test].init
-	do {
-		n++;
-		for (i= 0; i< 16; i++) {
-			val = DM9051_Read_Reg(DM9051_NSR);
-			lnk = phy_read(PHY_STATUS_REG);
-			histnsr[i] += (val & 0x40) ? 1 : 0;
-			histlnk[i] += (lnk & 0x04) ? 1 : 0;
-		}
-	} while(n < 20 && !bityes(histnsr) && !bityes(histlnk)); // 20 times for 2 seconds
-
-//	rwpa_w = (uint32_t)DM9051_Read_Reg(0x24) | (uint32_t)DM9051_Read_Reg(0x25) << 8; //DM9051_RWPAL
-//	mdra_ingress = (uint32_t)DM9051_Read_Reg(0x74) | (uint32_t)DM9051_Read_Reg(0x75) << 8; //DM9051_MRRL;
-	read_rx_pointers(&rwpa_w, &mdra_ingress);
-
-	printf("(SHW timelink, 20 detects) det %d\r\n", n);
-	for (i= 8; i< 16; i++)
-		printf(" %s%d", (i==8) ? ".nsr " : "", histnsr[i]);
-	for (i= 8; i< 16; i++)
-		printf(" %s%d", (i==8) ? ".bmsr. " : "", histlnk[i]);
-	printf(" (rrp %x rwp %x)\r\n", mdra_ingress, rwpa_w);
-	return bityes(histnsr) && bityes(histlnk);
-}
-
-uint16_t dm9051_link_show(void)
+uint16_t ldm9051_rx(uint8_t *buff)
 {
-	return link_show();
+	uint16_t len;
+	LOCK_TCPIP_COREx();
+	len = dm9051_rx(buff);
+	ULOCK_TCPIP_COREx();
+	return len;
 }
+
+void ldm9051_tx(uint8_t *buf, uint16_t len)
+{
+	LOCK_TCPIP_COREx();
+	dm9051_tx(buf, len);
+	ULOCK_TCPIP_COREx();
+}
+
+//static uint16_t bityes(uint8_t *hist) {
+//	uint16_t i;
+//	for (i = 0; i< 16; i++)
+//		if (hist[i])
+//			return 1;
+//	return 0;
+//}
+
+//static uint16_t link_show(void) {
+//	u8 n = 0, i, histnsr[16] = { 0, }, histlnk[16] = { 0, };
+//	u8 val;
+//	u16 lnk;
+//	u16 rwpa_w, mdra_ingress;
+
+//	//.dm9051_show_id(); //Also [test][test][test].init
+//	do {
+//		n++;
+//		for (i= 0; i< 16; i++) {
+//			val = DM9051_Read_Reg(DM9051_NSR);
+//			lnk = phy_read(PHY_STATUS_REG);
+//			histnsr[i] += (val & 0x40) ? 1 : 0;
+//			histlnk[i] += (lnk & 0x04) ? 1 : 0;
+//		}
+//	} while(n < 20 && !bityes(histnsr) && !bityes(histlnk)); // 20 times for 2 seconds
+
+////	rwpa_w = (uint32_t)DM9051_Read_Reg(0x24) | (uint32_t)DM9051_Read_Reg(0x25) << 8; //DM9051_RWPAL
+////	mdra_ingress = (uint32_t)DM9051_Read_Reg(0x74) | (uint32_t)DM9051_Read_Reg(0x75) << 8; //DM9051_MRRL;
+//	read_rx_pointers(&rwpa_w, &mdra_ingress);
+
+//	printf("(SHW timelink, 20 detects) det %d\r\n", n);
+//	for (i= 8; i< 16; i++)
+//		printf(" %s%d", (i==8) ? ".nsr " : "", histnsr[i]);
+//	for (i= 8; i< 16; i++)
+//		printf(" %s%d", (i==8) ? ".bmsr. " : "", histlnk[i]);
+//	printf(" (rrp %x rwp %x)\r\n", mdra_ingress, rwpa_w);
+//	return bityes(histnsr) && bityes(histlnk);
+//}
+
+//uint16_t dm9051_link_show(void)
+//{
+//	return link_show();
+//}

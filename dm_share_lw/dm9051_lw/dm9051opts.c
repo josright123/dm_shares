@@ -98,7 +98,7 @@ void dm9051_opts_display(void)
 	#if TO_ADD_CODE_LATER_BACK
 		for (i = 0; i< ETHERNET_COUNT; i++) {
 			mstep_set_net_index(i);
-			EepromDisplay(i);
+			lEepromDisplay(i);
 		}
 	#endif
 	#if TO_ADD_CODE_LATER_BACK
@@ -120,7 +120,7 @@ void dm9051_opts_display(void)
 		for (i = 0; i< _ETHERNET_COUNT; i++) {
 			mstep_set_net_index(i);
 			NetifDisplay(i);
-			EepromDisplay(i);
+			lEepromDisplay(i);
 		}
 	#endif
 	}

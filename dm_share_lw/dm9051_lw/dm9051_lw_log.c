@@ -69,19 +69,20 @@ void dm9051_link_log_reset_hexdump(const void *buffer, size_t len) {
 	#define printf(fmt, ...) TASK_DM9051_DEBUGF(0, SEMA_OFF, "[xx]", (fmt, ##__VA_ARGS__))
 }
 
-void EepromDisplay(int pin)
-{
-	int i;
-	printf("--EEPROM[%d] word", pin);
-	for (i = 0; i < 9; i++) {
-		uint16_t value;
-		value = dm9051_eeprom_read(i);
-		printf("%s%04x",
-			!(i % 4) ? "  " : " ",
-			value);
-	}
-	bannerline_log();
-}
+//void lEepromDisplay(int pin)
+//{
+//	int i;
+//	printf("--EEPROM[%d] word", pin);
+//.LOCK_TCPIP_COREx();
+//	for (i = 0; i < 9; i++) {
+//		uint16_t value = dm9051_eeprom_read(i);
+//		printf("%s%04x",
+//			!(i % 4) ? "  " : " ",
+//			value);
+//	}
+//.ULOCK_TCPIP_COREx();
+//	bannerline_log();
+//}
 
 void arp_unicast_safty_tx(const uint8_t *buf, size_t len) //(struct net_device *ndev, struct sk_buff *skb)
 {	//const u8 *buf = skb->data;
