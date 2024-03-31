@@ -225,11 +225,11 @@ void dm9051_poweron_rst(void);
 //uint16_t dm9051_init(const uint8_t *adr);
 //uint16_t dm9051_rx(uint8_t *buff);
 //void dm9051_tx(uint8_t *buf, uint16_t len);
-void read_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd);
+void impl_read_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd);
 //void dm9051_mac_adr(const uint8_t *macadd);
 //.uint16_t .dm9051_bmsr_update(void);
-//uint16_t read_chip_id(void);
-//u16 dm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk);
+//uint16_t impl_read_chip_id(void);
+//u16 impl_dm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk);
 
 #if DM9051OPTS_API
 #define DM9051_NUM_LINKUP_RST	9

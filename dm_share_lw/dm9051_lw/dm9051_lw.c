@@ -50,7 +50,7 @@
 
 static void dm9051_phycore_on(uint16_t nms);
 static void dm9051_core_reset(void);
-static void dm9051_set_par(const uint8_t *macadd);
+static void impl_dm9051_set_par(const uint8_t *macadd);
 static void dm9051_set_mar(void);
 static void dm9051_set_recv(void);
 
@@ -84,7 +84,7 @@ static int check_chip_id(uint16_t id) {
 		) ? 1 : 0;
 }
 
-/*static*/ static uint16_t read_chip_id(void) {
+/*static*/ static uint16_t impl_read_chip_id(void) {
 	u8 buff[2];
 	cspi_read_regs(DM9051_PIDL, buff, 2, CS_EACH);
 	return buff[0] | buff[1] << 8;
@@ -94,7 +94,7 @@ uint16_t lread_chip_id(void)
 {
 	uint16_t id;
 LOCK_TCPIP_COREx();
-	id = read_chip_id();
+	id = impl_read_chip_id();
 ULOCK_TCPIP_COREx();
 	return id;
 }
@@ -104,14 +104,14 @@ static void read_chip_revision(u8 *ids, u8 *rev_ad) {
 	cspi_read_regs(0x5C, rev_ad, 1, OPT_CS(csmode)); //dm9051opts_csmode_tcsmode()
 }
 
-void read_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd) {
+void impl_read_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd) {
 	*rwpa_wt = (uint32_t)DM9051_Read_Reg(0x24) | (uint32_t)DM9051_Read_Reg(0x25) << 8; //DM9051_RWPAL
 	*mdra_rd = (uint32_t)DM9051_Read_Reg(0x74) | (uint32_t)DM9051_Read_Reg(0x75) << 8; //DM9051_MRRL;
 }
 
 void lread_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd) {
 LOCK_TCPIP_COREx();
-	read_rx_pointers(rwpa_wt, mdra_rd);
+	impl_read_rx_pointers(rwpa_wt, mdra_rd);
 ULOCK_TCPIP_COREx();
 }
 
@@ -134,7 +134,7 @@ uint16_t eeprom_read(uint16_t wordnum)
 	return uData;
 }
 
-static uint16_t phy_read(uint16_t uReg)
+static uint16_t impl_phy_read(uint16_t uReg)
 {
 	int w = 0;
 	u16 uData;
@@ -194,26 +194,26 @@ void phy_write(uint16_t reg, uint16_t value)
 }
 
 uint16_t dm9051_bmcr_update(void) {
-  return phy_read(PHY_CONTROL_REG);
+  return impl_phy_read(PHY_CONTROL_REG);
 }
 uint16_t dm9051_link_update(void) {
-  return phy_read(PHY_STATUS_REG);
+  return impl_phy_read(PHY_STATUS_REG);
 }
 uint16_t dm9051_phy_read(uint32_t reg) {
-  return phy_read(reg);
+  return impl_phy_read(reg);
 }
 void dm9051_phy_write(uint32_t reg, uint16_t value) {
   phy_write(reg, value);
 }
 
 //.static uint16_t .dm9051_bmsr_update(void) {
-//  return phy_read(PHY_STATUS_REG);
+//  return impl_phy_read(PHY_STATUS_REG);
 //}
 uint16_t ldm9051_bmsr_update(void)
 {
   uint16_t val;
   LOCK_TCPIP_COREx();
-  val = phy_read(PHY_STATUS_REG);
+  val = impl_phy_read(PHY_STATUS_REG);
   ULOCK_TCPIP_COREx();
   return val;
 }
@@ -266,7 +266,7 @@ void test_plan_mbndry(void)
 			phy_write(27, 0xe000);
 			phy_write(0, 0x2100);
 			if (first_log) {
-				uint16_t bmcr= phy_read(0);
+				uint16_t bmcr= impl_phy_read(0);
 				printf("  RESET: REG27 write : %04x\r\n", 0xe000);
 				printf("  RESET: BMCR write/read : %04x/%04x\r\n", 0x2100, bmcr);
 				printf("  RESET: _core_reset [set link parameters, Force mode for 100M Full]\r\n");
@@ -276,7 +276,7 @@ void test_plan_mbndry(void)
 		else if (ncrmode == NCR_AUTO_NEG) {
 			phy_write(0, 0x3300);
 			if (first_log) {
-				uint16_t bmcr= phy_read(0);
+				uint16_t bmcr= impl_phy_read(0);
 				printf("  RESET: BMCR write/read : %04x/%04x\r\n", 0x3300, bmcr);
 				printf("  RESET: _core_reset [set link parameters, A.N. for 100M Full]\r\n");
 			}
@@ -418,14 +418,14 @@ static void dm9051_show_rxbstatistic(u8 *htc, int n)
 }
 
 static void dm9051_mac_adr(const uint8_t *macadd) {
-	dm9051_set_par(macadd);
+	impl_dm9051_set_par(macadd);
 	//show_par();
 }
 
 void ldm9051_mac_adr(const uint8_t *macadd)
 {
 	LOCK_TCPIP_COREx();
-	dm9051_set_par(macadd);
+	impl_dm9051_set_par(macadd);
 	ULOCK_TCPIP_COREx();
 }
 
@@ -448,7 +448,7 @@ void dm9051_rx_mode(void)
 	dm9051_set_recv();
 }*/
 
-static void dm9051_set_par(const u8 *macadd)
+static void impl_dm9051_set_par(const u8 *macadd)
 {
 	int i;
 	for (i=0; i<6; i++)
@@ -607,8 +607,8 @@ static void hdlr_reset_process(enable_t en)
 
 //		rwpa_w = (uint32_t)DM9051_Read_Reg(0x24) | (uint32_t)DM9051_Read_Reg(0x25) << 8; //DM9051_RWPAL
 //		mdra_ingress = (uint32_t)DM9051_Read_Reg(0x74) | (uint32_t)DM9051_Read_Reg(0x75) << 8; //DM9051_MRRL;
-		read_rx_pointers(&rwpa_w, &mdra_ingress);
-		printf("dm9051_start(pin = %d).e rwpa %04x / ingress %04x\r\n", mstep_get_net_index(), rwpa_w, mdra_ingress);
+		impl_read_rx_pointers(&rwpa_w, &mdra_ingress);
+		printf("dm9051_start(pin = %d).e rwpa %04x / igrss %04x\r\n", mstep_get_net_index(), rwpa_w, mdra_ingress);
 	}
     #endif
   #endif
@@ -622,8 +622,8 @@ u8 ret_fire_time(u8 *histc, int csize, int i, u8 rxb)
 
 //  rwpa_w = (uint32_t)DM9051_Read_Reg(0x24) | (uint32_t)DM9051_Read_Reg(0x25) << 8; //DM9051_RWPAL
 //  mdra_ingress = (uint32_t)DM9051_Read_Reg(0x74) | (uint32_t)DM9051_Read_Reg(0x75) << 8; //DM9051_MRRL;
-  read_rx_pointers(&rwpa_w, &mdra_ingress);
-  printf("%2d. rwpa %04x / ingress %04x, histc[rxb %02xh], times= %d\r\n",
+  impl_read_rx_pointers(&rwpa_w, &mdra_ingress);
+  printf("%2d. rwpa %04x / igrss %04x, histc[rxb %02xh], times= %d\r\n",
 		 histc[i], rwpa_w, mdra_ingress, rxb, times);
 
 	if (times) { //if (histc[i] >= TIMES_TO_RST)
@@ -634,7 +634,7 @@ u8 ret_fire_time(u8 *histc, int csize, int i, u8 rxb)
 	return times; //0;
 }
 
-/*static*/ static u16 dm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk)
+/*static*/ static u16 impl_dm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk)
 {
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
@@ -653,7 +653,7 @@ u16 ldm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk)
 {
 	u16 ret;
 	LOCK_TCPIP_COREx();
-	ret = dm9051_err_hdlr(errstr, invalue, zerochk);
+	ret = impl_dm9051_err_hdlr(errstr, invalue, zerochk);
 	ULOCK_TCPIP_COREx();
 	return ret;
 }
@@ -668,11 +668,11 @@ static u16 ev_rxb(uint8_t rxb)
 		if (rxb == (i+2)) {
 			histc[i]++;
 			times = ret_fire_time(histc, sizeof(histc), i, rxb);
-			return dm9051_err_hdlr(" : rxbErr %u times :: dm9051_core_reset()\r\n", times, 1); //As: Hdlr (times : TIMES_TO_RST or 0)
+			return impl_dm9051_err_hdlr(" : rxbErr %u times :: dm9051_core_reset()\r\n", times, 1); //As: Hdlr (times : TIMES_TO_RST or 0)
 			                //: Read device[0] :::
 		}
 	}
-	return dm9051_err_hdlr(" _dm9051f rxb error times (No way!) : %u\r\n", times, 0); //As: Hdlr (times : 1, zerochk : 0)
+	return impl_dm9051_err_hdlr(" _dm9051f rxb error times (No way!) : %u\r\n", times, 0); //As: Hdlr (times : 1, zerochk : 0)
 }
 
 static u16 ev_status(uint8_t rx_status)
@@ -688,7 +688,7 @@ static u16 ev_status(uint8_t rx_status)
 	if (rx_status & RSR_CE) printf(" crc-err");
 	if (rx_status & RSR_FOE) printf(" rx-memory-overflow-err");
 	bannerline_log();
-	return dm9051_err_hdlr("_dm9051f rx_status error : 0x%02x\r\n", rx_status, 0);
+	return impl_dm9051_err_hdlr("_dm9051f rx_status error : 0x%02x\r\n", rx_status, 0);
 }
 
 /* if "expression" is true, then execute "handler" expression */
@@ -724,7 +724,7 @@ uint16_t dm9051_rx_dump(uint8_t *buff)
 	rx_len = ReceiveData[2] + (ReceiveData[3] << 8);
 
 	DM9051_RX_BREAK((rx_status & 0xbf), return ev_status(rx_status)); //_err_hdlr("_dm9051f rx_status error : 0x%02x\r\n", rx_status, 0)
-	DM9051_RX_BREAK((rx_len > RX_POOL_BUFSIZE), return dm9051_err_hdlr("_dm9051f rx_len error : %u\r\n", rx_len, 0));
+	DM9051_RX_BREAK((rx_len > RX_POOL_BUFSIZE), return impl_dm9051_err_hdlr("_dm9051f rx_len error : %u\r\n", rx_len, 0));
 
 	DM9051_Read_Mem(buff, rx_len);
 	DM9051_Write_Reg(DM9051_ISR, 0x80);
@@ -752,7 +752,7 @@ uint16_t dm9051_rx_dump(uint8_t *buff)
  //#endif
  #endif
 
-static uint16_t dm9051_rx(uint8_t *buff)
+static uint16_t impl_dm9051_rx(uint8_t *buff)
 {
 	u8 rxbyte, rx_status;
 	u8 ReceiveData[4];
@@ -904,7 +904,7 @@ static uint16_t dm9051_rx(uint8_t *buff)
 	#endif
 
 	DM9051_RX_BREAK((rx_status & 0xbf), return ev_status(rx_status)); //_err_hdlr("_dm9051f rx_status error : 0x%02x\r\n", rx_status, 0)
-	DM9051_RX_BREAK((rx_len > RX_POOL_BUFSIZE), return dm9051_err_hdlr("_dm9051f rx_len error : %u\r\n", rx_len, 0));
+	DM9051_RX_BREAK((rx_len > RX_POOL_BUFSIZE), return impl_dm9051_err_hdlr("_dm9051f rx_len error : %u\r\n", rx_len, 0));
 
 	DM9051_Read_Mem(buff, rx_len);
 	DM9051_Write_Reg(DM9051_ISR, 0x80);
@@ -942,14 +942,14 @@ static uint16_t dm9051_rx(uint8_t *buff)
 		uint16_t rwpa_w, mdra_ingress;
 
 		dm9051_rx_unknow_pkt_inc_count();
-		read_rx_pointers(&rwpa_w, &mdra_ingress);
+		impl_read_rx_pointers(&rwpa_w, &mdra_ingress);
 		printf("dm9051_disp_and_check_rx : Receive unit-cast UNKNOW pkt (err: %d) --------------- %04x / %04x\r\n",
 			   DM9051_NUM_RXLOG_RST, rwpa_w, mdra_ingress); //or "0x%02x"
 
 		hdlr_reset_process(OPT_CONFIRM(hdlr_confrecv)); //CH390 opts //~return ev_rxb(rxbyte);
 		
-		read_rx_pointers(&rwpa_w, &mdra_ingress);
-		printf("  rwpa %04x / ingress %04x\r\n", rwpa_w, mdra_ingress);
+		impl_read_rx_pointers(&rwpa_w, &mdra_ingress);
+		printf("  rwpa %04x / igrss %04x\r\n", rwpa_w, mdra_ingress);
 		return 0;
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
@@ -957,7 +957,7 @@ static uint16_t dm9051_rx(uint8_t *buff)
 	return rx_len;
 }
 
-static void dm9051_tx(uint8_t *buf, uint16_t len)
+static void impl_dm9051_tx(uint8_t *buf, uint16_t len)
 {
 	DM9051_Write_Reg(DM9051_TXPLL, len & 0xff);
 	DM9051_Write_Reg(DM9051_TXPLH, (len >> 8) & 0xff);
@@ -996,7 +996,7 @@ uint16_t dm9051_init_setup(void)
 	uint16_t id;
 	uint8_t ids[5], id_adv;
 
-	id = read_chip_id();
+	id = impl_read_chip_id();
 	read_chip_revision(ids, &id_adv);
 
 	display_identity(mstep_spi_conf_name(), id, ids, id_adv);
@@ -1039,7 +1039,7 @@ void dm9051_start(const uint8_t *adr)
 	dm9051_rx_mode();
 }
 
-static uint16_t dm9051_init(const uint8_t *adr)
+static uint16_t impl_dm9051_init(const uint8_t *adr)
 {
 	uint16_t id;
 
@@ -1080,7 +1080,7 @@ uint16_t ldm9051_init(const uint8_t *adr)
 {
 	uint16_t id;
 	LOCK_TCPIP_COREx();
-	id = dm9051_init(adr);
+	id = impl_dm9051_init(adr);
 	ULOCK_TCPIP_COREx();
 	return id;
 }
@@ -1089,7 +1089,7 @@ uint16_t ldm9051_rx(uint8_t *buff)
 {
 	uint16_t len;
 	LOCK_TCPIP_COREx();
-	len = dm9051_rx(buff);
+	len = impl_dm9051_rx(buff);
 	ULOCK_TCPIP_COREx();
 	return len;
 }
@@ -1097,7 +1097,7 @@ uint16_t ldm9051_rx(uint8_t *buff)
 void ldm9051_tx(uint8_t *buf, uint16_t len)
 {
 	LOCK_TCPIP_COREx();
-	dm9051_tx(buf, len);
+	impl_dm9051_tx(buf, len);
 	ULOCK_TCPIP_COREx();
 }
 
@@ -1120,7 +1120,7 @@ void ldm9051_tx(uint8_t *buf, uint16_t len)
 //		n++;
 //		for (i= 0; i< 16; i++) {
 //			val = DM9051_Read_Reg(DM9051_NSR);
-//			lnk = phy_read(PHY_STATUS_REG);
+//			lnk = impl_phy_read(PHY_STATUS_REG);
 //			histnsr[i] += (val & 0x40) ? 1 : 0;
 //			histlnk[i] += (lnk & 0x04) ? 1 : 0;
 //		}
@@ -1128,7 +1128,7 @@ void ldm9051_tx(uint8_t *buf, uint16_t len)
 
 ////	rwpa_w = (uint32_t)DM9051_Read_Reg(0x24) | (uint32_t)DM9051_Read_Reg(0x25) << 8; //DM9051_RWPAL
 ////	mdra_ingress = (uint32_t)DM9051_Read_Reg(0x74) | (uint32_t)DM9051_Read_Reg(0x75) << 8; //DM9051_MRRL;
-//	read_rx_pointers(&rwpa_w, &mdra_ingress);
+//	impl_read_rx_pointers(&rwpa_w, &mdra_ingress);
 
 //	printf("(SHW timelink, 20 detects) det %d\r\n", n);
 //	for (i= 8; i< 16; i++)

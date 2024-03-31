@@ -56,8 +56,8 @@ void dm9051_link_log_reset_hexdump(const void *buffer, size_t len) {
 			sprint_hex_dump0(rx_modle_count[RX_ANY].allow_num, 0, "ANY<<rx ", len, 32, buffer, 0, (len < 32) ? len : 32, /*DM_FALSE*/ DM_TRUE); /*, DM_TRUE, DGROUP_NONE */
 			/* dm_check_rx(buffer, len); */
 
-		    read_rx_pointers(&rwpa_w, &mdra_ingress);
-		    printf("  rwpa %04x / ingress %04x\r\n", /*rx_modle_count[RX_ANY].allow_num,*/ rwpa_w, mdra_ingress);
+		    impl_read_rx_pointers(&rwpa_w, &mdra_ingress);
+		    printf("  rwpa %04x / igrss %04x\r\n", /*rx_modle_count[RX_ANY].allow_num,*/ rwpa_w, mdra_ingress);
 
 #if 1
 //			if (rx_modle_count[RX_ANY].allow_num == rx_modle[RX_ANY].allow_num) {
