@@ -11,10 +11,6 @@
 
 #include <stdio.h>
 #include <string.h>
-
-#define RX_ANY	0
-#define RX_MON	1
-#define RX_DUMP_NUM	2
 						
 #define RX_MODLE_DECLARATION \
 const pkt_monitor_t rx_modle[RX_DUMP_NUM] = { \

@@ -104,7 +104,23 @@ static void read_chip_revision(u8 *ids, u8 *rev_ad) {
 	cspi_read_regs(0x5C, rev_ad, 1, OPT_CS(csmode)); //dm9051opts_csmode_tcsmode()
 }
 
-void impl_read_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd) {
+//.#if TEST_PLAN_MODE
+//.#define check_get()				1
+//.#define check_get_check_done()	0
+//.#define	check_decr_to_done()
+//.#define	check_set_done()
+//.#define	check_set_new()
+//.#define tp_all_done()	1
+
+//. static void rxrp_dump_print_init_show(void) {
+//.	uint16_t rxrp;
+//.	rxrp = cspi_read_reg(DM9051_MRRL);
+//.	rxrp |= cspi_read_reg(DM9051_MRRH) << 8;
+//.	printf(" %4x", rxrp);
+//. }
+//.#endif
+
+static void impl_read_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd) {
 	*rwpa_wt = (uint32_t)DM9051_Read_Reg(0x24) | (uint32_t)DM9051_Read_Reg(0x25) << 8; //DM9051_RWPAL
 	*mdra_rd = (uint32_t)DM9051_Read_Reg(0x74) | (uint32_t)DM9051_Read_Reg(0x75) << 8; //DM9051_MRRL;
 }
@@ -731,26 +747,21 @@ uint16_t dm9051_rx_dump(uint8_t *buff)
 	return rx_len;
 }
 
- #if TEST_PLAN_MODE
-#define check_get()				1
-#define check_get_check_done()	0
-#define	check_decr_to_done()
-#define	check_set_done()
-#define	check_set_new()
-
- //#ifndef tp_all_done
- #define tp_all_done()	1
- //#endif
-
- //#ifndef rxrp_dump_print_init_show
- static void rxrp_dump_print_init_show(void) {
-	uint16_t rxrp;
-	rxrp = cspi_read_reg(DM9051_MRRL);
-	rxrp |= cspi_read_reg(DM9051_MRRH) << 8;
-	printf(" %4x", rxrp);
- }
- //#endif
- #endif
+static void dm9051_link_to_hexdump(const void *buffer, size_t len) {
+//	#undef printf
+//	#define printf(fmt, ...) TASK_DM9051_DEBUGF(TASK_SEMAPHORE_HEX_DUMP, SEMA_ON, NULL, (fmt, ##__VA_ARGS__))
+	#undef printf
+	#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
+	if (dm9051_link_log_reset_hexdump(buffer, len)) {
+		uint16_t rwpa_w, mdra_ingress;
+		impl_read_rx_pointers(&rwpa_w, &mdra_ingress);
+		printf("  rwpa %04x / igrss %04x\r\n", /*rx_modle_count[RX_ANY].allow_num,*/ rwpa_w, mdra_ingress);
+	}
+	#undef printf
+	#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
+//	#undef printf
+//	#define printf(fmt, ...) TASK_DM9051_DEBUGF(0, SEMA_OFF, "[xx]", (fmt, ##__VA_ARGS__))
+}
 
 static uint16_t impl_dm9051_rx(uint8_t *buff)
 {
@@ -934,7 +945,8 @@ static uint16_t impl_dm9051_rx(uint8_t *buff)
 	#endif
 
 	/* Any after linkup */
-	dm9051_link_log_reset_hexdump(buff, rx_len);
+	dm9051_link_to_hexdump(buff, rx_len);
+
 	/* An assurence */
 	if (dm9051_disp_and_check_rx(buff, rx_len)) { //ok. only 1st-pbuf
 #undef printf
@@ -1007,6 +1019,8 @@ uint16_t dm9051_init_setup(void)
 
 static void dm9051_init_eeprom_dump(void)
 {
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
 	int i;
 	printf("--EEPROM[%d] word", mstep_get_net_index);
 	for (i = 0; i < 9; i++) {
@@ -1016,6 +1030,8 @@ static void dm9051_init_eeprom_dump(void)
 			value);
 	}
 //	bannerline_log();
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
 
 //x void dm9051_board_irq_enable(void) //void net_irq_enable(void)
@@ -1039,50 +1055,52 @@ void dm9051_start(const uint8_t *adr)
 	dm9051_rx_mode();
 }
 
-static uint16_t impl_dm9051_init(const uint8_t *adr)
+static const uint8_t *impl_dm9051_init(const uint8_t *adr)
 {
 	uint16_t id;
 
-	DM_UNUSED_ARG(adr);
+	//DM_UNUSED_ARG(adr);
+	const uint8_t *mac = identify_eth_mac(adr);
+	
 	first_log_init();
 	printf("dm9051_init, %s, device[%d] %s, %s, to set mac/ %02x%02x%02x%02x%02x%02x\r\n",
 			mstep_conf_info(),
 			mstep_get_net_index(),
 			mstep_conf_cpu_spi_ethernet(),
 			mstep_conf_cpu_cs_ethernet(),
-			adr[0],
-			adr[1],
-			adr[2],
-			adr[3],
-			adr[4],
-			adr[5]);
+			mac[0],
+			mac[1],
+			mac[2],
+			mac[3],
+			mac[4],
+			mac[5]);
 	id = dm9051_init_setup();
 	if (!check_chip_id(id))
-		return 0;
+		return NULL;
 
 	dm9051_init_eeprom_dump();
 	/*=	printf(".(Rst.setup[%d])\r\n", mstep_get_net_index());
 		dm9051_core_reset();
 
 	#if 0
-		//=dm9051_start(adr);
-		dm9051_mac_adr(adr);
+		//=dm9051_start(mac);
+		dm9051_mac_adr(mac);
 		dm9051_rx_mode();
 	#endif
 		exint_menable(NVIC_PRIORITY_GROUP_0); //dm9051_board_irq_enable();
-		dm9051_start(adr);*/
+		dm9051_start(mac);*/
 
 	hdlr_reset_process(DM_TRUE);
-	return id; //as is true
+	return mac; //as is true
 }
 
-uint16_t ldm9051_init(const uint8_t *adr)
+const uint8_t *ldm9051_init(const uint8_t *adr)
 {
-	uint16_t id;
+	const uint8_t *mac;
 	LOCK_TCPIP_COREx();
-	id = impl_dm9051_init(adr);
+	mac = impl_dm9051_init(adr);
 	ULOCK_TCPIP_COREx();
-	return id;
+	return mac;
 }
 
 uint16_t ldm9051_rx(uint8_t *buff)

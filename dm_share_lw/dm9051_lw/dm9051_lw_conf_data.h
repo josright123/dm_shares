@@ -490,7 +490,7 @@ char *mstep_conf_type(void)
 
 // -
 
-uint8_t *identify_eth_mac(uint8_t *macadr) {
+uint8_t *identify_eth_mac(const uint8_t *macadr) {
 	DM_SET_FIELD(mac_t ,mac, macadr ? macadr : get_eth_mac());
 	return DM_GET_FIELD(mac_t ,mac);
 }

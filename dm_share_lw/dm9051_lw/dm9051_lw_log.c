@@ -46,27 +46,20 @@ static void arp_counting_to_safty_tx(int to_must_safty) { }
 void dm9051_link_log_reset(void) {
 	rx_modle_count[RX_ANY].allow_num = 0;
 }
-
-void dm9051_link_log_reset_hexdump(const void *buffer, size_t len) {
-	#undef printf
-	#define printf(fmt, ...) TASK_DM9051_DEBUGF(TASK_SEMAPHORE_HEX_DUMP, /*SEMA_OFF*/ SEMA_ON, /* "[D]" */ NULL, (fmt, ##__VA_ARGS__))
-	uint16_t rwpa_w, mdra_ingress;
+ 
+int dm9051_link_log_reset_hexdump(const void *buffer, size_t len) {
 	if (rx_modle_count[RX_ANY].allow_num < rx_modle[RX_ANY].allow_num) {
-			rx_modle_count[RX_ANY].allow_num++;
-			sprint_hex_dump0(rx_modle_count[RX_ANY].allow_num, 0, "ANY<<rx ", len, 32, buffer, 0, (len < 32) ? len : 32, /*DM_FALSE*/ DM_TRUE); /*, DM_TRUE, DGROUP_NONE */
-			/* dm_check_rx(buffer, len); */
-
-		    impl_read_rx_pointers(&rwpa_w, &mdra_ingress);
-		    printf("  rwpa %04x / igrss %04x\r\n", /*rx_modle_count[RX_ANY].allow_num,*/ rwpa_w, mdra_ingress);
-
+		rx_modle_count[RX_ANY].allow_num++;
+		sprint_hex_dump0(rx_modle_count[RX_ANY].allow_num, 0, "ANY<<rx ", len, 32, buffer, 0, (len < 32) ? len : 32, /*DM_FALSE*/ DM_TRUE); /*, DM_TRUE, DGROUP_NONE */
+		/* dm_check_rx(buffer, len); */
 #if 1
-//			if (rx_modle_count[RX_ANY].allow_num == rx_modle[RX_ANY].allow_num) {
-//				set_tcpip_thread_state(6); //temp
-//			}
+//		if (rx_modle_count[RX_ANY].allow_num == rx_modle[RX_ANY].allow_num) {
+//			set_tcpip_thread_state(6); //temp, do this in ethernetif.c, so outside the driver. 
+//		}
 #endif
+		return 1;
 	}
-	#undef printf
-	#define printf(fmt, ...) TASK_DM9051_DEBUGF(0, SEMA_OFF, "[xx]", (fmt, ##__VA_ARGS__))
+	return 0;
 }
 
 //void lEepromDisplay(int pin)

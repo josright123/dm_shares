@@ -225,7 +225,7 @@ void dm9051_poweron_rst(void);
 //uint16_t dm9051_init(const uint8_t *adr);
 //uint16_t dm9051_rx(uint8_t *buff);
 //void dm9051_tx(uint8_t *buf, uint16_t len);
-void impl_read_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd);
+//.void impl_read_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd);
 //void dm9051_mac_adr(const uint8_t *macadd);
 //.uint16_t .dm9051_bmsr_update(void);
 //uint16_t impl_read_chip_id(void);
@@ -234,7 +234,7 @@ void impl_read_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd);
 #if DM9051OPTS_API
 #define DM9051_NUM_LINKUP_RST	9
 #define DM9051_NUM_RXLOG_RST	7
-uint16_t ldm9051_init(const uint8_t *adr);
+const uint8_t *ldm9051_init(const uint8_t *adr);
 uint16_t ldm9051_rx(uint8_t *buff);
 void ldm9051_tx(uint8_t *buf, uint16_t len);
 void lread_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd);

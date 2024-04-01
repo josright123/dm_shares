@@ -9,6 +9,17 @@
 #ifndef __DM9051_DBG_H
 #define __DM9051_DBG_H
 
+#define RX_ANY	0
+#define RX_MON	1
+#define RX_DUMP_NUM	2
+
+typedef struct { //different purpose to //"dm9051_lw_log_types.h"
+	int allow_num;
+} pkt_monitor_t;
+
+extern const pkt_monitor_t rx_modle[RX_DUMP_NUM]; //const
+extern pkt_monitor_t rx_modle_count[RX_DUMP_NUM]; //varible
+
 void lEepromDisplay(int pin);
 
 //typedef struct {
@@ -24,7 +35,7 @@ void lEepromDisplay(int pin);
 //}
 
 void dm9051_link_log_reset(void);
-void dm9051_link_log_reset_hexdump(const void *buffer, size_t len);
+int dm9051_link_log_reset_hexdump(const void *buffer, size_t len);
 
 /* Put here, instead. Instead of "dm9051_lw_log.h", some generic called in the other implementation place.
  */

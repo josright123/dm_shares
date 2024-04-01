@@ -93,7 +93,7 @@
 //init
 #if DM9051OPTS_API
 void dm9051_boards_initialize(int n);
-uint8_t *identify_eth_mac(uint8_t *macadr);
+uint8_t *identify_eth_mac(const uint8_t *macadr);
 uint8_t *identify_tcpip_ip(uint8_t *ip4adr);
 uint8_t *identify_tcpip_gw(uint8_t *ip4adr);
 uint8_t *identify_tcpip_mask(uint8_t *ip4adr);
