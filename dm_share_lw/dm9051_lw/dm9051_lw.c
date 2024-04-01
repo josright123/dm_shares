@@ -84,19 +84,30 @@ static int check_chip_id(uint16_t id) {
 		) ? 1 : 0;
 }
 
-/*static*/ static uint16_t impl_read_chip_id(void) {
+static uint16_t impl_read_chip_id(void) {
 	u8 buff[2];
 	cspi_read_regs(DM9051_PIDL, buff, 2, CS_EACH);
 	return buff[0] | buff[1] << 8;
 }
 
-uint16_t lread_chip_id(void)
+static void impl_read_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd) {
+	*rwpa_wt = (uint32_t)DM9051_Read_Reg(0x24) | (uint32_t)DM9051_Read_Reg(0x25) << 8; //DM9051_RWPAL
+	*mdra_rd = (uint32_t)DM9051_Read_Reg(0x74) | (uint32_t)DM9051_Read_Reg(0x75) << 8; //DM9051_MRRL;
+}
+
+uint16_t dm9051_read_chip_id(void)
 {
 	uint16_t id;
-LOCK_TCPIP_COREx();
+	LOCK_TCPIP_COREx();
 	id = impl_read_chip_id();
-ULOCK_TCPIP_COREx();
+	ULOCK_TCPIP_COREx();
 	return id;
+}
+
+void dm9051_read_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd) {
+	LOCK_TCPIP_COREx();
+	impl_read_rx_pointers(rwpa_wt, mdra_rd);
+	ULOCK_TCPIP_COREx();
 }
 
 static void read_chip_revision(u8 *ids, u8 *rev_ad) {
@@ -119,17 +130,6 @@ static void read_chip_revision(u8 *ids, u8 *rev_ad) {
 //.	printf(" %4x", rxrp);
 //. }
 //.#endif
-
-static void impl_read_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd) {
-	*rwpa_wt = (uint32_t)DM9051_Read_Reg(0x24) | (uint32_t)DM9051_Read_Reg(0x25) << 8; //DM9051_RWPAL
-	*mdra_rd = (uint32_t)DM9051_Read_Reg(0x74) | (uint32_t)DM9051_Read_Reg(0x75) << 8; //DM9051_MRRL;
-}
-
-void lread_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd) {
-LOCK_TCPIP_COREx();
-	impl_read_rx_pointers(rwpa_wt, mdra_rd);
-ULOCK_TCPIP_COREx();
-}
 
 uint16_t eeprom_read(uint16_t wordnum)
 {
@@ -220,18 +220,6 @@ uint16_t dm9051_phy_read(uint32_t reg) {
 }
 void dm9051_phy_write(uint32_t reg, uint16_t value) {
   phy_write(reg, value);
-}
-
-//.static uint16_t .dm9051_bmsr_update(void) {
-//  return impl_phy_read(PHY_STATUS_REG);
-//}
-uint16_t ldm9051_bmsr_update(void)
-{
-  uint16_t val;
-  LOCK_TCPIP_COREx();
-  val = impl_phy_read(PHY_STATUS_REG);
-  ULOCK_TCPIP_COREx();
-  return val;
 }
 
 uint16_t dm9051_eeprom_read(uint16_t word) {
@@ -438,12 +426,12 @@ static void dm9051_mac_adr(const uint8_t *macadd) {
 	//show_par();
 }
 
-void ldm9051_mac_adr(const uint8_t *macadd)
-{
-	LOCK_TCPIP_COREx();
-	impl_dm9051_set_par(macadd);
-	ULOCK_TCPIP_COREx();
-}
+//.void ldm9051_mac_adr(const uint8_t *macadd)
+//.{
+//.	LOCK_TCPIP_COREx();
+//.	impl_dm9051_set_par(macadd);
+//.	ULOCK_TCPIP_COREx();
+//.}
 
 void dm9051_rx_mode(void)
 {
@@ -663,15 +651,6 @@ u8 ret_fire_time(u8 *histc, int csize, int i, u8 rxb)
 	return 0;
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
-}
-
-u16 ldm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk)
-{
-	u16 ret;
-	LOCK_TCPIP_COREx();
-	ret = impl_dm9051_err_hdlr(errstr, invalue, zerochk);
-	ULOCK_TCPIP_COREx();
-	return ret;
 }
 
 static u16 ev_rxb(uint8_t rxb)
@@ -1094,7 +1073,7 @@ static const uint8_t *impl_dm9051_init(const uint8_t *adr)
 	return mac; //as is true
 }
 
-const uint8_t *ldm9051_init(const uint8_t *adr)
+const uint8_t *dm9051_init(const uint8_t *adr)
 {
 	const uint8_t *mac;
 	LOCK_TCPIP_COREx();
@@ -1103,7 +1082,7 @@ const uint8_t *ldm9051_init(const uint8_t *adr)
 	return mac;
 }
 
-uint16_t ldm9051_rx(uint8_t *buff)
+uint16_t dm9051_rx(uint8_t *buff)
 {
 	uint16_t len;
 	LOCK_TCPIP_COREx();
@@ -1112,11 +1091,29 @@ uint16_t ldm9051_rx(uint8_t *buff)
 	return len;
 }
 
-void ldm9051_tx(uint8_t *buf, uint16_t len)
+void dm9051_tx(uint8_t *buf, uint16_t len)
 {
 	LOCK_TCPIP_COREx();
 	impl_dm9051_tx(buf, len);
 	ULOCK_TCPIP_COREx();
+}
+
+uint16_t dm9051_bmsr_update(void)
+{
+  uint16_t val;
+  LOCK_TCPIP_COREx();
+  val = impl_phy_read(PHY_STATUS_REG);
+  ULOCK_TCPIP_COREx();
+  return val;
+}
+
+u16 dm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk)
+{
+	u16 ret;
+	LOCK_TCPIP_COREx();
+	ret = impl_dm9051_err_hdlr(errstr, invalue, zerochk);
+	ULOCK_TCPIP_COREx();
+	return ret;
 }
 
 //static uint16_t bityes(uint8_t *hist) {
