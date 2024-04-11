@@ -45,7 +45,7 @@ void EepromDisplay(int pin)
 	printf("--EEPROM[%d] word", pin);
 	for (i = 0; i < 9; i++) {
 		uint16_t value;
-		value = dm9051_eeprom_read(i);
+		value = dm9051_eeprom_read(i, pin);
 		printf("%s%04x",
 			!(i % 4) ? "  " : " ",
 			value);

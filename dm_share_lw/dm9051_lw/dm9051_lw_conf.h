@@ -98,31 +98,48 @@
 //init
 #if DM9051OPTS_API
 void dm9051_boards_initialize(int n);
-uint8_t *identify_eth_mac(uint8_t *macadr);
-uint8_t *identify_tcpip_ip(uint8_t *ip4adr);
-uint8_t *identify_tcpip_gw(uint8_t *ip4adr);
-uint8_t *identify_tcpip_mask(uint8_t *ip4adr);
-uint8_t *mstep_eth_mac(void);
-uint8_t *mstep_eth_ip(void);
-uint8_t *mstep_eth_gw(void);
-uint8_t *mstep_eth_mask(void);
+// uint8_t *identify_eth_mac(uint8_t *macadr);
+// uint8_t *identify_tcpip_ip(uint8_t *ip4adr);
+// uint8_t *identify_tcpip_gw(uint8_t *ip4adr);
+// uint8_t *identify_tcpip_mask(uint8_t *ip4adr);
+// 加入 參數 pin 程式修正?
+uint8_t *identify_eth_mac(uint8_t *macadr, uint8_t pin);
+uint8_t *identify_tcpip_ip(uint8_t *ip4adr, uint8_t pin);
+uint8_t *identify_tcpip_gw(uint8_t *ip4adr, uint8_t pin);
+uint8_t *identify_tcpip_mask(uint8_t *ip4adr, uint8_t pin);
+
+uint8_t *mstep_eth_mac(int pin);
+uint8_t *mstep_eth_ip(int pin);
+uint8_t *mstep_eth_gw(int pin);
+uint8_t *mstep_eth_mask(int pin);
 void mstep_set_net_index(int i);
 int mstep_get_net_index(void);
 void dm9051_irqlines_proc(void);
 #endif
 
 void cpin_poweron_reset(void);
-uint8_t cspi_read_reg(uint8_t reg);
-void cspi_read_regnx(uint8_t reg, uint8_t length, uint8_t *buf);
-void cspi_write_reg(uint8_t reg, uint8_t val);
-void cspi_write_regnx(uint8_t reg, uint8_t length, uint8_t *buf);
-uint8_t cspi_read_mem2x(void);
-void cspi_read_mem(u8 *buf, u16 len);
-void cspi_write_mem(u8 *buf, u16 len);
+// uint8_t cspi_read_reg(uint8_t reg);
+// void cspi_read_regnx(uint8_t reg, uint8_t length, uint8_t *buf);
+// void cspi_write_reg(uint8_t reg, uint8_t val);
+// void cspi_write_regnx(uint8_t reg, uint8_t length, uint8_t *buf);
+// uint8_t cspi_read_mem2x(void);
+// void cspi_read_mem(u8 *buf, u16 len);
+// void cspi_write_mem(u8 *buf, u16 len);
+// 加入 pin 參數
+uint8_t cspi_read_reg(uint8_t reg, int pin);
+void cspi_read_regnx(uint8_t reg, uint8_t length, uint8_t *buf, int pin);
+void cspi_write_reg(uint8_t reg, uint8_t val, int pin);
+void cspi_write_regnx(uint8_t reg, uint8_t length, uint8_t *buf, int pin);
+uint8_t cspi_read_mem2x(int pin);
+void cspi_read_mem(u8 *buf, u16 len, int pin);
+void cspi_write_mem(u8 *buf, u16 len, int pin);
 
 //void mstep_next_net_index(void);
-char *mstep_conf_cpu_spi_ethernet(void);
-char *mstep_spi_conf_name(void);
+// char *mstep_conf_cpu_spi_ethernet(void);
+char *mstep_conf_cpu_spi_ethernet(uint8_t pin);
+// char *mstep_spi_conf_name(void);
+char *mstep_spi_conf_name(uint8_t pin);
+
 void exint_menable(nvic_priority_group_type priority); //void dm9051_board_irq_enable(void);
 
 #if 1 //lw_config
@@ -140,8 +157,11 @@ void exint_menable(nvic_priority_group_type priority); //void dm9051_board_irq_e
 void dm_delay_us(uint32_t nus);
 void dm_delay_ms(uint16_t nms);
 
-char *mstep_conf_info(void);
-char *mstep_conf_cpu_cs_ethernet(void);
+// char *mstep_conf_info(void);
+char *mstep_conf_info(uint8_t pin);
+// char *mstep_conf_cpu_cs_ethernet(void);
+char *mstep_conf_cpu_cs_ethernet(uint8_t pin);
+
 char *mstep_conf_type(void);
 //int mstep_conf_spi_count(void);
 

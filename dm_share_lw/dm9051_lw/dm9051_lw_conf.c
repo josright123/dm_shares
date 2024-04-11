@@ -105,10 +105,30 @@ static void gpio_pin_config(const gpio_t *gpio, gpio_pull_type gppull) //, gpio_
   *         } spi_inf_t;
   * @retval None
   */
-static void spi_config(void)
+//static void spi_config(void)
+//{
+//  spi_init_type spi_init_struct;
+//  crm_periph_clock_enable(spi_crm(), TRUE); //crm_spi_clk(_pinCode), CRM_SPI3_PERIPH_CLOCK/CRM_SPI2_PERIPH_CLOCK
+
+//  spi_default_para_init(&spi_init_struct);
+//  spi_init_struct.transmission_mode = SPI_TRANSMIT_FULL_DUPLEX;
+//  spi_init_struct.master_slave_mode = SPI_MODE_MASTER;
+//  spi_init_struct.mclk_freq_division = SPI_MCLK_DIV_8;
+//  //spi_init_struct.first_bit_transmission = SPI_FIRST_BIT_LSB;
+//  spi_init_struct.first_bit_transmission = SPI_FIRST_BIT_MSB;
+//  spi_init_struct.frame_bit_num = SPI_FRAME_8BIT;
+//  spi_init_struct.clock_polarity = SPI_CLOCK_POLARITY_LOW;
+//  //spi_init_struct.clock_phase = SPI_CLOCK_PHASE_2EDGE;
+//  spi_init_struct.clock_phase = SPI_CLOCK_PHASE_1EDGE;
+//  spi_init_struct.cs_mode_selection = SPI_CS_SOFTWARE_MODE;
+//  spi_init(spi_number(), &spi_init_struct); //SPI2, _spi_num(_pinCode)
+//  spi_enable(spi_number(), TRUE); //SPI2, _spi_num(_pinCode)
+//}
+
+static void spi_config_pin(int pin)
 {
   spi_init_type spi_init_struct;
-  crm_periph_clock_enable(spi_crm(), TRUE); //crm_spi_clk(_pinCode), CRM_SPI3_PERIPH_CLOCK/CRM_SPI2_PERIPH_CLOCK
+  crm_periph_clock_enable(spi_crm(pin), TRUE); //crm_spi_clk(_pinCode), CRM_SPI3_PERIPH_CLOCK/CRM_SPI2_PERIPH_CLOCK
 
   spi_default_para_init(&spi_init_struct);
   spi_init_struct.transmission_mode = SPI_TRANSMIT_FULL_DUPLEX;
@@ -121,9 +141,10 @@ static void spi_config(void)
   //spi_init_struct.clock_phase = SPI_CLOCK_PHASE_2EDGE;
   spi_init_struct.clock_phase = SPI_CLOCK_PHASE_1EDGE;
   spi_init_struct.cs_mode_selection = SPI_CS_SOFTWARE_MODE;
-  spi_init(spi_number(), &spi_init_struct); //SPI2, _spi_num(_pinCode)
-  spi_enable(spi_number(), TRUE); //SPI2, _spi_num(_pinCode)
+  spi_init(spi_number(pin), &spi_init_struct); //SPI2, _spi_num(_pinCode)
+  spi_enable(spi_number(pin), TRUE); //SPI2, _spi_num(_pinCode)
 }
+
 
 /**
   * @brief  exint pin configuration.
@@ -229,19 +250,46 @@ void dm_delay_ms(uint16_t nms) {
   * @brief  spi configuration.
   * @brief  exint configuration.
   */
-static void spi_add(void) //=== pins_config(); //total_eth_count++;
+//static void spi_add(void) //=== pins_config(); //total_eth_count++;
+//{
+////.#ifndef AT32F437xx
+//  //Setting of Non-f437
+//  if (spi_number() == SPI1) {
+//	  if  (spi_iomux() & IO_CRM_CLOCK) {
+
+//		#ifndef AT32F437xx //.
+//	    crm_periph_clock_enable(CRM_IOMUX_PERIPH_CLOCK, TRUE); //Non-f437,iomux-config
+//	    gpio_pin_remap_config(SWJTAG_GMUX_010, TRUE); //Non-f437,iomux-config
+//		#endif //.
+//	  }
+//	  if  (spi_iomux() & IO_MUX_PINREMAP) {
+
+//		#ifndef AT32F437xx //.
+//		  gpio_pin_remap_config(SPI1_MUX_01, TRUE); //Non-f437,remap
+//		#endif //.
+//	  }
+//  }
+////.#endif
+//  gpio_pin_config(&gpio_wire_sck(), GPIO_PULL_NONE); //,GPIO_MODE_MUX
+//  gpio_pin_config(&gpio_wire_mi(), GPIO_PULL_NONE); //,GPIO_MODE_MUX
+//  gpio_pin_config(&gpio_wire_mo(), GPIO_PULL_NONE); //,GPIO_MODE_MUX //GPIO_PULL_UP; //test ffff
+//  spi_config(); //(spi_port_ptr(_pinCode));
+//  gpio_pin_config(&gpio_cs(), GPIO_PULL_NONE); //,GPIO_MODE_OUTPUT
+//}
+
+static void spi_add_pin(int pin) //=== pins_config(); //total_eth_count++;
 {
 //.#ifndef AT32F437xx
   //Setting of Non-f437
-  if (spi_number() == SPI1) {
-	  if  (spi_iomux() & IO_CRM_CLOCK) {
+  if (spi_number(pin) == SPI1) {
+	  if  (spi_iomux(pin) & IO_CRM_CLOCK) {
 
 		#ifndef AT32F437xx //.
 	    crm_periph_clock_enable(CRM_IOMUX_PERIPH_CLOCK, TRUE); //Non-f437,iomux-config
 	    gpio_pin_remap_config(SWJTAG_GMUX_010, TRUE); //Non-f437,iomux-config
 		#endif //.
 	  }
-	  if  (spi_iomux() & IO_MUX_PINREMAP) {
+	  if  (spi_iomux(pin) & IO_MUX_PINREMAP) {
 
 		#ifndef AT32F437xx //.
 		  gpio_pin_remap_config(SPI1_MUX_01, TRUE); //Non-f437,remap
@@ -249,11 +297,11 @@ static void spi_add(void) //=== pins_config(); //total_eth_count++;
 	  }
   }
 //.#endif
-  gpio_pin_config(&gpio_wire_sck(), GPIO_PULL_NONE); //,GPIO_MODE_MUX
-  gpio_pin_config(&gpio_wire_mi(), GPIO_PULL_NONE); //,GPIO_MODE_MUX
-  gpio_pin_config(&gpio_wire_mo(), GPIO_PULL_NONE); //,GPIO_MODE_MUX //GPIO_PULL_UP; //test ffff
-  spi_config(); //(spi_port_ptr(_pinCode));
-  gpio_pin_config(&gpio_cs(), GPIO_PULL_NONE); //,GPIO_MODE_OUTPUT
+  gpio_pin_config(&gpio_wire_sck(pin), GPIO_PULL_NONE); //,GPIO_MODE_MUX
+  gpio_pin_config(&gpio_wire_mi(pin), GPIO_PULL_NONE); //,GPIO_MODE_MUX
+  gpio_pin_config(&gpio_wire_mo(pin), GPIO_PULL_NONE); //,GPIO_MODE_MUX //GPIO_PULL_UP; //test ffff
+  spi_config_pin(pin); 		//(spi_port_ptr(_pinCode));
+  gpio_pin_config(&gpio_cs(pin), GPIO_PULL_NONE); //,GPIO_MODE_OUTPUT
 }
 
 void rst_add(void)
@@ -267,11 +315,19 @@ void exint_add(void)
   config_exint(GPIO_PULL_UP, EXINT_TRIGGER_FALLING_EDGE); //
 }
 
-void interface_add(int pin)
-{
-	DM_UNUSED_ARG(pin);
+//void interface_add(int pin)
+//{
+//	DM_UNUSED_ARG(pin);
 
-	spi_add();
+//	spi_add();
+//	rst_add();
+//	exint_add();
+//}
+
+void interface_add_pin(int pin)
+{
+	// DM_UNUSED_ARG(pin);
+	spi_add_pin(pin);
 	rst_add();
 	exint_add();
 }
@@ -296,7 +352,8 @@ void dm9051_boards_initialize(int n)
 	interface_add(i);
   }*/
   DM_UNUSED_ARG(n);
-  ETH_COUNT_VOIDFN(interface_add); //voidfn_dual
+  // ETH_COUNT_VOIDFN(interface_add); //voidfn_dual
+	ETH_COUNT_VOIDFN(interface_add_pin); //voidfn_dual
   cpin_poweron_reset();
   dmf.dly_ms(30);
   //dm9051_init(&mac_addresse[0][0]);
@@ -318,18 +375,30 @@ void dm9051_boards_initialize(int n)
  * dm9051 spi interface accessing
  *********************************/
 
-static void spi_cs_lo(void) {
-	gpio_bits_reset(gpio_cs().gpport, gpio_cs().pin); //cs.gpport->clr = cs.pin;
+// static void spi_cs_lo(void) {
+// 	gpio_bits_reset(gpio_cs().gpport, gpio_cs().pin); //cs.gpport->clr = cs.pin;
+// }
+// static void spi_cs_hi(void) {
+// 	gpio_bits_set(gpio_cs().gpport, gpio_cs().pin); //cs.gpport->scr = cs.pin;
+// }
+static void spi_cs_lo(int pin) {
+	gpio_bits_reset(gpio_cs(pin).gpport, gpio_cs(pin).pin); //cs.gpport->clr = cs.pin;
 }
-static void spi_cs_hi(void) {
-	gpio_bits_set(gpio_cs().gpport, gpio_cs().pin); //cs.gpport->scr = cs.pin;
+static void spi_cs_hi(int pin) {
+	gpio_bits_set(gpio_cs(pin).gpport, gpio_cs(pin).pin); //cs.gpport->scr = cs.pin;
 }
 
-static uint8_t spi_exc_data(uint8_t byte) {
-    while(spi_i2s_flag_get(spi_number(), SPI_I2S_TDBE_FLAG) == RESET);	//while(spi_i2s_flag_get(SPI2, SPI_I2S_TDBE_FLAG) == RESET);
-    spi_i2s_data_transmit(spi_number(), byte);							//spi_i2s_data_transmit(SPI2, byte); //spi2 tx
-    while(spi_i2s_flag_get(spi_number(), SPI_I2S_RDBF_FLAG) == RESET);	//while(spi_i2s_flag_get(SPI2, SPI_I2S_RDBF_FLAG) == RESET);
-    return (uint8_t) spi_i2s_data_receive(spi_number());				//return (uint8_t) spi_i2s_data_receive(SPI2); //spi2 rx (rx_pad)
+// static uint8_t spi_exc_data(uint8_t byte) {
+//     while(spi_i2s_flag_get(spi_number(), SPI_I2S_TDBE_FLAG) == RESET);	//while(spi_i2s_flag_get(SPI2, SPI_I2S_TDBE_FLAG) == RESET);
+//     spi_i2s_data_transmit(spi_number(), byte);							//spi_i2s_data_transmit(SPI2, byte); //spi2 tx
+//     while(spi_i2s_flag_get(spi_number(), SPI_I2S_RDBF_FLAG) == RESET);	//while(spi_i2s_flag_get(SPI2, SPI_I2S_RDBF_FLAG) == RESET);
+//     return (uint8_t) spi_i2s_data_receive(spi_number());				//return (uint8_t) spi_i2s_data_receive(SPI2); //spi2 rx (rx_pad)
+// } 加入了pin参数
+static uint8_t spi_exc_data(uint8_t byte, uint8_t pin) {
+		while(spi_i2s_flag_get(spi_number(pin), SPI_I2S_TDBE_FLAG) == RESET);	//while(spi_i2s_flag_get(SPI2, SPI_I2S_TDBE_FLAG) == RESET);
+		spi_i2s_data_transmit(spi_number(pin), byte);							//spi_i2s_data_transmit(SPI2, byte); //spi2 tx
+		while(spi_i2s_flag_get(spi_number(pin), SPI_I2S_RDBF_FLAG) == RESET);	//while(spi_i2s_flag_get(SPI2, SPI_I2S_RDBF_FLAG) == RESET);
+		return (uint8_t) spi_i2s_data_receive(spi_number(pin));				//return (uint8_t) spi_i2s_data_receive(SPI2); //spi2 rx (rx_pad)
 }
 
 static void rst_pin_pulse(void) {
@@ -337,121 +406,251 @@ static void rst_pin_pulse(void) {
 	dm_delay_ms(1);
 	gpio_bits_set(rst_gpio_ptr()->gpport, rst_gpio_ptr()->pin); //rstpin_hi();
 }
+// 加入了pin参数
+// static void rst_pin_pulse(int pin) {
+// 	gpio_bits_reset(rst_gpio_ptr(pin)->gpport, rst_gpio_ptr(pin)->pin); //rstpin_lo();
+// 	dm_delay_ms(1);
+// 	gpio_bits_set(rst_gpio_ptr(pin)->gpport, rst_gpio_ptr(pin)->pin); //rstpin_hi();
+// }
+
 
 /*********************************
  * functions for driver's ops
  *********************************/
 
-#define dm9051if_rstb_pulse() rst_pin_pulse() //.dm9051_if->rstb_pulse()
-#define dm9051if_cs_lo() spi_cs_lo()
-#define dm9051if_cs_hi() spi_cs_hi()
-#define dm9051_spi_command_write(rd) spi_exc_data(rd)
-#define dm9051_spi_dummy_read() spi_exc_data(0)
+ #define dm9051if_rstb_pulse() rst_pin_pulse() //.dm9051_if->rstb_pulse()
+// #define dm9051if_cs_lo() spi_cs_lo()
+// #define dm9051if_cs_hi() spi_cs_hi()
+// #define dm9051_spi_command_write(rd) spi_exc_data(rd)
+// #define dm9051_spi_dummy_read() spi_exc_data(0)
+// 加入了pin参数
 
-void cspi_read_regs(uint8_t reg, u8 *buf, u16 len, csmode_t csmode)
+// #define dm9051if_cs_lo() spi_cs_lo(0)
+// #define dm9051if_cs_hi() spi_cs_hi(0)
+// #define dm9051_spi_command_write(rd) spi_exc_data(rd, 0)
+// #define dm9051_spi_dummy_read() spi_exc_data(0, 0)
+
+
+
+// void cspi_read_regs(uint8_t reg, u8 *buf, u16 len, csmode_t csmode)
+// {
+// 	int i;
+// 	int par_regs = (reg == DM9051_PAR);
+
+// 	if (csmode == CS_LONG) {
+// 	  dm9051if_cs_lo();
+// 	  for(i=0; i < len; i++, reg++) {
+// 		dm9051_spi_command_write(reg | OPC_REG_R);
+// 		buf[i] = dm9051_spi_dummy_read();
+// 		if (par_regs)
+// 		  printf("long read reg %02x = %02x\r\n", reg, buf[i]);
+// 	  }
+// 	  dm9051if_cs_hi();
+// 	}
+// 	else { //CS_EACH
+// 	  for(i=0; i < len; i++, reg++) {
+// 		//printf("cspi_read_reg(reg) ..\r\n");
+// 		buf[i] = cspi_read_reg(reg);
+// 		if (par_regs)
+// 		  ; //printf("each read reg %02x = %02x\r\n", reg, buf[i]);
+// 	  }
+// 	}
+// }
+
+// void cpin_poweron_reset(void)
+// {
+// 	if (rst_pin_exister())
+// 		dm9051if_rstb_pulse();
+// }
+
+// uint8_t cspi_read_reg(uint8_t reg) //static (todo)
+// {
+// 	uint8_t val;
+// 	dm9051if_cs_lo();
+// 	dm9051_spi_command_write(reg | OPC_REG_R);
+// 	val = dm9051_spi_dummy_read();
+// 	dm9051if_cs_hi();
+// 	return val;
+// }
+
+// void cspi_read_regnx(uint8_t reg, uint8_t length, uint8_t *buf) // static (todo)
+// {
+// 	dm9051if_cs_lo();
+// 	// Complier Code Generation C99 Mode enabled
+// 	for (uint8_t i = 0; i < length; i++)
+// 	{
+// 		dm9051_spi_command_write(reg + i | OPC_REG_R);
+// 		buf[i] = dm9051_spi_dummy_read();
+// 	}
+// 	dm9051if_cs_hi();
+// }
+
+// void cspi_write_reg(uint8_t reg, uint8_t val)
+// {
+// 	dm9051if_cs_lo();
+// 	dm9051_spi_command_write(reg | OPC_REG_W);
+// 	dm9051_spi_command_write(val);
+// 	dm9051if_cs_hi();
+// }
+
+// void cspi_write_regnx(uint8_t reg, uint8_t length, uint8_t *buf)
+// {
+// 	dm9051if_cs_lo();
+// 	// Complier Code Generation C99 Mode enabled
+// 	for (uint8_t i = 0; i < length; i++)
+// 	{
+// 		dm9051_spi_command_write(reg + i | OPC_REG_W);
+// 		dm9051_spi_command_write(buf[i]);
+// 	}
+// 	dm9051if_cs_hi();
+// }
+
+// uint8_t cspi_read_mem2x(void)
+// {
+// 	uint8_t rxb;
+// 	dm9051if_cs_lo();
+// 	dm9051_spi_command_write(DM9051_MRCMDX | OPC_REG_R);
+// 	rxb = dm9051_spi_dummy_read();
+// 	rxb = dm9051_spi_dummy_read();
+// 	dm9051if_cs_hi();
+// 	return rxb;
+// }
+// void cspi_read_mem(u8 *buf, u16 len)
+// {
+// 	int i;
+// 	dm9051if_cs_lo();
+// 	dm9051_spi_command_write(DM9051_MRCMD | OPC_REG_R);
+// 	if (!OPT_CONFIRM(onlybytemode) && (OPT_U8(iomode) == MBNDRY_WORD)) //u8iomode() == MBNDRY_WORD, dm9051opts_iomode(), MBNDRY_DEFAULT == MBNDRY_WORD
+// 	if (len & 1)
+// 		len++;
+// 	for(i=0; i<len; i++)
+// 		buf[i] = dm9051_spi_dummy_read();
+// 	dm9051if_cs_hi();
+// }
+// void cspi_write_mem(u8 *buf, u16 len)
+// {
+// 	int i;
+// 	dm9051if_cs_lo();
+// 	dm9051_spi_command_write(DM9051_MWCMD | OPC_REG_W);
+// 	if (!OPT_CONFIRM(onlybytemode) && (OPT_U8(iomode) == MBNDRY_WORD)) //u8iomode() == MBNDRY_WORD, dm9051opts_iomode(), MBNDRY_DEFAULT == MBNDRY_WORD
+// 	if (len & 1)
+// 		len++;
+// 	for(i=0; i<len; i++)
+// 		dm9051_spi_command_write(buf[i]);
+// 	dm9051if_cs_hi();
+// }
+
+#define dm9051if_cs_lo(pin) spi_cs_lo(pin)
+#define dm9051if_cs_hi(pin) spi_cs_hi(pin)
+#define dm9051_spi_command_write(rd, pin) spi_exc_data(rd, pin)
+#define dm9051_spi_dummy_read(pin) spi_exc_data(0, pin)
+
+void cspi_read_regs(uint8_t reg, u8 *buf, u16 len, csmode_t csmode, int pin)
 {
-	int i;
-	int par_regs = (reg == DM9051_PAR);
+  int i;
+  int par_regs = (reg == DM9051_PAR);
 
-	if (csmode == CS_LONG) {
-	  dm9051if_cs_lo();
-	  for(i=0; i < len; i++, reg++) {
-		dm9051_spi_command_write(reg | OPC_REG_R);
-		buf[i] = dm9051_spi_dummy_read();
-		if (par_regs)
-		  printf("long read reg %02x = %02x\r\n", reg, buf[i]);
-	  }
-	  dm9051if_cs_hi();
-	}
-	else { //CS_EACH
-	  for(i=0; i < len; i++, reg++) {
-		//printf("cspi_read_reg(reg) ..\r\n");
-		buf[i] = cspi_read_reg(reg);
-		if (par_regs)
-		  ; //printf("each read reg %02x = %02x\r\n", reg, buf[i]);
-	  }
-	}
+  if (csmode == CS_LONG) {
+    dm9051if_cs_lo(pin);
+    for(i=0; i < len; i++, reg++) {
+    dm9051_spi_command_write(reg | OPC_REG_R, pin);
+    buf[i] = dm9051_spi_dummy_read(pin);
+    if (par_regs)
+      printf("long read reg %02x = %02x\r\n", reg, buf[i]);
+    }
+    dm9051if_cs_hi(pin);
+  }
+  else { //CS_EACH
+    for(i=0; i < len; i++, reg++) {
+    //printf("cspi_read_reg(reg) ..\r\n");
+    buf[i] = cspi_read_reg(reg, pin);
+    if (par_regs)
+      ; //printf("each read reg %02x = %02x\r\n", reg, buf[i]);
+    }
+  }
 }
 
 void cpin_poweron_reset(void)
 {
-	if (rst_pin_exister())
-		dm9051if_rstb_pulse();
+  if (rst_pin_exister())
+    dm9051if_rstb_pulse();
 }
 
-uint8_t cspi_read_reg(uint8_t reg) //static (todo)
+uint8_t cspi_read_reg(uint8_t reg, int pin) //static (todo)
 {
-	uint8_t val;
-	dm9051if_cs_lo();
-	dm9051_spi_command_write(reg | OPC_REG_R);
-	val = dm9051_spi_dummy_read();
-	dm9051if_cs_hi();
-	return val;
+  uint8_t val;
+  dm9051if_cs_lo(pin);
+  dm9051_spi_command_write(reg | OPC_REG_R, pin);
+  val = dm9051_spi_dummy_read(pin);
+  dm9051if_cs_hi(pin);
+  return val;
 }
 
-void cspi_read_regnx(uint8_t reg, uint8_t length, uint8_t *buf) // static (todo)
+void cspi_read_regnx(uint8_t reg, uint8_t length, uint8_t *buf, int pin) // static (todo)
 {
-	dm9051if_cs_lo();
-	// Complier Code Generation C99 Mode enabled
-	for (uint8_t i = 0; i < length; i++)
-	{
-		dm9051_spi_command_write(reg + i | OPC_REG_R);
-		buf[i] = dm9051_spi_dummy_read();
-	}
-	dm9051if_cs_hi();
+  dm9051if_cs_lo(pin);
+  // Complier Code Generation C99 Mode enabled
+  for (uint8_t i = 0; i < length; i++)
+  {
+    dm9051_spi_command_write(reg + i | OPC_REG_R, pin);
+    buf[i] = dm9051_spi_dummy_read(pin);
+  }
+  dm9051if_cs_hi(pin);
 }
 
-void cspi_write_reg(uint8_t reg, uint8_t val)
+void cspi_write_reg(uint8_t reg, uint8_t val, int pin)
 {
-	dm9051if_cs_lo();
-	dm9051_spi_command_write(reg | OPC_REG_W);
-	dm9051_spi_command_write(val);
-	dm9051if_cs_hi();
+  dm9051if_cs_lo(pin);
+  dm9051_spi_command_write(reg | OPC_REG_W, pin);
+  dm9051_spi_command_write(val, pin);
+  dm9051if_cs_hi(pin);
 }
 
-void cspi_write_regnx(uint8_t reg, uint8_t length, uint8_t *buf)
+void cspi_write_regnx(uint8_t reg, uint8_t length, uint8_t *buf, int pin)
 {
-	dm9051if_cs_lo();
-	// Complier Code Generation C99 Mode enabled
-	for (uint8_t i = 0; i < length; i++)
-	{
-		dm9051_spi_command_write(reg + i | OPC_REG_W);
-		dm9051_spi_command_write(buf[i]);
-	}
-	dm9051if_cs_hi();
+  dm9051if_cs_lo(pin);
+  // Complier Code Generation C99 Mode enabled
+  for (uint8_t i = 0; i < length; i++)
+  {
+    dm9051_spi_command_write(reg + i | OPC_REG_W, pin);
+    dm9051_spi_command_write(buf[i], pin);
+  }
+  dm9051if_cs_hi(pin);
 }
 
-uint8_t cspi_read_mem2x(void)
+uint8_t cspi_read_mem2x(int pin)
 {
-	uint8_t rxb;
-	dm9051if_cs_lo();
-	dm9051_spi_command_write(DM9051_MRCMDX | OPC_REG_R);
-	rxb = dm9051_spi_dummy_read();
-	rxb = dm9051_spi_dummy_read();
-	dm9051if_cs_hi();
-	return rxb;
+  uint8_t rxb;
+  dm9051if_cs_lo(pin);
+  dm9051_spi_command_write(DM9051_MRCMDX | OPC_REG_R, pin);
+  rxb = dm9051_spi_dummy_read(pin);
+  rxb = dm9051_spi_dummy_read(pin);
+  dm9051if_cs_hi(pin);
+  return rxb;
 }
-void cspi_read_mem(u8 *buf, u16 len)
+
+void cspi_read_mem(u8 *buf, u16 len, int pin)
 {
-	int i;
-	dm9051if_cs_lo();
-	dm9051_spi_command_write(DM9051_MRCMD | OPC_REG_R);
-	if (!OPT_CONFIRM(onlybytemode) && (OPT_U8(iomode) == MBNDRY_WORD)) //u8iomode() == MBNDRY_WORD, dm9051opts_iomode(), MBNDRY_DEFAULT == MBNDRY_WORD
-	if (len & 1)
-		len++;
-	for(i=0; i<len; i++)
-		buf[i] = dm9051_spi_dummy_read();
-	dm9051if_cs_hi();
+  int i;
+  dm9051if_cs_lo(pin);
+  dm9051_spi_command_write(DM9051_MRCMD | OPC_REG_R, pin);
+  if (!OPT_CONFIRM_PIN(onlybytemode, pin) && (OPT_U8_PIN(iomode, pin) == MBNDRY_WORD)) //u8iomode() == MBNDRY_WORD, dm9051opts_iomode(), MBNDRY_DEFAULT == MBNDRY_WORD
+  if (len & 1)
+    len++;
+  for(i=0; i<len; i++)
+    buf[i] = dm9051_spi_dummy_read(pin);
+  dm9051if_cs_hi(pin);
 }
-void cspi_write_mem(u8 *buf, u16 len)
+
+void cspi_write_mem(u8 *buf, u16 len, int pin)
 {
-	int i;
-	dm9051if_cs_lo();
-	dm9051_spi_command_write(DM9051_MWCMD | OPC_REG_W);
-	if (!OPT_CONFIRM(onlybytemode) && (OPT_U8(iomode) == MBNDRY_WORD)) //u8iomode() == MBNDRY_WORD, dm9051opts_iomode(), MBNDRY_DEFAULT == MBNDRY_WORD
-	if (len & 1)
-		len++;
-	for(i=0; i<len; i++)
-		dm9051_spi_command_write(buf[i]);
-	dm9051if_cs_hi();
+  int i;
+  dm9051if_cs_lo(pin);
+  dm9051_spi_command_write(DM9051_MWCMD | OPC_REG_W, pin);
+  if (!OPT_CONFIRM_PIN(onlybytemode, pin) && (OPT_U8_PIN(iomode, pin) == MBNDRY_WORD)) //u8iomode() == MBNDRY_WORD, dm9051opts_iomode(), MBNDRY_DEFAULT == MBNDRY_WORD
+  if (len & 1)
+    len++;
+  for(i=0; i<len; i++)
+    dm9051_spi_command_write(buf[i], pin);
+  dm9051if_cs_hi(pin);
 }

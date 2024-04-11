@@ -1,13 +1,13 @@
 --------------------
 advance versions:
 --------------------
-dm9051_lw version 5.10, 20240330. yicheng.
+dm9051_lw version 6.00, 20240411. yicheng.
 		  Introduce:
-			Version 5.10
+			Version 6.00
 			This version includes the following changes:
-			- Added the #define freeRTOS_LOCK_SPI_MUTEX  1
-			- Added the SemaphoreHandle_t mutex_lw_print;
-			- Added the #include "../freertos_tasks_debug.h" //#include "dm9051_lw_debug.h"
+			- Added the `pin` function parameter.
+			- Remove global int pin_code = 0.
+			Please refer to the code implementation for more details.
 
 dm9051_lw version 5.09, 20240324. yicheng.
 		  Introduce:

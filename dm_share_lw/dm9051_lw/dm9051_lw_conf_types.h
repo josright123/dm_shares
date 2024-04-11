@@ -45,13 +45,13 @@ typedef struct spihead_sel_st {
 typedef struct gpio_sel_st {
 	gpio_type *gpport;        		//= PORT;
 	uint16_t pin;           		//= PIN;
-	crm_periph_clock_type gpio_crm_clk;  //= CRM_CLK;	
+	crm_periph_clock_type gpio_crm_clk;  //= CRM_CLK;
 	gpio_mode_type gpio_mode;		//= type
 	gpio_pins_source_type pinsrc;
 	gpio_mux_sel_type muxsel;
 } gpio_t;
 
-typedef struct {
+typedef struct spi_dev_st {
 	char *info;
 	spihead_t spidef;
 	char *cpu_spi_info;	//cpu name is for the purpose to lead the pins, for easy recogition!
@@ -80,17 +80,17 @@ typedef struct extline_st {
 } extline_t;
 
 struct extscfg_st { //struct linescfg_st
-	const char *irq_enable_inf;	
+	const char *irq_enable_inf;
 	extline_t extline;
 };
 
 typedef struct gp_set_st {
-	const char *gp_info;	
+	const char *gp_info;
 	const gpio_t gp;
 } gp_set_t;
 
 struct modscfg_st {
-	const char *scfg_inf;	
+	const char *scfg_inf;
 	struct extint_init_st scfg_init; //extint_init_t
 	struct extscfg_st *extend; //struct linescfg_st *extend; //essential
 	struct gp_set_st *option; //gp_set_t
@@ -102,6 +102,11 @@ typedef struct eth_node_st {
   uint8_t local_gwaddr[ADDR_LENGTH];
   uint8_t local_maskaddr[ADDR_LENGTH];
 } eth_node_t;
+
+typedef struct spi_num_st {
+	int spi_num;
+	// crm_periph_clock_type spi_crm_clk;
+} spi_num_t, *spi_num_p;
 
 // -
 

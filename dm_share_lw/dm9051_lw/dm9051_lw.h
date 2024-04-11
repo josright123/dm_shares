@@ -216,32 +216,33 @@
 //void DM9051_Read_Mem(uint8_t *buf, uint16_t len);
 //void DM9051_Write_Mem(uint8_t *buf, uint16_t len);
 
-uint16_t eeprom_read(uint16_t uReg);
+uint16_t eeprom_read(uint16_t uReg, int pin);
 
-void phy_write(uint16_t reg, uint16_t value);
+void phy_write(uint16_t reg, uint16_t value, int pin);
 
 void dm9051_poweron_rst(void);
 
 #if DM9051OPTS_API
-uint16_t dm9051_init(const uint8_t *adr);
-uint16_t dm9051_rx(uint8_t *buff);
-void dm9051_tx(uint8_t *buf, uint16_t len);
-void hdlr_reset_process(enable_t en);
-void dm9051_mac_adr(const uint8_t *macadd);
-uint16_t dm9051_bmsr_update(void);
+uint16_t dm9051_init(const uint8_t *adr, int pin);
+uint16_t dm9051_rx(uint8_t *buff, int pin);
+void dm9051_tx(uint8_t *buf, uint16_t len, int pin);
+void hdlr_reset_process(enable_t en, int pin);
+void dm9051_mac_adr(const uint8_t *macadd, int pin);
+uint16_t dm9051_bmsr_update(int pin);
 int check_chip_id(uint16_t id);
 #endif
 
-void dm9051_start(const uint8_t *adr);
-uint16_t dm9051_phy_read(uint32_t reg);
-uint16_t dm9051_eeprom_read(uint16_t word);
-uint16_t dm9051_rx_dump(uint8_t *buff);
+void dm9051_start(const uint8_t *adr, int pin);
+uint16_t dm9051_phy_read(uint32_t reg, int pin);
+uint16_t dm9051_eeprom_read(uint16_t word, int pin);
+uint16_t dm9051_rx_dump(uint8_t *buff, int pin);
 
-uint16_t read_chip_id(void);
-uint16_t dm9051_bmcr_update(void);
-uint16_t dm9051_link_update(void);
-void dm9051_phy_write(uint32_t reg, uint16_t value);
-uint16_t dm9051_link_show(void);
+// uint16_t read_chip_id(void);
+uint16_t read_chip_id(int pin);
+uint16_t dm9051_bmcr_update(int pin);
+uint16_t dm9051_link_update(int pin);
+void dm9051_phy_write(uint32_t reg, uint16_t value, int pin);
+uint16_t dm9051_link_show(int pin);
 
 #define DM9051_FLAG_LINK_UP							0x01U
 
@@ -256,11 +257,11 @@ uint16_t dm9051_link_show(void);
 															fstr, ids[0], ids[1], ids[2], ids[3], ids[4], dm9051opts_desccsmode())
 #define display_ida(fstr, id_adv)					printf("...%s...          chip rev: %02x\r\n", fstr, id_adv)
 
-int display_identity(char *spiname, uint16_t id, uint8_t *ids, uint8_t id_adv);
+int display_identity(char *spiname, uint16_t id, uint8_t *ids, uint8_t id_adv, int pin);
 int display_verify_chipid(char *str, char *spiname, uint16_t id);
-void display_chipmac(void);
-uint16_t dm9051_init_setup(void);
-void read_chip_revision(uint8_t *ids, uint8_t *rev_ad);
+void display_chipmac(int pin);
+uint16_t dm9051_init_setup(int pin);
+void read_chip_revision(uint8_t *ids, uint8_t *rev_ad, int pin);
 void dm9051_freertos_init(void);
 
 #if  freeRTOS && freeRTOS_LOCK_SPI_MUTEX

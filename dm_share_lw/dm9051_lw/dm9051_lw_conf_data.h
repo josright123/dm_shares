@@ -13,7 +13,7 @@ const gp_set_t *option_rst_common = NULL;
 #define GPIO_PINNORM(gpport,pin,crm_clk)			{gpport,pin,crm_clk, GPIO_MODE_MUX, GPIO_PINSRC_NULL, GPIO_MUX_NULL}
 #define GPIO_PINMUX(gpport,pin,crm_clk,pinsrc,mux)	{gpport,pin,crm_clk, GPIO_MODE_MUX, pinsrc,mux}
 #define GPIO_PINOUT(gpport,pin,crm_clk)		{gpport,pin,crm_clk, GPIO_MODE_OUTPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL}
-	
+
 const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 	#ifdef AT32F437xx
 		//AT32F437xx
@@ -124,6 +124,17 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 		devconf_at413_spi1a("AT32F413 ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa4",
 			GPIOA, GPIO_PINS_4, CRM_GPIOA_PERIPH_CLOCK, IO_MUX_NULL),
 	#elif defined (AT32F403Axx) || defined (AT32F403xx) || defined (AT32F407xx)
+		#define devconf_at403a_spi1(info, spi_setting_name, cs_setting_name, gpport, pin, gpio_crm_clk) \
+			{ \
+				info, \
+				{"SPI1",	SPI1,			CRM_SPI1_PERIPH_CLOCK}, \
+				spi_setting_name, \
+				{GPIOA,		GPIO_PINS_5, 	CRM_GPIOA_PERIPH_CLOCK, 	GPIO_MODE_MUX, 	GPIO_PINSRC_NULL, GPIO_MUX_NULL},  /* //ISCK */ \
+				{GPIOA,		GPIO_PINS_6, 	CRM_GPIOA_PERIPH_CLOCK, 	GPIO_MODE_MUX,	GPIO_PINSRC_NULL, GPIO_MUX_NULL}, /* //IMISO */ \
+				{GPIOA,		GPIO_PINS_7, 	CRM_GPIOA_PERIPH_CLOCK, 	GPIO_MODE_MUX,	GPIO_PINSRC_NULL, GPIO_MUX_NULL}, /* //IMOSI */ \
+				cs_setting_name, \
+				{gpport,	pin, 			gpio_crm_clk, 				GPIO_MODE_OUTPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL}, /* //(PA4) Test-ISP2 OK */ \
+			}
 		#define devconf_at403a_spi2(info, spi_setting_name, cs_setting_name) \
 			{ \
 				info, \
@@ -136,19 +147,34 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				{GPIOB, GPIO_PINS_12, CRM_GPIOB_PERIPH_CLOCK, GPIO_MODE_OUTPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL}, /* //(PB12) Test-ISP2 OK */ \
 				/*{GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK, 				GPIO_MODE_OUTPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL},*/ /* //(PA15) Test-ISP2 OK */ \
 			}
-		#define devconf_at403a_spi1(info, spi_setting_name, cs_setting_name, gpport, pin, gpio_crm_clk) \
+		#define devconf_at403a_spi3(info, spi_setting_name, cs_setting_name) \
 			{ \
 				info, \
-				{"SPI1",	SPI1,			CRM_SPI1_PERIPH_CLOCK}, \
+				{"SPI3", SPI3, CRM_SPI3_PERIPH_CLOCK}, \
 				spi_setting_name, \
-				{GPIOA,		GPIO_PINS_5, 	CRM_GPIOA_PERIPH_CLOCK, 	GPIO_MODE_MUX, 	GPIO_PINSRC_NULL, GPIO_MUX_NULL},  /* //ISCK */ \
-				{GPIOA,		GPIO_PINS_6, 	CRM_GPIOA_PERIPH_CLOCK, 	GPIO_MODE_MUX,	GPIO_PINSRC_NULL, GPIO_MUX_NULL}, /* //IMISO */ \
-				{GPIOA,		GPIO_PINS_7, 	CRM_GPIOA_PERIPH_CLOCK, 	GPIO_MODE_MUX,	GPIO_PINSRC_NULL, GPIO_MUX_NULL}, /* //IMOSI */ \
+				{GPIOB, GPIO_PINS_3, CRM_GPIOB_PERIPH_CLOCK, GPIO_MODE_MUX,    GPIO_PINSRC_NULL, GPIO_MUX_NULL},  /* //ISCK */ \
+				{GPIOB, GPIO_PINS_4, CRM_GPIOB_PERIPH_CLOCK, GPIO_MODE_MUX,	GPIO_PINSRC_NULL, GPIO_MUX_NULL},	/* //IMISO */ \
+				{GPIOB, GPIO_PINS_5, CRM_GPIOB_PERIPH_CLOCK, GPIO_MODE_MUX,	GPIO_PINSRC_NULL, GPIO_MUX_NULL},	/* //IMOSI */ \
 				cs_setting_name, \
-				{gpport,	pin, 			gpio_crm_clk, 				GPIO_MODE_OUTPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL}, /* //(PA4) Test-ISP2 OK */ \
+				{GPIOB, GPIO_PINS_2, CRM_GPIOB_PERIPH_CLOCK, GPIO_MODE_OUTPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL}, /* //(PB2) Test-ISP2 OK */ \
 			}
+		#define devconf_at403a_spi4(info, spi_setting_name, cs_setting_name) \
+			{ \
+				info, \
+				{"SPI4", SPI4, CRM_SPI4_PERIPH_CLOCK}, \
+				spi_setting_name, \
+				{GPIOE, GPIO_PINS_2, CRM_GPIOE_PERIPH_CLOCK, GPIO_MODE_MUX,    GPIO_PINSRC_NULL, GPIO_MUX_NULL},  /* //ISCK */ \
+				{GPIOE, GPIO_PINS_5, CRM_GPIOE_PERIPH_CLOCK, GPIO_MODE_MUX,	GPIO_PINSRC_NULL, GPIO_MUX_NULL},	/* //IMISO */ \
+				{GPIOE, GPIO_PINS_6, CRM_GPIOE_PERIPH_CLOCK, GPIO_MODE_MUX,	GPIO_PINSRC_NULL, GPIO_MUX_NULL},	/* //IMOSI */ \
+				cs_setting_name, \
+				{GPIOE, GPIO_PINS_4, CRM_GPIOE_PERIPH_CLOCK, GPIO_MODE_OUTPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL}, /* //(PE4) Test-ISP2 OK */ \
+			}
+
+//		devconf_at403a_spi2("AT32F403A ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12"),
 		devconf_at403a_spi1("AT32F403A ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa4", GPIOA, GPIO_PINS_4, CRM_GPIOA_PERIPH_CLOCK),
-		devconf_at403a_spi2("AT32F403A ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12"),	
+		devconf_at403a_spi2("AT32F403A ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12"),
+		devconf_at403a_spi3("AT32F403A ETHERNET SPI3", "sck/mi/mo/ pb3/pb4/pb5", "cs/ pb2"),
+		devconf_at403a_spi4("AT32F403A ETHERNET SPI4", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4"),
 		/*!< pa15 must jtag-dp disabled and sw-dp enabled */
 		// devconf_at403a_spi1("AT32F403A ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", /*GPIOB, GPIO_PINS_12, CRM_GPIOB_PERIPH_CLOCK*/ GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK),
 	#else
@@ -156,7 +182,7 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 	#endif
 };
 
-optsex_t dm9051optsex[BOARD_SPI_COUNT] = { //const 
+optsex_t dm9051optsex[BOARD_SPI_COUNT] = { //const
 	#define dmopts_normal(iomode, iomode_name) \
 		{ \
 			/* .set_name */ \
@@ -333,7 +359,7 @@ const eth_node_t node_config[BOARD_SPI_COUNT] = { \
 		{255, 255, 255, 0}, \
 	}, \
 };
- 
+
 /*const uint8_t mac_addresse[BOARD_SPI_COUNT][MAC_ADDR_LENGTH] = { \
 	{0, 0x60, 0x6e, 0x00, 0x01, 0x17,}, \
 	{0, 0x60, 0x6e, 0x00, 0x01, 0x26,}, \
@@ -360,7 +386,11 @@ const uint8_t local_maskaddr[BOARD_SPI_COUNT][ADDR_LENGTH] 	= { \
 //
 // 'pin_code' always 0. when _ETHERNET_COUNT==1, but _BOARD_SPI_COUNT > 1.
 //
-int pin_code = 0;
+int pin_code001 = 0;
+
+// spi_num_t spi_no = {
+// 	.spi_num = 0,
+// }
 
 /*IS_DECL_FUNCTION(uint8_t, iomode)
 IS_DECL_FUNCTION(uint8_t, promismode)
@@ -391,38 +421,65 @@ IS_DECL_FUNCTION(enable_t, generic_core_rst)
 
 #define DM_TYPE		2
 #include "dm_types.h"
+//------------------
+//#define FIELD_SPIDEV(field) \
+//	devconf[pin_code].field
+ #define FIELD_SPIDEV(field, pin_code) \
+     devconf[pin_code].field
+
+#define PTR_EXINTD(field) \
+	(((struct modscfg_st *)intr_pack)->field)
+
+#define PTR_RSTGPIO(field) \
+	((option_rst_common)->field)
+
 
 //[common.macro]
-#define info_conf_name()			FIELD_SPIDEV(info)
-#define cpu_spi_conf_name()			FIELD_SPIDEV(cpu_spi_info) //devconf[pin_code].cpu_api_info
-#define cpu_cs_conf_name()			FIELD_SPIDEV(cpu_cs_info)
-#define spihead()					FIELD_SPIDEV(spidef)
-#define gpio_wire_sck()				FIELD_SPIDEV(wire_sck)
-#define gpio_wire_mi()				FIELD_SPIDEV(wire_mi)
-#define gpio_wire_mo()				FIELD_SPIDEV(wire_mo)
-#define gpio_cs()					FIELD_SPIDEV(wire_cs)
+//#define info_conf_name()			FIELD_SPIDEV(info)
+// #define cpu_spi_conf_name()		FIELD_SPIDEV(cpu_spi_info) //devconf[pin_code].cpu_api_info
+// #define cpu_cs_conf_name()		FIELD_SPIDEV(cpu_cs_info)
+// #define spihead()							FIELD_SPIDEV(spidef)
+// #define gpio_wire_sck()				FIELD_SPIDEV(wire_sck)
+// #define gpio_wire_mi()				FIELD_SPIDEV(wire_mi)
+// #define gpio_wire_mo()				FIELD_SPIDEV(wire_mo)
+// #define gpio_cs()							FIELD_SPIDEV(wire_cs)
 
-#define spi_number()				FIELD_SPIDEV(spidef.spi_num) //spihead().spi_num //= spi_no()
-#define spi_crm()					FIELD_SPIDEV(spidef.spi_crm_clk) //spihead().spi_crm_clk
-#define spi_conf_name()				FIELD_SPIDEV(spidef.spi_name) //spihead().spi_name
-#define spi_iomux()					FIELD_SPIDEV(spidef.iomux)
+// #define spi_number()					FIELD_SPIDEV(spidef.spi_num) //spihead().spi_num //= spi_no()
+// #define spi_crm()							FIELD_SPIDEV(spidef.spi_crm_clk) //spihead().spi_crm_clk
+// #define spi_conf_name()				FIELD_SPIDEV(spidef.spi_name) //spihead().spi_name
+// #define spi_iomux()						FIELD_SPIDEV(spidef.iomux)
+
+#define info_conf_name(pin_code)            FIELD_SPIDEV(info, pin_code)
+#define cpu_spi_conf_name(pin_code)         FIELD_SPIDEV(cpu_spi_info, pin_code) //devconf[pin_code].cpu_api_info
+#define cpu_cs_conf_name(pin_code)          FIELD_SPIDEV(cpu_cs_info, pin_code)
+#define spihead(pin_code)                   FIELD_SPIDEV(spidef, pin_code)
+#define gpio_wire_sck(pin_code)             FIELD_SPIDEV(wire_sck, pin_code)
+#define gpio_wire_mi(pin_code)              FIELD_SPIDEV(wire_mi, pin_code)
+#define gpio_wire_mo(pin_code)              FIELD_SPIDEV(wire_mo, pin_code)
+#define gpio_cs(pin_code)                   FIELD_SPIDEV(wire_cs, pin_code)
+
+#define spi_number(pin_code)                FIELD_SPIDEV(spidef.spi_num, pin_code) //spihead().spi_num //= spi_no()
+#define spi_crm(pin_code)                   FIELD_SPIDEV(spidef.spi_crm_clk, pin_code) //spihead().spi_crm_clk
+#define spi_conf_name(pin_code)             FIELD_SPIDEV(spidef.spi_name, pin_code) //spihead().spi_name
+#define spi_iomux(pin_code)                 FIELD_SPIDEV(spidef.iomux, pin_code)
+
 
 #define exint_exister()				((struct modscfg_st *)intr_pack)
-#define exint_data()				((struct modscfg_st *)intr_pack)
+#define exint_data()					((struct modscfg_st *)intr_pack)
 #define exint_scfg_ptr()			!exint_data() ? NULL : ((struct modscfg_st *)intr_pack)->extend
 #define intr_gpio_exister()			!exint_data() ? 0 : !(((struct modscfg_st *)intr_pack)->option) ? 0 : 1
-#define scfg_info()					PTR_EXINTD(scfg_inf)
-#define scfg_crm()					PTR_EXINTD(scfg_init.scfg_clk)
-#define scfg_port()					PTR_EXINTD(scfg_init.scfg_port_src)
-#define scfg_pin()					PTR_EXINTD(scfg_init.scfg_pin_src)
+#define scfg_info()						PTR_EXINTD(scfg_inf)
+#define scfg_crm()						PTR_EXINTD(scfg_init.scfg_clk)
+#define scfg_port()						PTR_EXINTD(scfg_init.scfg_port_src)
+#define scfg_pin()						PTR_EXINTD(scfg_init.scfg_pin_src)
 #define intr_data_scfg()			PTR_EXINTD(extend)
-#define exint_enable_info()			PTR_EXINTD(extend->irq_enable_inf)
+#define exint_enable_info()		PTR_EXINTD(extend->irq_enable_inf)
 #define exint_extline()				PTR_EXINTD(extend->extline.extline)
-#define exint_crm()					PTR_EXINTD(extend->extline.intr_crm_clk)
+#define exint_crm()						PTR_EXINTD(extend->extline.intr_crm_clk)
 #define intr_gpio_data()			PTR_EXINTD(option)
 
 #define rst_gpio_data()				(option_rst_common)
-#define rst_gpio_exister()			(rst_gpio_data() ? 1 : 0)
+#define rst_gpio_exister()		(rst_gpio_data() ? 1 : 0)
 
 #define intr_gpio_info()			PTR_EXINTD(option->gp_info)
 #define intr_gpio_ptr()				((const gpio_t *)(&PTR_EXINTD(option->gp)))
@@ -430,15 +487,21 @@ IS_DECL_FUNCTION(enable_t, generic_core_rst)
 #define rst_gpio_info()				PTR_RSTGPIO(gp_info)
 #define rst_gpio_ptr()				((const gpio_t *)(&PTR_RSTGPIO(gp)))
 
-#define mstep_set_index(i)			pin_code = i //empty for 1 eth project
-#define mstep_get_index()			pin_code
+#define mstep_set_index(i)		pin_code001 = i //empty for 1 eth project
+#define mstep_get_index()			pin_code001
 #define mstep_turn_net_index()		//empty for 1 eth project
 
 //[common.mac]
-#define get_eth_mac()				&node_config[pin_code].mac_addresse[0]
-#define get_eth_ip()				&node_config[pin_code].local_ipaddr[0]
-#define get_eth_gw()				&node_config[pin_code].local_gwaddr[0]
-#define get_eth_mask()				&node_config[pin_code].local_maskaddr[0]
+// #define get_eth_mac()				&node_config[pin_code].mac_addresse[0]
+// #define get_eth_ip()				&node_config[pin_code].local_ipaddr[0]
+// #define get_eth_gw()				&node_config[pin_code].local_gwaddr[0]
+// #define get_eth_mask()			&node_config[pin_code].local_maskaddr[0]
+// 加入了pin_code参数
+#define get_eth_mac(pin_code)				&node_config[pin_code].mac_addresse[0]
+#define get_eth_ip(pin_code)				&node_config[pin_code].local_ipaddr[0]
+#define get_eth_gw(pin_code)				&node_config[pin_code].local_gwaddr[0]
+#define get_eth_mask(pin_code)			&node_config[pin_code].local_maskaddr[0]
+
 //#define get_eth_mac()				&mac_addresse[pin_code][0]
 //#define get_eth_ip()				&local_ipaddr[pin_code][0]
 //#define get_eth_gw()				&local_gwaddr[pin_code][0]
@@ -456,26 +519,20 @@ int mstep_get_net_index(void)
 	return mstep_get_index();
 }
 
-//void mstep_next_net_index(void)
-//{
-//	mstep_turn_net_index();
-//}
-
-char *mstep_spi_conf_name(void)
-{
-	return spi_conf_name();
+char *mstep_spi_conf_name(uint8_t pin) {
+	return spi_conf_name(pin);
 }
 
-char *mstep_conf_info(void) {
-	return info_conf_name();
+char *mstep_conf_info(uint8_t pin) {
+	return info_conf_name(pin);
 }
 
-char *mstep_conf_cpu_spi_ethernet(void) {
-	return cpu_spi_conf_name();
+char *mstep_conf_cpu_spi_ethernet(uint8_t pin) {
+	return cpu_spi_conf_name(pin);
 }
 
-char *mstep_conf_cpu_cs_ethernet(void) {
-	return cpu_cs_conf_name();
+char *mstep_conf_cpu_cs_ethernet(uint8_t pin) {
+	return cpu_cs_conf_name(pin);
 }
 
 char *mstep_conf_type(void)
@@ -485,21 +542,41 @@ char *mstep_conf_type(void)
 
 // -
 
-uint8_t *identify_eth_mac(uint8_t *macadr) {
-	DM_SET_FIELD(mac_t ,mac, macadr ? macadr : get_eth_mac());
-	return DM_GET_FIELD(mac_t ,mac);
+//uint8_t *identify_eth_mac(uint8_t *macadr) {
+//	DM_SET_FIELD(mac_t ,mac, macadr ? macadr : get_eth_mac(0));
+//	return DM_GET_FIELD(mac_t ,mac);
+//}
+// 加入 參數 pin 程式修正?
+uint8_t *identify_eth_mac(uint8_t *macadr, uint8_t pin) {
+    DM_SET_FIELD_PIN(mac_t ,mac, macadr ? macadr : get_eth_mac(pin), pin);
+    return DM_GET_FIELD_PIN(mac_t, mac, pin);
 }
-uint8_t *identify_tcpip_ip(uint8_t *ip4adr) {
-	DM_SET_FIELD(ip_t ,ip, ip4adr ? ip4adr : get_eth_ip());
-	return DM_GET_FIELD(ip_t, ip); //get_eth_ip();
+// uint8_t *identify_tcpip_ip(uint8_t *ip4adr) {
+// 	DM_SET_FIELD(ip_t ,ip, ip4adr ? ip4adr : get_eth_ip(0));
+// 	return DM_GET_FIELD(ip_t, ip); //get_eth_ip();
+// }
+// 加入 參數 pin 程式修正?
+uint8_t *identify_tcpip_ip(uint8_t *ip4adr, uint8_t pin) {
+	DM_SET_FIELD_PIN(ip_t ,ip, ip4adr ? ip4adr : get_eth_ip(pin), pin);
+	return DM_GET_FIELD_PIN(ip_t, ip, pin); //get_eth_ip();
 }
-uint8_t *identify_tcpip_gw(uint8_t *ip4adr) {
-	DM_SET_FIELD(ip_t ,gw, ip4adr ? ip4adr : get_eth_gw());
-	return DM_GET_FIELD(ip_t, gw); //get_eth_gw();
+// uint8_t *identify_tcpip_gw(uint8_t *ip4adr) {
+// 	DM_SET_FIELD(ip_t ,gw, ip4adr ? ip4adr : get_eth_gw(0));
+// 	return DM_GET_FIELD(ip_t, gw); //get_eth_gw();
+// }
+// 加入 參數 pin 程式修正?
+uint8_t *identify_tcpip_gw(uint8_t *ip4adr, uint8_t pin) {
+	DM_SET_FIELD_PIN(ip_t ,gw, ip4adr ? ip4adr : get_eth_gw(pin), pin);
+	return DM_GET_FIELD_PIN(ip_t, gw, pin); //get_eth_gw();
 }
-uint8_t *identify_tcpip_mask(uint8_t *ip4adr) {
-	DM_SET_FIELD(ip_t ,mask, ip4adr ? ip4adr : get_eth_mask());
-	return DM_GET_FIELD(ip_t, mask); //get_eth_mask();
+// uint8_t *identify_tcpip_mask(uint8_t *ip4adr) {
+// 	DM_SET_FIELD(ip_t ,mask, ip4adr ? ip4adr : get_eth_mask(0));
+// 	return DM_GET_FIELD(ip_t, mask); //get_eth_mask();
+// }
+// 加入 參數 pin 程式修正?
+uint8_t *identify_tcpip_mask(uint8_t *ip4adr, uint8_t pin) {
+	DM_SET_FIELD_PIN(ip_t ,mask, ip4adr ? ip4adr : get_eth_mask(pin), pin);
+	return DM_GET_FIELD_PIN(ip_t, mask, pin); //get_eth_mask();
 }
 
 //#define FREERTOS_ETHERNETIF_MAC_ADDR	1 //(netconf.h)
@@ -509,22 +586,22 @@ uint8_t *identify_tcpip_mask(uint8_t *ip4adr) {
 //#else
 //#endif
 
-//const 
-uint8_t *mstep_eth_mac(void) {
-	return DM_GET_FIELD(mac_t ,mac); //get_eth_mac();
+//const
+uint8_t *mstep_eth_mac(int pin) {
+	return DM_GET_FIELD_PIN(mac_t, mac, pin); //get_eth_mac();
 }
 
-//const 
-uint8_t *mstep_eth_ip(void) {
-	return DM_GET_FIELD(ip_t, ip); //get_eth_ip();
+//const
+uint8_t *mstep_eth_ip(int pin) {
+	return DM_GET_FIELD_PIN(ip_t, ip, pin); //get_eth_ip();
 }
-//const 
-uint8_t *mstep_eth_gw(void) {
-	return DM_GET_FIELD(ip_t, gw); //get_eth_gw();
+//const
+uint8_t *mstep_eth_gw(int pin) {
+	return DM_GET_FIELD_PIN(ip_t, gw, pin); //get_eth_gw();
 }
-//const 
-uint8_t *mstep_eth_mask(void) {
-	return DM_GET_FIELD(ip_t, mask); //get_eth_mask();
+//const
+uint8_t *mstep_eth_mask(int pin) {
+	return DM_GET_FIELD_PIN(ip_t, mask, pin); //get_eth_mask();
 }
 
 //-

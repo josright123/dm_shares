@@ -4,8 +4,8 @@
 //dm_types.h
 
 #if DM_TYPE == 0
-
 	// - type 0, definitions
+
 	#define MAC_ADDR_LENGTH                  		(6)
 	#define ADDR_LENGTH                      		(4)
 
@@ -13,105 +13,110 @@
 	typedef uint8_t ip_t[ADDR_LENGTH];
 
 	// - type 0, call
+	// Define the macro definitions
+	#define DM_GET_FIELD_PIN(mtype, field, pin) \
+	dm9051opts_pin_##mtype##field(pin)
 
-//	#define DM_FUNC(mtype, field) \
-//		dm9051opts_##mtype##field()
-	#define DM_GET_FIELD(mtype, field) \
-		dm9051opts_##mtype##field()
-	#define DM_GET_DESC(mtype, field) /* to be usage */ \
-		dm9051opts_desc##field()
-	#define DM_SET_FIELD(mtype, field, val) /* DM_SET_FUNC(ty,fi,val), extended-set-data */ \
-		dm9051opts_set_##mtype##field(val)
-		
-	//#define set_testplanlog				IS_SET_INSTEAD(enable_t, test_plan_log)
-	//#define get_testplanlog				IS_GET_INSTEAD(enable_t, test_plan_log)=
-	#define get_testplanlog(name)			DM_GET_FIELD(enable_t, name)
-	#define OPT_U8(name)					DM_GET_FIELD(uint8_t, name) //appcall
-	#define OPT_CS(name)					DM_GET_FIELD(csmode_t, name) //appcall
-	#define OPT_BMCR(name)					DM_GET_FIELD(bmcrmode_t, name) //appcall
-	#define OPT_CONFIRM(name)				DM_GET_FIELD(enable_t, name) //appcall (define isonlybytemode(), or OPT_CONFIRM(onlybytemode))
+	#define DM_GET_DESC_PIN(mtype, field, pin) \
+	dm9051opts_pin_desc_##field(pin)
 
+	#define DM_SET_FIELD_PIN(mtype, field, val, pin) \
+	dm9051opts_pin_set_##mtype##field(pin, val)
+
+	#define get_testplanlog_PIN(name, pin)		DM_GET_FIELD_PIN(enable_t, name, pin)
+	#define OPT_U8_PIN(name, pin)						  DM_GET_FIELD_PIN(uint8_t, name, pin) //appcall
+	#define OPT_CS_PIN(name, pin)							DM_GET_FIELD_PIN(csmode_t, name, pin) //appcall
+	#define OPT_BMCR_PIN(name, pin)						DM_GET_FIELD_PIN(bmcrmode_t, name, pin) //appcall
+	#define OPT_CONFIRM_PIN(name, pin)				DM_GET_FIELD_PIN(enable_t, name, pin)
 	// - type 0, extern API
+	#undef DM_MACRO_PIN
+	#define DM_MACRO_PIN(rtype, mtype, field) \
+		rtype dm9051opts_pin_##mtype##field(int pin); \
+		char *dm9051opts_pin_desc_##field(int pin) ; \
+		void dm9051opts_pin_set_##mtype##field(int pin, const mtype val);
 
-	#undef DM_MACRO
-	#define DM_MACRO(rtype, mtype, field) \
-		rtype dm9051opts_##mtype##field(void); \
-		char *dm9051opts_desc##field(void); \
-		void dm9051opts_set_##mtype##field(const mtype val); /* extended-set-data */
-
-DM_MACRO(uint8_t*,	mac_t, mac) //(uint8_t*, mac6_t, mac)
-DM_MACRO(uint8_t*,	ip_t, ip) //(uint8_t*, ip4_t, ip)
-DM_MACRO(uint8_t*,	ip_t, gw) //(uint8_t*, ip4_t, gw)
-DM_MACRO(uint8_t*,	ip_t, mask) //(uint8_t*, ip4_t, mask)
+		DM_MACRO_PIN(uint8_t*,	mac_t, mac) 	//(uint8_t*, mac6_t, mac)
+		DM_MACRO_PIN(uint8_t*,	ip_t, ip) 		//(uint8_t*, ip4_t, ip)
+		DM_MACRO_PIN(uint8_t*,	ip_t, gw) 		//(uint8_t*, ip4_t, gw)
+		DM_MACRO_PIN(uint8_t*,	ip_t, mask) 	//(uint8_t*, ip4_t, mask)
 
 #elif DM_TYPE == 1
-
 	// - type 1, field
 
-	#undef DM_MACRO
-	#define DM_MACRO(rtype, mtype, field)  \
-		mtype field; \
-		char *desc##field;
+//	#undef DM_MACRO
+//	#define DM_MACRO(rtype, mtype, field)  \
+//		mtype field; \
+//		char *desc##field;
 
-DM_MACRO(void,	mac_t, mac) //(uint8_t*, mac6_t, mac)
-DM_MACRO(void,	ip_t, ip) //(uint8_t*, ip4_t, ip)
-DM_MACRO(void,	ip_t, gw) //(uint8_t*, ip4_t, gw)
-DM_MACRO(void,	ip_t, mask) //(uint8_t*, ip4_t, mask)
+	#undef DM_MACRO_PIN
+	#define DM_MACRO_PIN(rtype, mtype, field) \
+		mtype field; \
+		char *desc_##field;
+
+	DM_MACRO_PIN(void,	mac_t, mac) 	//(uint8_t*, mac6_t, mac)
+	DM_MACRO_PIN(void,	ip_t, ip) 		//(uint8_t*, ip4_t, ip)
+	DM_MACRO_PIN(void,	ip_t, gw) 		//(uint8_t*, ip4_t, gw)
+	DM_MACRO_PIN(void,	ip_t, mask) 	//(uint8_t*, ip4_t, mask)
 
 #elif DM_TYPE == 2
-
 	// - type 2, implement
 
-	#undef DM_MACRO
-	#define DM_MACRO(rtype, mtype, field)  \
-		rtype dm9051opts_##mtype##field(void) { \
-			return (rtype) dm9051optsex[mstep_get_net_index()].##field; \
+//	#undef DM_MACRO
+//	#define DM_MACRO(rtype, mtype, field)  \
+//		rtype dm9051opts_##mtype##field(void) { \
+//			return (rtype) dm9051optsex[mstep_get_net_index()].##field; \
+//		} \
+//		char *dm9051opts_desc##field(void) { \
+//			return dm9051optsex[mstep_get_net_index()].desc##field##; \
+//		} \
+//		void dm9051opts_set_##mtype##field(const mtype val) { /* extended-set-data */ \
+//			dm9051optsex[mstep_get_net_index()].##field = val; \
+//		}
+		// Test001 code is OK.
+	#undef DM_MACRO_PIN
+	#define DM_MACRO_PIN(rtype, mtype, field) \
+		rtype dm9051opts_pin_##mtype##field(int pin) { \
+				return (rtype) dm9051optsex[pin].##field; \
 		} \
-		char *dm9051opts_desc##field(void) { \
-			return dm9051optsex[mstep_get_net_index()].desc##field##; \
+		char *dm9051opts_pin_desc_##field(int pin) { \
+				return dm9051optsex[pin].desc_##field##; \
 		} \
-		void dm9051opts_set_##mtype##field(const mtype val) { /* extended-set-data */ \
-			dm9051optsex[mstep_get_net_index()].##field = val; \
-		}
-	#undef DM_RMACRO
-	#define DM_RMACRO(rtype, mtype, field, adr_len)  \
-		rtype dm9051opts_##mtype##field(void) { \
-			return dm9051optsex[mstep_get_net_index()].##field; \
-		} \
-		char *dm9051opts_desc##field(void) { \
-			return dm9051optsex[mstep_get_net_index()].desc##field##; \
-		} \
-		void dm9051opts_set_##mtype##field(const mtype val) { /* extended-set-data */ \
-			/*dm9051optsex[mstep_get_net_index()].##field = val;*/ \
-			memcpy(dm9051optsex[mstep_get_net_index()].##field, val, adr_len); \
+		void dm9051opts_pin_set_##mtype##field(int pin, const mtype val) { \
+				dm9051optsex[pin].##field = val; \
 		}
 
-//DM_RMACRO(void,	mac_t, mac)
-//DM_RMACRO(void,	ip_t, ip)
-//DM_RMACRO(void,	ip_t, gw)
-//DM_RMACRO(void,	ip_t, mask)
-DM_RMACRO(uint8_t*,	mac_t, mac, MAC_ADDR_LENGTH)
-DM_RMACRO(uint8_t*,	ip_t, ip, ADDR_LENGTH)
-DM_RMACRO(uint8_t*,	ip_t, gw, ADDR_LENGTH)
-DM_RMACRO(uint8_t*,	ip_t, mask, ADDR_LENGTH)
+	#undef DM_RMACRO_PIN
+	#define DM_RMACRO_PIN(rtype, mtype, field, adr_len)  \
+		rtype dm9051opts_pin_##mtype##field(int pin) { \
+			return (rtype) dm9051optsex[pin].##field; \
+		} \
+		char *dm9051opts_pin_desc_##field(int pin) { \
+			return dm9051optsex[pin].desc_##field##; \
+		} \
+		void dm9051opts_pin_set_##mtype##field(int pin, const mtype val) { \
+			memcpy(dm9051optsex[pin].##field, val, adr_len); \
+		}
+	DM_RMACRO_PIN(uint8_t*,	mac_t, mac, MAC_ADDR_LENGTH)
+	DM_RMACRO_PIN(uint8_t*,	ip_t, ip, ADDR_LENGTH)
+	DM_RMACRO_PIN(uint8_t*,	ip_t, gw, ADDR_LENGTH)
+	DM_RMACRO_PIN(uint8_t*,	ip_t, mask, ADDR_LENGTH)
 
 #endif
 
-DM_MACRO(uint16_t,	uint16_t, read_chip_id)
-
-DM_MACRO(enable_t,	enable_t, test_plan_log) //.SG_FUNCTION(enable_t, test_plan_log);
-DM_MACRO(uint8_t,	uint8_t, iomode)
-DM_MACRO(csmode_t,	csmode_t, csmode)
-DM_MACRO(bmcrmode_t, bmcrmode_t, bmcrmode)
-DM_MACRO(uint8_t,	uint8_t, promismode)
-DM_MACRO(enable_t,	enable_t, rxtypemode)
-DM_MACRO(enable_t,	enable_t, rxmode_checksum_offload)
-DM_MACRO(enable_t,	enable_t, flowcontrolmode)
-DM_MACRO(enable_t,	enable_t, onlybytemode)
-DM_MACRO(uint8_t,	uint8_t, hdir_x2ms)
-DM_MACRO(enable_t,	enable_t, hdlr_confrecv)
-DM_MACRO(enable_t,	enable_t, tx_endbit)
-DM_MACRO(enable_t,	enable_t, generic_core_rst)
+DM_MACRO_PIN(uint16_t,	uint16_t, read_chip_id)
+DM_MACRO_PIN(enable_t,	enable_t, test_plan_log)
+DM_MACRO_PIN(uint8_t,	uint8_t, iomode)
+DM_MACRO_PIN(csmode_t,	csmode_t, csmode)
+DM_MACRO_PIN(bmcrmode_t, bmcrmode_t, bmcrmode)
+DM_MACRO_PIN(uint8_t,	uint8_t, promismode)
+DM_MACRO_PIN(enable_t,	enable_t, rxtypemode)
+DM_MACRO_PIN(enable_t,	enable_t, rxmode_checksum_offload)
+DM_MACRO_PIN(enable_t,	enable_t, flowcontrolmode)
+DM_MACRO_PIN(enable_t,	enable_t, onlybytemode)
+DM_MACRO_PIN(uint8_t,	uint8_t, hdir_x2ms)
+DM_MACRO_PIN(enable_t,	enable_t, hdlr_confrecv)
+DM_MACRO_PIN(enable_t,	enable_t, tx_endbit)
+DM_MACRO_PIN(enable_t,	enable_t, generic_core_rst)
 
 #undef DM_TYPE
 
