@@ -170,8 +170,9 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				{GPIOE, GPIO_PINS_4, CRM_GPIOE_PERIPH_CLOCK, GPIO_MODE_OUTPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL}, /* //(PE4) Test-ISP2 OK */ \
 			}
 
-//		devconf_at403a_spi2("AT32F403A ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12"),
+
 		devconf_at403a_spi1("AT32F403A ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa4", GPIOA, GPIO_PINS_4, CRM_GPIOA_PERIPH_CLOCK),
+		devconf_at403a_spi2("AT32F403A ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12"),
 		devconf_at403a_spi2("AT32F403A ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12"),
 		devconf_at403a_spi3("AT32F403A ETHERNET SPI3", "sck/mi/mo/ pb3/pb4/pb5", "cs/ pb2"),
 		devconf_at403a_spi4("AT32F403A ETHERNET SPI4", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4"),
@@ -336,8 +337,8 @@ const eth_node_t node_config[BOARD_SPI_COUNT] = { \
 	}, \
 	{ \
 		{0, 0x60, 0x6e, 0x00, 0x01, 0x26,}, \
-		{192, 168, 6,  26}, \
-		{192, 168, 6,   1}, \
+		{192, 168, 249,  81}, \
+		{192, 168, 249,   1}, \
 		{255, 255, 255, 0}, \
 	}, \
 	{ \

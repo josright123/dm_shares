@@ -165,7 +165,7 @@ uint16_t phy_read(uint16_t uReg, int pin)
 {
 	int w = 0;
 	u16 uData;
-
+	LOCK_SPI_CORE();
 #if 1
   //_CH390
   //if (uReg == PHY_STATUS_REG)
@@ -176,7 +176,6 @@ uint16_t phy_read(uint16_t uReg, int pin)
 	dm9051_phycore_on(0, pin); //if (uReg == PHY_STATUS_REG)
 #endif
 
-	LOCK_SPI_CORE();
 	// DM9051_Write_Reg(DM9051_EPAR, DM9051_PHY | uReg);
 	// DM9051_Write_Reg(DM9051_EPCR, 0xc);
 	// dm_delay_us(1);
@@ -927,7 +926,7 @@ uint16_t dm9051_rx_lock(uint8_t *buff, int pin)
 	if (!OPT_CONFIRM_PIN(tx_endbit, pin)) //CH390
 		dm_delay_ms(1);
 
-	#if 	1 	//test.
+	#if 	0 	//test.
 	dm9051_rxlog_monitor_rx(2, buff, rx_len); //HEAD_SPC
 	#endif
 

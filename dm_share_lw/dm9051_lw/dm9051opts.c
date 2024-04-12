@@ -110,7 +110,7 @@ void dm9051_opts_display(void)
 			  ip4_addr4_16(netif_ip4_addr(&xnetif[i])));
 		}
 	#endif
-
+//		mstep_set_net_index(1);				// pin = 0
 	}
 
 	void ethcnt_ifdiplay(void)

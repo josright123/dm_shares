@@ -62,7 +62,7 @@
 #include "dm9051_lw.h" //dm9051_mac_adr/dm9051_init/check_chip_id/dm9051_tx
 #include "lwip/tcpip.h"
 
-int spipin0 = 0;  	// pin = 0
+//extern int spipin0;  	// pin = 0
 extern struct netif netif;
 //struct netif *lwip_netif= &netif;
 
@@ -80,18 +80,19 @@ union {
 	uint8_t tx;
 } EthBuff[RXBUFF_OVERSIZE_LEN]; //[Single Task project.] not occupied by concurrently used.
 
-/**
- * Helper struct to hold private data used to operate your ethernet interface.
- * Keeping the ethernet address of the MAC in this struct is not necessary
- * as it is already kept in the struct netif.
- * But this is only an example, anyway...
- */
-struct ethernetif
-{
-  struct eth_addr *ethaddr;
-  /* Add whatever per-interface state that is needed here. */
-  int unused;
-};
+///**
+// * Helper struct to hold private data used to operate your ethernet interface.
+// * Keeping the ethernet address of the MAC in this struct is not necessary
+// * as it is already kept in the struct netif.
+// * But this is only an example, anyway...
+// */
+//struct ethernetif
+//{
+//  struct eth_addr *ethaddr;
+//	int spino;
+//  /* Add whatever per-interface state that is needed here. */
+//  int unused;
+//};
 
 /* Forward declarations. */
 err_t  ethernetif_input(struct netif *netif);
@@ -165,6 +166,8 @@ low_level_init(struct netif *netif)
 {
   /* set MAC hardware address length */
   netif->hwaddr_len = ETHARP_HWADDR_LEN;
+	struct ethernetif *ethernetif = netif->state;
+	int spino = ethernetif->spino;		// pin = 0
 
   /* set MAC hardware address */
   netif->hwaddr[0] =  MACaddr[0];
@@ -183,7 +186,7 @@ low_level_init(struct netif *netif)
 
   /* Enable MAC and DMA transmission and reception */
   //emac_start();
-  dm9051_init_nondual(spipin0); //_dm9051_init(MACaddr);
+  dm9051_init_nondual(spino); //_dm9051_init(MACaddr);
   //dm9051_init_dual();
 }
 
@@ -205,6 +208,9 @@ low_level_init(struct netif *netif)
 static err_t
 low_level_output(struct netif *netif, struct pbuf *p)
 {
+	struct ethernetif *ethernetif = netif->state;
+	int spino = ethernetif->spino;		// pin = 0
+
   struct pbuf *q;
   int l = 0;
 
@@ -217,7 +223,7 @@ low_level_output(struct netif *netif, struct pbuf *p)
     memcpy((u8_t*)&buffer[l], q->payload, q->len);
     l = l + q->len;
   }
-  dm9051_tx_dual(buffer, (uint16_t) l, spipin0);
+  dm9051_tx_dual(buffer, (uint16_t) l, spino);
 //if(emac_txpkt_chainmode(l) == ERROR)
 //{
 //  return ERR_MEM;
@@ -237,13 +243,15 @@ low_level_output(struct netif *netif, struct pbuf *p)
 static struct pbuf *
 low_level_input(struct netif *netif)
 {
+	struct ethernetif *ethernetif = netif->state;
+	int spino = ethernetif->spino;		// pin = 0
   struct pbuf *p, *q;
   u16_t len;
   int l =0;
 //  FrameTypeDef frame;
   u8 *buffer = &EthBuff[0].rx;
 
-  len = dm9051_rx(buffer, spipin0); // pin = 0
+  len = dm9051_rx(buffer, spino); // pin = 0
   if (!len)
 	  return NULL;
 
@@ -356,7 +364,9 @@ ethernetif_init(struct netif *netif)
   netif->linkoutput = low_level_output;
 
   ethernetif->ethaddr = (struct eth_addr *)&(netif->hwaddr[0]);
-
+//	ethernetif->spino = spipin0;
+	ethernetif->spino = netif->spino;
+	printf("\r\n******  netif->num = %d, netif->spino=%d, ethernetif=%p \r\n", netif->num, netif->spino, ethernetif);
   /* initialize the hardware */
   low_level_init(netif);
 
