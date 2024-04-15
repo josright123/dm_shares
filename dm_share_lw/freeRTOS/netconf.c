@@ -25,6 +25,7 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
+#include <stdio.h>
 #include "lwip/memp.h"
 #include "lwip/tcp.h"
 #include "lwip/priv/tcp_priv.h"
@@ -33,8 +34,7 @@
 #include "lwip/dhcp.h"
 #include "ethernetif.h"
 #include "netconf.h"
-#include "stdio.h"
-
+#include "ethernetif.h"
 #include "lwip/tcpip.h"
 #include "dm9051opts.h"
 #include "at32_dm.h"
@@ -166,6 +166,7 @@ static uint8_t local_mask[ADDR_LENGTH] = {255, 255, 255, 0};
 
 void tcpip_stack_init_2(int spino)
 {
+	struct ethernetif *ethernetif;
 	uint8_t *pd;
   ip_addr_t ipaddr2;
   ip_addr_t netmask2;
@@ -187,9 +188,18 @@ void tcpip_stack_init_2(int spino)
 
   pd = identify_eth_mac(NULL, spino);
   lwip_set_mac_address(pd, spino);
-	netif[spino].spino = spino;
+//	netif[spino].spino = spino;
 
-  if(netif_add(&netif[spino], &ipaddr2, &netmask2, &gw2, NULL, &ethernetif_init, &tcpip_input) == NULL)
+	ethernetif = mem_malloc(sizeof(struct ethernetif));
+  if (ethernetif == NULL)
+  {
+    LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_init: out of memory\n"));
+    return ;
+  }
+  ethernetif->ethaddr = (struct eth_addr *)&(netif[spino].hwaddr[0]);
+	ethernetif->spino = spino;
+//	netif[spino].state = ethernetif;
+  if(netif_add(&netif[spino], &ipaddr2, &netmask2, &gw2, ethernetif, &ethernetif_init, &tcpip_input) == NULL)
   {
     while(1);
   }
@@ -211,53 +221,6 @@ void tcpip_stack_init_2(int spino)
   xTaskCreate((TaskFunction_t)ethernetif_set_link, "ethernetif_set_link", 512, &netif[spino], tskIDLE_PRIORITY + 2, &link_status_handler);
 }
 
-
-// void tcpip_stack_init_2(int spino)
-// {
-// 	uint8_t *pd;
-//   ip_addr_t ipaddr2;
-//   ip_addr_t netmask2;
-//   ip_addr_t gw2;
-
-// #if LWIP_DHCP  //need DHCP server
-//   ipaddr2.addr = 0;
-//   netmask2.addr = 0;
-//   gw2.addr = 0;
-
-// #else
-//   pd = identify_tcpip_ip(NULL, spino);
-//   IP4_ADDR(&ipaddr2, pd[0], pd[1], pd[2], pd[3]);
-//   pd = identify_tcpip_gw(NULL, spino);
-//   IP4_ADDR(&gw2, pd[0], pd[1], pd[2], pd[3]);
-//   pd = identify_tcpip_mask(NULL, spino);
-//   IP4_ADDR(&netmask2, pd[0], pd[1], pd[2], pd[3]);
-// #endif
-
-//   pd = identify_eth_mac(NULL, spino);
-//   lwip_set_mac_address(pd, spino);
-// 	netif2.spino = spino;
-
-//   if(netif_add(&netif2, &ipaddr2, &netmask2, &gw2, NULL, &ethernetif_init, &tcpip_input) == NULL)
-//   {
-//     while(1);
-//   }
-
-//   printf("netif_add.e %u.%u.%u.%u ............ netif_add( ip...) done ............\r\n",
-// 		ip4_addr1_16(netif_ip4_addr(&netif2)),
-// 		ip4_addr2_16(netif_ip4_addr(&netif2)),
-// 		ip4_addr3_16(netif_ip4_addr(&netif2)),
-// 		ip4_addr4_16(netif_ip4_addr(&netif2)));
-
-//   netif_set_default(&netif2);
-
-// #if LWIP_DHCP
-//   dhcp_start(&netif2);
-// #endif
-
-//   netif_set_up(&netif2);
-//   netif_set_link_callback(&netif2, ethernetif_update_config);
-//   xTaskCreate((TaskFunction_t)ethernetif_set_link, "ethernetif_set_link", 512, &netif2, tskIDLE_PRIORITY + 2, &link_status_handler);
-// }
 
 /**
   * @brief  called when a frame is received

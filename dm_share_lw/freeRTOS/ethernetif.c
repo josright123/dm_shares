@@ -80,20 +80,6 @@ union {
 	uint8_t tx;
 } EthBuff[RXBUFF_OVERSIZE_LEN]; //[Single Task project.] not occupied by concurrently used.
 
-///**
-// * Helper struct to hold private data used to operate your ethernet interface.
-// * Keeping the ethernet address of the MAC in this struct is not necessary
-// * as it is already kept in the struct netif.
-// * But this is only an example, anyway...
-// */
-//struct ethernetif
-//{
-//  struct eth_addr *ethaddr;
-//	int spino;
-//  /* Add whatever per-interface state that is needed here. */
-//  int unused;
-//};
-
 /* Forward declarations. */
 err_t  ethernetif_input(struct netif *netif);
 
@@ -334,12 +320,12 @@ ethernetif_init(struct netif *netif)
 
   LWIP_ASSERT("netif != NULL", (netif != NULL));
 
-  ethernetif = mem_malloc(sizeof(struct ethernetif));
-  if (ethernetif == NULL)
-  {
-    LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_init: out of memory\n"));
-    return ERR_MEM;
-  }
+//  ethernetif = mem_malloc(sizeof(struct ethernetif));
+//  if (ethernetif == NULL)
+//  {
+//    LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_init: out of memory\n"));
+//    return ERR_MEM;
+//  }
 
 #if LWIP_NETIF_HOSTNAME
   /* Initialize interface hostname */
@@ -353,7 +339,8 @@ ethernetif_init(struct netif *netif)
    */
   NETIF_INIT_SNMP(netif, snmp_ifType_ethernet_csmacd, 100000000);
 
-  netif->state = ethernetif;
+//  netif->state = ethernetif;
+	ethernetif = netif->state;
   netif->name[0] = IFNAME0;
   netif->name[1] = IFNAME1;
   /* We directly use etharp_output() here to save a function call.
@@ -363,10 +350,8 @@ ethernetif_init(struct netif *netif)
   netif->output = etharp_output;
   netif->linkoutput = low_level_output;
 
-  ethernetif->ethaddr = (struct eth_addr *)&(netif->hwaddr[0]);
-//	ethernetif->spino = spipin0;
-	ethernetif->spino = netif->spino;
-	printf("\r\n******  netif->num = %d, netif->spino=%d, ethernetif=%p \r\n", netif->num, netif->spino, ethernetif);
+//  ethernetif->ethaddr = (struct eth_addr *)&(netif->hwaddr[0]);
+	printf("\r\n******  netif->num = %d, ethernetif->spino=%d  \r\n", netif->num, ethernetif->spino);
   /* initialize the hardware */
   low_level_init(netif);
 
