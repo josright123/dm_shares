@@ -1,14 +1,6 @@
 --------------------
 advance versions:
 --------------------
-dm9051_lw version 6.01, 20240412. yicheng.
-		  Introduce:
-			Version 6.01
-			This version includes the following changes:
-			- Added the struct netif { ... u8_t spino;}
-			- Added the void tcpip_stack_init_2(int spino)
-			Please refer to the code implementation for more details.
-
 dm9051_lw version 6.00, 20240411. yicheng.
 		  Introduce:
 			Version 6.00
