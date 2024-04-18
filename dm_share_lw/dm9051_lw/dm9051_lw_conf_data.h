@@ -361,65 +361,6 @@ const eth_node_t node_config[BOARD_SPI_COUNT] = { \
 	}, \
 };
 
-/*const uint8_t mac_addresse[BOARD_SPI_COUNT][MAC_ADDR_LENGTH] = { \
-	{0, 0x60, 0x6e, 0x00, 0x01, 0x17,}, \
-	{0, 0x60, 0x6e, 0x00, 0x01, 0x26,}, \
-	{0, 0x60, 0x6e, 0x00, 0x01, 0x25,}, \
-	{0, 0x60, 0x6e, 0x00, 0x01, 0xff,}, \
-	{0, 0x60, 0x6e, 0x00, 0x01, 0xff,}, \
-};
-const uint8_t local_ipaddr[BOARD_SPI_COUNT][ADDR_LENGTH]   	= { \
-	{192, 168, 6, 17}, \
-	{192, 168, 6, 26}, \
-	{192, 168, 6, 25}, \
-};
-const uint8_t local_gwaddr[BOARD_SPI_COUNT][ADDR_LENGTH]   	= { \
-	{192, 168, 6, 1}, \
-	{192, 168, 6, 1}, \
-	{192, 168, 6, 1}, \
-};
-const uint8_t local_maskaddr[BOARD_SPI_COUNT][ADDR_LENGTH] 	= { \
-	{255, 255, 255, 0}, \
-	{255, 255, 255, 0}, \
-	{255, 255, 255, 0}, \
-};*/
-
-//
-// 'pin_code' always 0. when _ETHERNET_COUNT==1, but _BOARD_SPI_COUNT > 1.
-//
-int pin_code001 = 0;
-
-// spi_num_t spi_no = {
-// 	.spi_num = 0,
-// }
-
-/*IS_DECL_FUNCTION(uint8_t, iomode)
-IS_DECL_FUNCTION(uint8_t, promismode)
-IS_DECL_FUNCTION(csmode_t, csmode)
-IS_DECL_FUNCTION(bmcrmode_t, bmcrmode)
-IS_DECL_FUNCTION(enable_t, rxtypemode)
-IS_DECL_FUNCTION(enable_t, rxmode_checksum_offload)
-IS_DECL_FUNCTION(enable_t, flowcontrolmode)
-IS_DECL_FUNCTION(enable_t, onlybytemode);
-IS_DECL_FUNCTION(uint8_t, hdir_x2ms)
-IS_DECL_FUNCTION(enable_t, hdlr_confrecv)
-IS_DECL_FUNCTION(enable_t, tx_endbit)
-IS_DECL_FUNCTION(enable_t, generic_core_rst)
-*/
-//.DECL_SG_FUNCTION(enable_t, test_plan_include)
-
-//#define OPTS_FUNC_IMPL
-//#undef OPTS_FUNC_IMPL
-	#if 0
-	/*#define DM_MACRO2(rtype, field) \
-		rtype dm9051opts_##rtype##field(void) { \
-			return dm9051optsex[mstep_get_net_index()].##field; \
-		} \
-		char *dm9051opts_desc##field(void) { \
-			return dm9051optsex[mstep_get_net_index()].desc##field##; \
-		}*/
-	#endif
-
 #define DM_TYPE		2
 #include "dm_types.h"
 //------------------
@@ -436,20 +377,6 @@ IS_DECL_FUNCTION(enable_t, generic_core_rst)
 
 
 //[common.macro]
-//#define info_conf_name()			FIELD_SPIDEV(info)
-// #define cpu_spi_conf_name()		FIELD_SPIDEV(cpu_spi_info) //devconf[pin_code].cpu_api_info
-// #define cpu_cs_conf_name()		FIELD_SPIDEV(cpu_cs_info)
-// #define spihead()							FIELD_SPIDEV(spidef)
-// #define gpio_wire_sck()				FIELD_SPIDEV(wire_sck)
-// #define gpio_wire_mi()				FIELD_SPIDEV(wire_mi)
-// #define gpio_wire_mo()				FIELD_SPIDEV(wire_mo)
-// #define gpio_cs()							FIELD_SPIDEV(wire_cs)
-
-// #define spi_number()					FIELD_SPIDEV(spidef.spi_num) //spihead().spi_num //= spi_no()
-// #define spi_crm()							FIELD_SPIDEV(spidef.spi_crm_clk) //spihead().spi_crm_clk
-// #define spi_conf_name()				FIELD_SPIDEV(spidef.spi_name) //spihead().spi_name
-// #define spi_iomux()						FIELD_SPIDEV(spidef.iomux)
-
 #define info_conf_name(pin_code)            FIELD_SPIDEV(info, pin_code)
 #define cpu_spi_conf_name(pin_code)         FIELD_SPIDEV(cpu_spi_info, pin_code) //devconf[pin_code].cpu_api_info
 #define cpu_cs_conf_name(pin_code)          FIELD_SPIDEV(cpu_cs_info, pin_code)
@@ -488,37 +415,12 @@ IS_DECL_FUNCTION(enable_t, generic_core_rst)
 #define rst_gpio_info()				PTR_RSTGPIO(gp_info)
 #define rst_gpio_ptr()				((const gpio_t *)(&PTR_RSTGPIO(gp)))
 
-#define mstep_set_index(i)		pin_code001 = i //empty for 1 eth project
-#define mstep_get_index()			pin_code001
-#define mstep_turn_net_index()		//empty for 1 eth project
-
-//[common.mac]
-// #define get_eth_mac()				&node_config[pin_code].mac_addresse[0]
-// #define get_eth_ip()				&node_config[pin_code].local_ipaddr[0]
-// #define get_eth_gw()				&node_config[pin_code].local_gwaddr[0]
-// #define get_eth_mask()			&node_config[pin_code].local_maskaddr[0]
-// 加入了pin_code参数
 #define get_eth_mac(pin_code)				&node_config[pin_code].mac_addresse[0]
 #define get_eth_ip(pin_code)				&node_config[pin_code].local_ipaddr[0]
 #define get_eth_gw(pin_code)				&node_config[pin_code].local_gwaddr[0]
 #define get_eth_mask(pin_code)			&node_config[pin_code].local_maskaddr[0]
 
-//#define get_eth_mac()				&mac_addresse[pin_code][0]
-//#define get_eth_ip()				&local_ipaddr[pin_code][0]
-//#define get_eth_gw()				&local_gwaddr[pin_code][0]
-//#define get_eth_mask()			&local_maskaddr[pin_code][0]
-
 //-
-
-void mstep_set_net_index(int i)
-{
-	mstep_set_index(i); //pinCode = i;
-}
-
-int mstep_get_net_index(void)
-{
-	return mstep_get_index();
-}
 
 char *mstep_spi_conf_name(uint8_t pin) {
 	return spi_conf_name(pin);

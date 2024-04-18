@@ -17,7 +17,7 @@
  * dm9051_declaration_support
  */
 #define ETHERNET_COUNT_MAX 	4 // Correspond to mcu target board's specification
-#define ETHERNET_COUNT 			2		 // 2 //2 //4 //2 //2 //3 //2 //#define get_eth_interfaces() ETH_COUNT
+#define ETHERNET_COUNT 			4		 // 2 //2 //4 //2 //2 //3 //2 //#define get_eth_interfaces() ETH_COUNT
 #define freeRTOS 						0
 #define freeRTOS_LOCK_SPI_MUTEX 1
 
@@ -145,14 +145,6 @@ typedef enum
 	BMCR_AUTO_NEG,
 } bmcrmode_t;
 
-// void cpin_poweron_reset(void);
-// void cspi_read_regs(uint8_t reg, u8 *buf, u16 len, csmode_t csmode);
-// uint8_t cspi_read_reg(uint8_t reg);
-// void cspi_write_reg(uint8_t reg, uint8_t val);
-// uint8_t cspi_read_mem2x(void);
-// void cspi_read_mem(u8 *buf, u16 len);
-// void cspi_write_mem(u8 *buf, u16 len);
-// 加入 pin 參數
 void cspi_read_regs(uint8_t reg, u8 *buf, u16 len, csmode_t csmode, int pin);
 uint8_t cspi_read_reg(uint8_t reg, int pin);
 void cspi_write_reg(uint8_t reg, uint8_t val, int pin);
@@ -182,25 +174,6 @@ void cspi_write_mem(u8 *buf, u16 len, int pin);
 //
 #define HELLO_DRIVER_INTERNAL 1 // To support for being called by the program code from outside this dm9051_lw driver.
 
-#if HELLO_DRIVER_INTERNAL
-
-#if 0
-	/* sub-extern *//* SET and GET */
-	/*#define SG_FUNCTION(rtype, field) \
-		rtype dm9051opts_get##rtype##field(void); \
-		void dm9051opts_set##rtype##field(rtype value)*/
-
-	/* sub *//* SET and GET */
-	/*#define DECL_SG_FUNCTION(rtype, field) \
-	rtype dm9051opts_get##rtype##field(void) { \
-		return dm9051optsex[mstep_get_net_index()].##field; \
-	} \
-	void dm9051opts_set##rtype##field(rtype value) { \
-		dm9051optsex[mstep_get_net_index()].##field = value; \
-	}*/
-#endif
-
-#endif // HELLO_DRIVER_INTERNAL
 
 //------------------
 

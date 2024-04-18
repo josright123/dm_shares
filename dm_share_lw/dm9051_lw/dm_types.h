@@ -61,18 +61,6 @@
 #elif DM_TYPE == 2
 	// - type 2, implement
 
-//	#undef DM_MACRO
-//	#define DM_MACRO(rtype, mtype, field)  \
-//		rtype dm9051opts_##mtype##field(void) { \
-//			return (rtype) dm9051optsex[mstep_get_net_index()].##field; \
-//		} \
-//		char *dm9051opts_desc##field(void) { \
-//			return dm9051optsex[mstep_get_net_index()].desc##field##; \
-//		} \
-//		void dm9051opts_set_##mtype##field(const mtype val) { /* extended-set-data */ \
-//			dm9051optsex[mstep_get_net_index()].##field = val; \
-//		}
-		// Test001 code is OK.
 	#undef DM_MACRO_PIN
 	#define DM_MACRO_PIN(rtype, mtype, field) \
 		rtype dm9051opts_pin_##mtype##field(int pin) { \

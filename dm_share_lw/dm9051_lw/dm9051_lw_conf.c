@@ -315,15 +315,6 @@ void exint_add(void)
   config_exint(GPIO_PULL_UP, EXINT_TRIGGER_FALLING_EDGE); //
 }
 
-//void interface_add(int pin)
-//{
-//	DM_UNUSED_ARG(pin);
-
-//	spi_add();
-//	rst_add();
-//	exint_add();
-//}
-
 void interface_add_pin(int pin)
 {
 	// DM_UNUSED_ARG(pin);
@@ -337,38 +328,14 @@ void dm9051_boards_initialize(int n)
 
 	//  DM9051_DEBUGF(DM9051_LW_CONF,("DM9051_DEBUGF-->dm9051_boards_initialize() ..\r\n"));
 	printf("DM9051_DEBUGF-->dm9051_boards_initialize() ..\r\n");
-  /*int i;
-  for (i = 0; i < n; i++) { //get_eth_interfaces()
-	mstep_set_net_index(i);
-	//.printf("Config %s, %s, %s, %02x%02x%02x%02x%02x%02x\r\n",
-	//	mstep_conf_info(), mstep_conf_cpu_spi_ethernet(), mstep_conf_cpu_cs_ethernet(),
-	//		mac_addresse[mstep_get_net_index()][0],
-	//		mac_addresse[mstep_get_net_index()][1],
-	//		mac_addresse[mstep_get_net_index()][2],
-	//		mac_addresse[mstep_get_net_index()][3],
-	//		mac_addresse[mstep_get_net_index()][4],
-	//		mac_addresse[mstep_get_net_index()][5]);
 
-	interface_add(i);
-  }*/
   DM_UNUSED_ARG(n);
   // ETH_COUNT_VOIDFN(interface_add); //voidfn_dual
 	ETH_COUNT_VOIDFN(interface_add_pin); //voidfn_dual
   cpin_poweron_reset();
   dmf.dly_ms(30);
-  //dm9051_init(&mac_addresse[0][0]);
-  //dm9051_init(&mac_addresse[1][0]);
-  //return n;
 }
 
-//void ethernet_interfaces_initialize(void)
-//{
-//  int i;
-//  for (i = 0; i < _ETHERNET_COUNT; i++) {
-//	mstep_set_net_index(i); //+
-//	dm9051_init(_get_eth_mac());
-//  }
-//}
 
 // -
 /*********************************
@@ -417,128 +384,7 @@ static void rst_pin_pulse(void) {
 /*********************************
  * functions for driver's ops
  *********************************/
-
- #define dm9051if_rstb_pulse() rst_pin_pulse() //.dm9051_if->rstb_pulse()
-// #define dm9051if_cs_lo() spi_cs_lo()
-// #define dm9051if_cs_hi() spi_cs_hi()
-// #define dm9051_spi_command_write(rd) spi_exc_data(rd)
-// #define dm9051_spi_dummy_read() spi_exc_data(0)
-// 加入了pin参数
-
-// #define dm9051if_cs_lo() spi_cs_lo(0)
-// #define dm9051if_cs_hi() spi_cs_hi(0)
-// #define dm9051_spi_command_write(rd) spi_exc_data(rd, 0)
-// #define dm9051_spi_dummy_read() spi_exc_data(0, 0)
-
-
-
-// void cspi_read_regs(uint8_t reg, u8 *buf, u16 len, csmode_t csmode)
-// {
-// 	int i;
-// 	int par_regs = (reg == DM9051_PAR);
-
-// 	if (csmode == CS_LONG) {
-// 	  dm9051if_cs_lo();
-// 	  for(i=0; i < len; i++, reg++) {
-// 		dm9051_spi_command_write(reg | OPC_REG_R);
-// 		buf[i] = dm9051_spi_dummy_read();
-// 		if (par_regs)
-// 		  printf("long read reg %02x = %02x\r\n", reg, buf[i]);
-// 	  }
-// 	  dm9051if_cs_hi();
-// 	}
-// 	else { //CS_EACH
-// 	  for(i=0; i < len; i++, reg++) {
-// 		//printf("cspi_read_reg(reg) ..\r\n");
-// 		buf[i] = cspi_read_reg(reg);
-// 		if (par_regs)
-// 		  ; //printf("each read reg %02x = %02x\r\n", reg, buf[i]);
-// 	  }
-// 	}
-// }
-
-// void cpin_poweron_reset(void)
-// {
-// 	if (rst_pin_exister())
-// 		dm9051if_rstb_pulse();
-// }
-
-// uint8_t cspi_read_reg(uint8_t reg) //static (todo)
-// {
-// 	uint8_t val;
-// 	dm9051if_cs_lo();
-// 	dm9051_spi_command_write(reg | OPC_REG_R);
-// 	val = dm9051_spi_dummy_read();
-// 	dm9051if_cs_hi();
-// 	return val;
-// }
-
-// void cspi_read_regnx(uint8_t reg, uint8_t length, uint8_t *buf) // static (todo)
-// {
-// 	dm9051if_cs_lo();
-// 	// Complier Code Generation C99 Mode enabled
-// 	for (uint8_t i = 0; i < length; i++)
-// 	{
-// 		dm9051_spi_command_write(reg + i | OPC_REG_R);
-// 		buf[i] = dm9051_spi_dummy_read();
-// 	}
-// 	dm9051if_cs_hi();
-// }
-
-// void cspi_write_reg(uint8_t reg, uint8_t val)
-// {
-// 	dm9051if_cs_lo();
-// 	dm9051_spi_command_write(reg | OPC_REG_W);
-// 	dm9051_spi_command_write(val);
-// 	dm9051if_cs_hi();
-// }
-
-// void cspi_write_regnx(uint8_t reg, uint8_t length, uint8_t *buf)
-// {
-// 	dm9051if_cs_lo();
-// 	// Complier Code Generation C99 Mode enabled
-// 	for (uint8_t i = 0; i < length; i++)
-// 	{
-// 		dm9051_spi_command_write(reg + i | OPC_REG_W);
-// 		dm9051_spi_command_write(buf[i]);
-// 	}
-// 	dm9051if_cs_hi();
-// }
-
-// uint8_t cspi_read_mem2x(void)
-// {
-// 	uint8_t rxb;
-// 	dm9051if_cs_lo();
-// 	dm9051_spi_command_write(DM9051_MRCMDX | OPC_REG_R);
-// 	rxb = dm9051_spi_dummy_read();
-// 	rxb = dm9051_spi_dummy_read();
-// 	dm9051if_cs_hi();
-// 	return rxb;
-// }
-// void cspi_read_mem(u8 *buf, u16 len)
-// {
-// 	int i;
-// 	dm9051if_cs_lo();
-// 	dm9051_spi_command_write(DM9051_MRCMD | OPC_REG_R);
-// 	if (!OPT_CONFIRM(onlybytemode) && (OPT_U8(iomode) == MBNDRY_WORD)) //u8iomode() == MBNDRY_WORD, dm9051opts_iomode(), MBNDRY_DEFAULT == MBNDRY_WORD
-// 	if (len & 1)
-// 		len++;
-// 	for(i=0; i<len; i++)
-// 		buf[i] = dm9051_spi_dummy_read();
-// 	dm9051if_cs_hi();
-// }
-// void cspi_write_mem(u8 *buf, u16 len)
-// {
-// 	int i;
-// 	dm9051if_cs_lo();
-// 	dm9051_spi_command_write(DM9051_MWCMD | OPC_REG_W);
-// 	if (!OPT_CONFIRM(onlybytemode) && (OPT_U8(iomode) == MBNDRY_WORD)) //u8iomode() == MBNDRY_WORD, dm9051opts_iomode(), MBNDRY_DEFAULT == MBNDRY_WORD
-// 	if (len & 1)
-// 		len++;
-// 	for(i=0; i<len; i++)
-// 		dm9051_spi_command_write(buf[i]);
-// 	dm9051if_cs_hi();
-// }
+#define dm9051if_rstb_pulse() rst_pin_pulse() //.dm9051_if->rstb_pulse()
 
 #define dm9051if_cs_lo(pin) spi_cs_lo(pin)
 #define dm9051if_cs_hi(pin) spi_cs_hi(pin)

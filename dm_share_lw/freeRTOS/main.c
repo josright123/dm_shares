@@ -31,6 +31,8 @@
 #include "ping.h"
 #include "at32_dm.h"
 #include "httpd.h"
+#include "lwip/tcpip.h"
+#include "lwiperf.h"
 // #include "dm9051_lw_debug.h"
 #include "usart3proc/usart3proc_fun.h"
 // #include "utility/debug.h"
@@ -68,6 +70,8 @@ void led3_task_function(void *pvParameters);
 void network_task_function(void *pvParameters);
 /* usart3 task */
 void usart3_task_function(void *pvParameters);
+
+void vTaskLwipPerf_function(void *pvParameters);
 
 int spipin0 = 0;
 int spipin1 = 1;
@@ -118,7 +122,7 @@ int main(void)
   /* create led2 task */
   if (xTaskCreate((TaskFunction_t)led2_task_function,
                   (const char *)"LED2_task",
-                  (uint16_t)512,
+                  (uint16_t)128,
                   (void *)NULL,
                   (UBaseType_t)0,
                   (TaskHandle_t *)&led2_handler) != pdPASS)
@@ -133,7 +137,7 @@ int main(void)
   /* create led3 task */
   if (xTaskCreate((TaskFunction_t)led3_task_function,
                   (const char *)"LED3_task",
-                  (uint16_t)512,
+                  (uint16_t)128,
                   (void *)NULL,
                   (UBaseType_t)0,
                   (TaskHandle_t *)&led3_handler) != pdPASS)
@@ -175,6 +179,22 @@ int main(void)
     printf("USART3 task was created successfully.\r\n");
   }
 
+
+  /* create vTaskLwipPerf_function task */
+  if (xTaskCreate((TaskFunction_t)vTaskLwipPerf_function,
+                  (const char *)"vTaskLwipPerf_task",
+                  (uint16_t)512,
+                  (void *)NULL,
+                  (UBaseType_t)2,
+                  (TaskHandle_t *)&network_handler) != pdPASS)
+  {
+    printf("vTaskLwipPerf_function task could not be created as there was insufficient heap memory remaining.\r\n");
+  }
+  else
+  {
+    printf("vTaskLwipPerf_function task was created successfully.\r\n");
+  }
+
   /* exit critical */
   taskEXIT_CRITICAL();
 
@@ -189,7 +209,10 @@ void led2_task_function(void *pvParameters)
   {
     // at32_led_toggle(LED2);
     // printf("led2 task function\r\n");
-    vTaskDelay(pdMS_TO_TICKS(500));
+//		size_t xFreeHeapSize = xPortGetFreeHeapSize();
+//		printf("Free heap size: %u\r\n", xFreeHeapSize);
+
+    vTaskDelay(pdMS_TO_TICKS(1000));
   }
 }
 
@@ -212,8 +235,6 @@ void led3_task_function(void *pvParameters)
   }
 }
 
-// extern void EMAC_IRQHandler(void);
-/* network task function */
 void network_task_function(void *pvParameters)
 {
   ip_addr_t target_ip;
@@ -228,7 +249,6 @@ void network_task_function(void *pvParameters)
 		while(1) ;
   }
 
-  // tcpip_stack_init(spipin0);
   tcpip_init(NULL,NULL);
   tcpip_stack_init_2(spipin0);
   tcpip_stack_init_2(spipin1);
@@ -236,19 +256,16 @@ void network_task_function(void *pvParameters)
   /* 	If ping_init() is not defined
     Check #define LWIP_RAW   1 */
   // ping_init(&target_ip);
-  // udpecho_init();
-  // tcpecho_init();
+  udpecho_init();
+  tcpecho_init();
   httpd_init();
 	/* Print the task list. */
 	printTaskList();
   while (1)
   {
-    /* Print the task list. */
-    // printTaskList();
-    // at32_led_toggle(LED4);
-    // EMAC_IRQHandler();
     lwip_pkt_handle();
     vTaskDelay(pdMS_TO_TICKS(10));
+//		lwiperf_start_tcp_server_default(NULL, NULL);
 
   }
 }
@@ -256,15 +273,54 @@ void network_task_function(void *pvParameters)
 /* usart3 task function */
 void usart3_task_function(void *pvParameters)
 {
-
   usart3_configuration();
   usart3proc_init();
-
   while (1)
   {
     usart3proc_main();
     // printf("usart3 task function\r\n");
     vTaskDelay(pdMS_TO_TICKS(100));
+		usart3proc_time_event(200);				// Check timeout.
+  }
+}
+
+void vTaskLwipPerf_function(void *pvParameters) {
+//	Test code.
+  while (1)
+  {
+    vTaskDelay(pdMS_TO_TICKS(500));
+  }
+  dm9051_opts_display();
+  if (emac_system_init() == ERROR) {
+		printf("Error! Whilw(1).\r\n");
+		while(1) ;
+  }
+
+  tcpip_init(NULL,NULL);
+  tcpip_stack_init_2(spipin0);
+  udpecho_init();
+  tcpecho_init();
+	printTaskList();
+
+//		vTaskDelay(pdMS_TO_TICKS(4000));
+//    ip_addr_t perf_server_ip;
+//    IP_ADDR4(&perf_server_ip, 192, 168, 249, 82);
+//    for(;;) {
+//				printf("lwiperf_start_tcp_server.\r\n");
+//        lwiperf_start_tcp_server(&perf_server_ip, 5201, NULL, NULL);
+//        vTaskDelay(pdMS_TO_TICKS(2000));
+//    }
+
+//    for(;;) {
+//				printf("lwiperf_start_tcp_server.\r\n");
+//        lwiperf_start_tcp_server_default(NULL, NULL);
+//        vTaskDelay(pdMS_TO_TICKS(2000));
+//    }
+  while (1)
+  {
+    lwip_pkt_handle();
+//    lwiperf_start_tcp_server_default(NULL, NULL);
+    vTaskDelay(pdMS_TO_TICKS(20));
   }
 }
 

@@ -37,72 +37,10 @@
 // [Must be 1, for dm9051_lw driver operating.]
 // [Set to 0, for the program code to observ the using APIs of dm9051_lw driver, before add the dm9051_lw driver implement files.]
 //
-#if HELLO_DRIVER_INTERNAL //To support for being called by the program code from outside this dm9051_lw driver.
-
-//void set_dm9051opts_testplanlog(enable_t test_log);
-//enable_t get_dm9051opts_testplanlog(void);
-
-//uint8_t dm9051opts_iomode(void); // Driver's laydr2 control, for multi-spi-cards. depend on your definition of '_BOARD_SPI_COUNT'
-//char *dm9051opts_desciomode(void);
-
-//csmode_t dm9051opts_csmode(void);
-//char *dm9051opts_desccsmode(void);
-//bmcrmode_t dm9051opts_bmcrforcemode(void);
-//char *dm9051opts_descbmcrmode(void);
-
-//uint8_t dm9051opts_promismode(void);
-//char *dm9051opts_descpromismode(void);
-
-//-
-
-//#define OPTS_FUNC_EXT
-//#undef OPTS_FUNC_EXT
-	#if 0
-	/*#define DM_GET_FIELD(rtype, field) \
-		dm9051opts_##rtype##field()
-
-	#define DM_MACRO(rtype, field) \
-		rtype dm9051opts_##rtype##field(void); \
-		char *dm9051opts_desc##field(void);*/
-	#endif
-
-//#define _DM_TYPE		0
-//#include "_dm_types.h"
-
-/*
- * Below access to OPTs data:
- */
-//#define IS_GET_INSTEAD(rtype, field)	dm9051opts_get##rtype##field /* definition for extern short-call-name */
-//#define IS_SET_INSTEAD(rtype, field)	dm9051opts_set##rtype##field
-//#define get_testplaninclude			IS_GET_INSTEAD(enable_t, test_plan_include) //only get is documented export!
-
-//#define u8iomode					OPTS_DATA(uint8_t, iomode)
-//#define u8promismode				OPTS_DATA(uint8_t, promismode)
-//#define enum_csmode				OPTS_DATA(csmode_t, csmode) //dm9051opts_csmode_tcsmode
-//#define enum_bmcrmode				OPTS_DATA(bmcrmode_t, bmcrmode)
-//#define isrxtype_test				!OPTS_DATA(enable_t, rxtypemode)
-//#define isrxtype_run				OPTS_DATA(enable_t, rxtypemode)
-//#define isflowcontrolmode			OPTS_DATA(enable_t, flowcontrolmode)
-//#define isrxmode_checksum_offload	OPTS_DATA(enable_t, rxmode_checksum_offload)
-
-//void cpin_poweron_reset(void);
-//void cspi_read_regs(uint8_t reg, u8 *buf, u16 len, csmode_t csmode);
-//uint8_t cspi_read_reg(uint8_t reg);
-//void cspi_write_reg(uint8_t reg, uint8_t val);
-//uint8_t cspi_read_mem2x(void);
-//void cspi_read_mem(u8 *buf, u16 len);
-//void cspi_write_mem(u8 *buf, u16 len);
-
-#endif //HELLO_DRIVER_INTERNAL
 
 //init
 #if DM9051OPTS_API
 void dm9051_boards_initialize(int n);
-// uint8_t *identify_eth_mac(uint8_t *macadr);
-// uint8_t *identify_tcpip_ip(uint8_t *ip4adr);
-// uint8_t *identify_tcpip_gw(uint8_t *ip4adr);
-// uint8_t *identify_tcpip_mask(uint8_t *ip4adr);
-// 加入 參數 pin 程式修正?
 uint8_t *identify_eth_mac(uint8_t *macadr, uint8_t pin);
 uint8_t *identify_tcpip_ip(uint8_t *ip4adr, uint8_t pin);
 uint8_t *identify_tcpip_gw(uint8_t *ip4adr, uint8_t pin);
@@ -112,20 +50,10 @@ uint8_t *mstep_eth_mac(int pin);
 uint8_t *mstep_eth_ip(int pin);
 uint8_t *mstep_eth_gw(int pin);
 uint8_t *mstep_eth_mask(int pin);
-void mstep_set_net_index(int i);
-int mstep_get_net_index(void);
 void dm9051_irqlines_proc(void);
 #endif
 
 void cpin_poweron_reset(void);
-// uint8_t cspi_read_reg(uint8_t reg);
-// void cspi_read_regnx(uint8_t reg, uint8_t length, uint8_t *buf);
-// void cspi_write_reg(uint8_t reg, uint8_t val);
-// void cspi_write_regnx(uint8_t reg, uint8_t length, uint8_t *buf);
-// uint8_t cspi_read_mem2x(void);
-// void cspi_read_mem(u8 *buf, u16 len);
-// void cspi_write_mem(u8 *buf, u16 len);
-// 加入 pin 參數
 uint8_t cspi_read_reg(uint8_t reg, int pin);
 void cspi_read_regnx(uint8_t reg, uint8_t length, uint8_t *buf, int pin);
 void cspi_write_reg(uint8_t reg, uint8_t val, int pin);

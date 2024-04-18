@@ -377,7 +377,7 @@ void dm9051_log_tx(const uint8_t *buf, uint16_t len)
 #endif
 }
 
-int dm9051_log_rx(const uint8_t *buf, uint16_t len)
+int dm9051_log_rx(const uint8_t *buf, uint16_t len, int pin)
 {
 #if 0
   static int icmp_count_rx = 0;
@@ -457,7 +457,7 @@ int dm9051_log_rx(const uint8_t *buf, uint16_t len)
 			master_TCP_count++;
 			if (len > 70) { //add.
 				printf("\r\n");
-				printf("Receive unit-cast pkt. Protocol %s (%d), Listen port %d len %d (%d) ---------------\r\n", "TCP",
+				printf("Receive[%d] unit-cast pkt. Protocol %s (%d), Listen port %d len %d (%d) ---------------\r\n", pin, "TCP",
 						IPBUF->proto, HTONS(TCPBUF->destport), len, master_TCP_count);
 				function_monitor_rx(HEAD_SPC, buf, len);
 			}
@@ -488,7 +488,7 @@ int dm9051_log_rx(const uint8_t *buf, uint16_t len)
 //	sprint_hex_dump0(HEAD_SPC, 0, prefix_str, tlen, rowsize, buf, seg_start, len, DM_FALSE);
 //}
 
-void dm9051_txlog_monitor_tx(int hdspc, const uint8_t *buffer, size_t len)
+void dm9051_txlog_monitor_tx(int hdspc, const uint8_t *buffer, size_t len, int pin)
 {
 	//#define HEAD_LEN	125
 	//char buff[36]; // note: should be longer enough!
@@ -509,9 +509,8 @@ void dm9051_txlog_monitor_tx(int hdspc, const uint8_t *buffer, size_t len)
 			printf("  ### tx [ %lx = malloc( %d )  as a reference for headstr of _txlog_monitor_tx]\r\n",
 				heads, HEAD_LEN);
 			#endif
-			  //=sprintf(heads, "%d/%d tx[%d]>>", tx_modle_keep.allow_num, tx_modle.allow_num, mstep_get_net_index());
 			  n = sprintf(heads, "%d/%d", tx_modle_keep.allow_num, tx_modle.allow_num);
-			  sprintf(heads, "%d/%d tx[%d]>>", tx_modle_keep.allow_num, tx_modle.allow_num, mstep_get_net_index());
+			  sprintf(heads, "%d/%d tx[%d]>>", tx_modle_keep.allow_num, tx_modle.allow_num, pin);
 
 			  function_monitor_tx(hdspc, n, /*NULL*/ heads, buffer, len);
 			free(heads);
@@ -524,7 +523,7 @@ void dm9051_rxlog_monitor_rx(int hdspc, const uint8_t *buffer, size_t len)
 	function_monitor_rx(hdspc, buffer, len);
 }
 
-void dm9051_txlog_monitor_tx_all(int hdspc, const uint8_t *buffer, size_t len)
+void dm9051_txlog_monitor_tx_all(int hdspc, const uint8_t *buffer, size_t len, int pin)
 {
 	if (tx_all_modle_keep.allow_num < tx_all_modle.allow_num) {
 		#define HEAD_LEN	MMALLOC_MAX_LEN2 //3KB --> 1kb
@@ -534,7 +533,7 @@ void dm9051_txlog_monitor_tx_all(int hdspc, const uint8_t *buffer, size_t len)
 
 		heads = (char *) malloc(HEAD_LEN); // note: memory allocation WITH <stdlib.h>!
 		  n = sprintf(heads, "%d/%d", tx_all_modle_keep.allow_num, tx_all_modle.allow_num);
-		  sprintf(heads, "%d/%d tx[%d]>>", tx_all_modle_keep.allow_num, tx_all_modle.allow_num, mstep_get_net_index());
+		  sprintf(heads, "%d/%d tx[%d]>>", tx_all_modle_keep.allow_num, tx_all_modle.allow_num, pin);
 
 		  bannerline_log();
 		  function_monitor_tx_all(hdspc, n, heads, buffer, len);

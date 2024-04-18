@@ -56,10 +56,8 @@
 #include "lwip/err.h"
 #include "ethernetif.h"
 
-// #include "at32f435_437_emac.h"
-// #include "at32f403a_407_emac.h"
-#include "dm9051opts.h" //TRANS_CONN/mstep_eth_mac/mstep_get_net_index
-#include "dm9051_lw.h" //dm9051_mac_adr/dm9051_init/check_chip_id/dm9051_tx
+#include "dm9051opts.h"
+#include "dm9051_lw.h"
 #include "lwip/tcpip.h"
 
 //extern int spipin0;  	// pin = 0
@@ -87,8 +85,6 @@ err_t  ethernetif_input(struct netif *netif);
 #define EMAC_TXBUFNB        10
 
 uint8_t MACaddr[6];
-//emac_dma_desc_type  DMARxDscrTab[EMAC_RXBUFNB], DMATxDscrTab[EMAC_TXBUFNB];
-//uint8_t Rx_Buff[EMAC_RXBUFNB][EMAC_MAX_PACKET_LENGTH], Tx_Buff[EMAC_TXBUFNB][EMAC_MAX_PACKET_LENGTH];
 
 /**
  * Setting the MAC address.
@@ -117,7 +113,7 @@ int n_verify_id = 0;
 //	return dm9051_init(mstep_eth_mac()); //driver set mac
 //}
 static uint16_t drviver_init_nondual(int pin) {
-  mstep_set_net_index(pin);       // Default pin = 0
+//  mstep_set_net_index(pin);       // Default pin = 0
 	printf("drviver_init(pin = %d)\r\n", pin);
 	return dm9051_init(mstep_eth_mac(pin), pin); //driver set mac, // pin = 0
 }
@@ -134,8 +130,8 @@ void dm9051_init_nondual(int pin) {
 
 void dm9051_tx_dual(uint8_t *buf, uint16_t len, int pin)
 {
-	mstep_set_net_index(pin);
-	dm9051_txlog_monitor_tx_all(2, buf, len); //_dm9051_txlog_monitor_tx
+//	mstep_set_net_index(pin);
+	dm9051_txlog_monitor_tx_all(2, buf, len, pin); //_dm9051_txlog_monitor_tx
 	dm9051_tx(buf, len, pin);     // pin = 0
 }
 
@@ -320,13 +316,6 @@ ethernetif_init(struct netif *netif)
 
   LWIP_ASSERT("netif != NULL", (netif != NULL));
 
-//  ethernetif = mem_malloc(sizeof(struct ethernetif));
-//  if (ethernetif == NULL)
-//  {
-//    LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_init: out of memory\n"));
-//    return ERR_MEM;
-//  }
-
 #if LWIP_NETIF_HOSTNAME
   /* Initialize interface hostname */
   netif->hostname = "lwip";
@@ -357,22 +346,4 @@ ethernetif_init(struct netif *netif)
 
   return ERR_OK;
 }
-
-//typedef struct{
-//u32 length;
-//u32 buffer;
-//emac_dma_desc_type *descriptor;
-//}FrameTypeDef;
-/*******************************************************************************
-* Function Name  : emac_rxpkt_chainmode
-* Description    : Receives a packet.
-* Input          : None
-* Output         : None
-* Return         : frame: farme size and location
-*******************************************************************************/
-//FrameTypeDef emac_rxpkt_chainmode(void)
-//{
-//	FrameTypeDef frame;;
-//	return frame;
-//}
 
