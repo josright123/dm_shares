@@ -49,9 +49,15 @@
 #if freeRTOS
 #include "FreeRTOS.h"
 #include "task.h"
+#include "lwip/arch.h"
+#include "sys_arch.h"
 
-#ifndef freeRTOS_CONF
+#ifdef freeRTOS_CONF
+#if freeRTOS_CONF
+//#ifndef freeRTOS_CONF
 #warning "freeRTOS is defined"
+//#endif
+#endif
 #endif
 
 typedef void (* dly_us_t)(uint32_t nus);
@@ -70,6 +76,7 @@ typedef void (* dly_ms_t)(uint32_t nms);
 static void uvTaskDelay( const TickType_t xTicksToDelay ) {
 	vTaskDelay(pdMS_TO_TICKS((xTicksToDelay + 999)/ 1000));
 }
+
 #else
 typedef void (* dly_us_t)(uint32_t nus);
 typedef void (* dly_ms_t)(uint16_t nms);
@@ -222,7 +229,8 @@ u8 first_log_get(int i);
 //	MULTI_TRANS,
 //};
 
-void dm9051_board_counts(void);
+void dm9051_board_counts(const char *project_name);
+void dm9051_lock_arch(const char *project_name);
 
 #if DM9051OPTS_API
 //typedef uint16_t (* trn_conn_t)(int i);

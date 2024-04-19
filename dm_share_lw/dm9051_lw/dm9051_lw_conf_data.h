@@ -490,10 +490,26 @@ char *mstep_conf_type(void)
 
 // -
 
-uint8_t *identify_eth_mac(const uint8_t *macadr) {
-	DM_SET_FIELD(mac_t ,mac, macadr ? macadr : get_eth_mac());
-	return DM_GET_FIELD(mac_t ,mac);
+const uint8_t *identify_eth_mac(const uint8_t *macadr) {
+	const uint8_t *mac;
+
+	DM_SET_FIELD(mac_t, mac, macadr ? macadr : get_eth_mac()); //determine which one, to set to field.
+	mac = DM_GET_FIELD(mac_t, mac);
+	
+	printf("dm9051_init, %s, device[%d] %s, %s, to set mac/ %02x%02x%02x%02x%02x%02x\r\n",
+			mstep_conf_info(),
+			mstep_get_net_index(),
+			mstep_conf_cpu_spi_ethernet(),
+			mstep_conf_cpu_cs_ethernet(),
+			mac[0],
+			mac[1],
+			mac[2],
+			mac[3],
+			mac[4],
+			mac[5]);
+	return mac;
 }
+
 uint8_t *identify_tcpip_ip(uint8_t *ip4adr) {
 	DM_SET_FIELD(ip_t ,ip, ip4adr ? ip4adr : get_eth_ip());
 	return DM_GET_FIELD(ip_t, ip); //get_eth_ip();

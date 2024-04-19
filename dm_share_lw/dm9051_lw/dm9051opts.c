@@ -1,16 +1,37 @@
 //
 // dm9051opts.c
 //
+#if 0 //only for Lwip
+#include <lwip/sys.h> //.temp
+#endif
 #include "dm9051opts.h"
 #include "dm9051_lw.h"
 
 u8 gfirst_log[ETHERNET_COUNT];
 
-void dm9051_board_counts(void)
+void dm9051_board_counts(const char *project_name)
 {
 	bannerline_log();
 	bannerline_log();
-	printf("x2web start: [BOARD_SPI COUNT] %d  /  Operating: [ETHERNET COUNT] %d\r\n", BOARD_SPI_COUNT, ETHERNET_COUNT);
+	printf("%s start: [BOARD_SPI COUNT] %d  /  Operating: [ETHERNET COUNT] %d\r\n", project_name, BOARD_SPI_COUNT, ETHERNET_COUNT);
+	bannerline_log();
+}
+
+void dm9051_lock_arch(const char *project_name)
+{
+	const char *test1 = "freertos_demo TESTED";
+
+	printf("%s start: LWIP_TCPIP_CORE_LOCKING %d  /  LOCK_TCPIP_CORE()= %s\r\n", test1,
+			1, "sys_mutex_unlock(&lock_tcpip_core)");
+	printf("%s start: freeRTOS %d  / (TESTED GOOD, Must be sure that SPI lines are solid connection)\r\n", test1, 1);
+//#if LWIP_TCPIP_CORE_LOCKING//#else//#endif
+//#if freeRTOS//#endif
+#if 0 //only for Lwip
+	printf("%s start: LWIP_TCPIP_CORE_LOCKING %d  /  LOCK_TCPIP_CORE()= %s\r\n", project_name,
+			LWIP_TCPIP_CORE_LOCKING, "(none)");
+#endif
+	printf("%s start: freeRTOS %d  / (TESTED GOOD, now, check \"freertos_tcpip_stack/port/lwipopts.h\")\r\n", project_name, freeRTOS);
+	bannerline_log();
 }
 
 void GpioDisplay(void) {
@@ -30,8 +51,8 @@ void dm9051_opts_display(void)
 		mstep_set_net_index(i);
 		bannerline_log();
 		printf("dm9051[%d]_options_display:\r\n", mstep_get_net_index());
-		printf(" - core rst mode, %s\r\n", dm9051opts_descgeneric_core_rst());
-		printf(" - tx_endbit mode, %s\r\n", dm9051opts_desctx_endbit());
+		printf(" - core rst mode, %s\r\n", DM_GET_DESC(enable_t, generic_core_rst)); //dm9051opts_descgeneric_core_rst()
+		printf(" - tx_endbit mode, %s\r\n", DM_GET_DESC(enable_t, tx_endbit)); //dm9051opts_desctx_endbit()
 		bannerline_log();
 		//..
 	}
@@ -44,47 +65,49 @@ void dm9051_opts_display(void)
 		GpioDisplay();
 		for (i = 0; i< ETHERNET_COUNT; i++) {
 			mstep_set_net_index(i);
-			printf("iomode[%d] %s / value %02x\r\n", mstep_get_net_index(), dm9051opts_desciomode(), OPT_U8(iomode)); //dm9051opts_iomode()
+			printf("iomode[%d] %s / value %02x\r\n", mstep_get_net_index(), 
+					DM_GET_DESC(uint8_t, iomode), OPT_U8(iomode)); //dm9051opts_desciomode(), dm9051opts_iomode()
 		}
 		
 		for (i = 0; i< ETHERNET_COUNT; i++) {
 			mstep_set_net_index(i);
-			printf("csmode[%d] %s\r\n", mstep_get_net_index(), dm9051opts_desccsmode());
+			printf("csmode[%d] %s\r\n", mstep_get_net_index(), DM_GET_DESC(csmode_t, csmode)); //dm9051opts_desccsmode()
 		}
 		
 		for (i = 0; i< ETHERNET_COUNT; i++) {
 			mstep_set_net_index(i);
-			printf("bmcmod[%d] %s\r\n", i, dm9051opts_descbmcrmode());
+			printf("bmcmod[%d] %s\r\n", i, DM_GET_DESC(bmcrmode_t, bmcrmode)); //dm9051opts_descbmcrmode()
 		}
 		
 		for (i = 0; i< ETHERNET_COUNT; i++) {
 			mstep_set_net_index(i);
-			printf("rxmode[%d] %s\r\n", i, dm9051opts_descpromismode());
+			printf("rxmode[%d] %s\r\n", i, DM_GET_DESC(uint8_t, promismode)); //dm9051opts_descpromismode()
 		}
 		
 	for (i = 0; i< ETHERNET_COUNT; i++) {
 		mstep_set_net_index(i);
-		printf("rxtype[%d] %s\r\n", i, dm9051opts_descrxtypemode());
+		printf("rxtype[%d] %s\r\n", i, DM_GET_DESC(enable_t, rxtypemode)); //dm9051opts_descrxtypemode()
 	}
 		
 		for (i = 0; i< ETHERNET_COUNT; i++) {
 			mstep_set_net_index(i);
-			printf("chksum[%d] %s / value %02x %s\r\n", i, dm9051opts_descrxmode_checksum_offload(), //~dm9051opts_desc_rxchecksum_offload(), 
+			printf("chksum[%d] %s / value %02x %s\r\n", i, DM_GET_DESC(enable_t, rxmode_checksum_offload), //dm9051opts_descrxmode_checksum_offload(), ~dm9051opts_desc_rxchecksum_offload(), 
 					OPT_CONFIRM(rxmode_checksum_offload) ? RCSSR_RCSEN : 0,
 					OPT_CONFIRM(rxmode_checksum_offload) ? "(RCSSR_RCSEN)" : " "); //is_dm9051opts_rxmode_checksum_offload ~is_dm9051opts_rxchecksum_offload
 		}
 		
 		for (i = 0; i< ETHERNET_COUNT; i++) {
 			mstep_set_net_index(i);
-			printf("fcrmod[%d] %s / value %02x\r\n", i, dm9051opts_descflowcontrolmode(), 
+			printf("fcrmod[%d] %s / value %02x\r\n", i, DM_GET_DESC(enable_t, flowcontrolmode), //dm9051opts_descflowcontrolmode()
 					OPT_CONFIRM(flowcontrolmode) ? FCR_DEFAULT_CONF : 0); //(_dm9051optsex[mstep_get_net_index()]._flowcontrolmode)
 		}
 		
 		for (i = 0; i< ETHERNET_COUNT; i++) {
 			mstep_set_net_index(i);
-			printf("iomode[%d] %s %s\r\n", i, //"device: ", dm9051opts_desconlybytemode()
+			printf("iomode[%d] %s %s\r\n", i,
 					OPT_CONFIRM(onlybytemode) ? "device: " : "set-to: ",
-					OPT_CONFIRM(onlybytemode) ? dm9051opts_desconlybytemode() : dm9051opts_desciomode());
+					OPT_CONFIRM(onlybytemode) ? DM_GET_DESC(enable_t, onlybytemode) : DM_GET_DESC(uint8_t, iomode));
+												//dm9051opts_desconlybytemode() : dm9051opts_desciomode()
 		}
 		
 	#if TO_ADD_CODE_LATER_BACK

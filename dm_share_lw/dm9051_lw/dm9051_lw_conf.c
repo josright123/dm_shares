@@ -167,7 +167,7 @@ static void exint_enable(const struct extscfg_st *pexint_set, nvic_priority_grou
 }
 
 //[finally enable]
-void exint_menable(nvic_priority_group_type priority)
+void dm9051_board_irq_enable(nvic_priority_group_type priority)
 {
 	const struct extscfg_st *pexint_set = (const struct extscfg_st *) exint_scfg_ptr();
 	if (pexint_set) {
@@ -215,10 +215,15 @@ void dm_delay_ms(uint16_t nms) {
 
 // -
 
-//void dm9051_board_irq_enable(void) //void net_irq_enable(void)
-//{
-//  exint_menable(NVIC_PRIORITY_GROUP_0); //if (exint_conf_mptr()) _exint_enable(_exint_conf_ptr(), NVIC_PRIORITY_GROUP_0);
-//}
+//x void _dm9051_board_irq_enable(void)
+//x {
+//x 	exint_menable(NVIC_PRIORITY_GROUP_0);
+//x }
+
+//y void _dm9051_board_irq_enable(void)
+//y {
+//y   exint_menable(NVIC_PRIORITY_GROUP_0);
+//y }
 
 /**
   * @brief  gpio configuration.
@@ -352,8 +357,11 @@ static void rst_pin_pulse(void) {
  * Include user defined options first. Anything not defined in these files
  * will be set to standard values. Override anything you don't like!
  */
+#if 0 //only for Lwip
 #include "lwipopts.h"
+#endif
 
+#if 	freeRTOS_CONF && freeRTOS_ENABLE_MUTEX
 int cspiSemaphoreDoOwn(int pntlog, char *headstr, SemaphoreHandle_t semaphore_hdlr);
 void cspiSemaphoreDoYield(int pntlog, char *headstr, SemaphoreHandle_t semaphore_hdlr);
 
@@ -366,6 +374,11 @@ void cspiSemaphoreDoYield(int pntlog, char *headstr, SemaphoreHandle_t semaphore
 #define UNLOCK_CSPI_CORE() \
 	if (freeRTOS_ENABLE_MUTEX) \
 		if (rc) cspiSemaphoreDoYield(0, "empty", NULL);
+#else
+#define INIT_CSPI_CORE()
+#define LOCK_CSPI_CORE(log)
+#define UNLOCK_CSPI_CORE()
+#endif
 
 void cpin_poweron_reset(void)
 {

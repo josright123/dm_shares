@@ -4,8 +4,10 @@
 #include "dm9051_lw_log_types.h"
 #include "dm9051_lw_log_inc.h"
 
+#if 0 //only for Lwip
 #include "../freertos_tasks_debug.h"
 #define printf(fmt, ...) TASK_DM9051_DEBUGF(0, SEMA_OFF, "[xx]", (fmt, ##__VA_ARGS__))
+#endif
 
 //#include "dm9051_lw_debug.h"
 //#define printf(fmt, ...) DM9051_DEBUGF(DM9051_LW_LOG, (fmt, ##__VA_ARGS__))
@@ -236,8 +238,10 @@ void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
 #if 1
 	//#undef	printf
 	//#define printf(fmt, ...) DM9051_DEBUGF(1, (fmt, ##__VA_ARGS__))
+	#if 0 //only for Lwip
 	#undef printf
 	#define printf(fmt, ...) TASK_DM9051_DEBUGF(TASK_SEMAPHORE_HEX_DUMP, /*SEMA_OFF*/ SEMA_ON, /* "[D]" */ NULL, (fmt, ##__VA_ARGS__))
+	#endif
 #endif
 #if 1
 	//if (useflg) {
@@ -337,8 +341,10 @@ void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
 #if 1
 	//#undef	printf
 	//#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG, (fmt, ##__VA_ARGS__))
+	#if 0 //only for Lwip
 	#undef printf
 	#define printf(fmt, ...) TASK_DM9051_DEBUGF(0, SEMA_OFF, "[xx]", (fmt, ##__VA_ARGS__))
+	#endif
 #endif
 }
 

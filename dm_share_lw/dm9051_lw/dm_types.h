@@ -3,6 +3,15 @@
 
 //dm_types.h
 
+#define DM_TYPES_GET_CALL(mtype, field)			dm9051opts_get_##mtype##field()
+#define DM_TYPES_GET_FUNC(mtype, field)			dm9051opts_get_##mtype##field(void)
+
+#define DM_TYPES_SET_CALL(mtype, field, setval)	dm9051opts_set_##mtype##field(setval)
+#define DM_TYPES_SET_FUNC(mtype, field)			dm9051opts_set_##mtype##field(const mtype setval)
+
+#define DM_TYPES_DESC_CALL(mtype, field)		dm9051opts_desc_##field()
+#define DM_TYPES_DESC_FUNC(mtype, field)		dm9051opts_desc_##field(void)
+		
 #if DM_TYPE == 0
 
 	// - type 0, definitions
@@ -15,13 +24,18 @@
 	// - type 0, call
 
 //	#define DM_FUNC(mtype, field) \
-//		dm9051opts_##mtype##field()
+//		DM_TYPES_GET(mtype, field)
 	#define DM_GET_FIELD(mtype, field) \
-		dm9051opts_##mtype##field()
-	#define DM_GET_DESC(mtype, field) /* to be usage */ \
-		dm9051opts_desc##field()
-	#define DM_SET_FIELD(mtype, field, val) /* DM_SET_FUNC(ty,fi,val), extended-set-data */ \
-		dm9051opts_set_##mtype##field(val)
+		DM_TYPES_GET_CALL(mtype, field)
+		/*= dm9051opts_get_##mtype##field()*/
+
+	#define DM_GET_DESC(mtype, field) \
+		DM_TYPES_DESC_CALL(mtype, field)
+		/*dm9051opts_desc##field()*/
+
+	#define DM_SET_FIELD(mtype, field, setval) \
+		DM_TYPES_SET_CALL(mtype, field, setval)
+		/*dm9051opts_set_##mtype##field(setval)*/
 		
 	//#define set_testplanlog				IS_SET_INSTEAD(enable_t, test_plan_log)
 	//#define get_testplanlog				IS_GET_INSTEAD(enable_t, test_plan_log)=
@@ -35,9 +49,9 @@
 
 	#undef DM_MACRO
 	#define DM_MACRO(rtype, mtype, field) \
-		rtype dm9051opts_##mtype##field(void); \
-		char *dm9051opts_desc##field(void); \
-		void dm9051opts_set_##mtype##field(const mtype val); /* extended-set-data */
+		rtype DM_TYPES_GET_FUNC(mtype, field); \
+		char *DM_TYPES_DESC_FUNC(mtype, field); /*dm9051opts_desc##field(void);*/ \
+		void DM_TYPES_SET_FUNC(mtype, field); /*dm9051opts_set_##mtype##field(const mtype setval);*/
 
 DM_MACRO(uint8_t*,	mac_t, mac) //(uint8_t*, mac6_t, mac)
 DM_MACRO(uint8_t*,	ip_t, ip) //(uint8_t*, ip4_t, ip)
@@ -64,26 +78,26 @@ DM_MACRO(void,	ip_t, mask) //(uint8_t*, ip4_t, mask)
 
 	#undef DM_MACRO
 	#define DM_MACRO(rtype, mtype, field)  \
-		rtype dm9051opts_##mtype##field(void) { \
+		rtype DM_TYPES_GET_FUNC(mtype, field) { \
 			return (rtype) dm9051optsex[mstep_get_net_index()].##field; \
 		} \
-		char *dm9051opts_desc##field(void) { \
+		char *DM_TYPES_DESC_FUNC(mtype, field) { \
 			return dm9051optsex[mstep_get_net_index()].desc##field##; \
 		} \
-		void dm9051opts_set_##mtype##field(const mtype val) { /* extended-set-data */ \
-			dm9051optsex[mstep_get_net_index()].##field = val; \
+		void DM_TYPES_SET_FUNC(mtype, field) { /* extended-set-data */ \
+			dm9051optsex[mstep_get_net_index()].##field = setval; \
 		}
 	#undef DM_RMACRO
 	#define DM_RMACRO(rtype, mtype, field, adr_len)  \
-		rtype dm9051opts_##mtype##field(void) { \
+		rtype DM_TYPES_GET_FUNC(mtype, field) { \
 			return dm9051optsex[mstep_get_net_index()].##field; \
 		} \
-		char *dm9051opts_desc##field(void) { \
+		char *DM_TYPES_DESC_FUNC(mtype, field) { \
 			return dm9051optsex[mstep_get_net_index()].desc##field##; \
 		} \
-		void dm9051opts_set_##mtype##field(const mtype val) { /* extended-set-data */ \
+		void DM_TYPES_SET_FUNC(mtype, field) { /* extended-set-data */ \
 			/*dm9051optsex[mstep_get_net_index()].##field = val;*/ \
-			memcpy(dm9051optsex[mstep_get_net_index()].##field, val, adr_len); \
+			memcpy(dm9051optsex[mstep_get_net_index()].##field, setval, adr_len); \
 		}
 
 //DM_RMACRO(void,	mac_t, mac)

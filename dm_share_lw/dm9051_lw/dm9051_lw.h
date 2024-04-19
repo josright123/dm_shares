@@ -225,11 +225,20 @@ void dm9051_poweron_rst(void);
 //uint16_t dm9051_init(const uint8_t *adr);
 //uint16_t dm9051_rx(uint8_t *buff);
 //void dm9051_tx(uint8_t *buf, uint16_t len);
-//.void impl_read_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd);
 //void dm9051_mac_adr(const uint8_t *macadd);
 //.uint16_t .dm9051_bmsr_update(void);
 //uint16_t impl_read_chip_id(void);
 //u16 impl_dm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk);
+
+#if freeRTOS
+/** The global semaphore to lock the stack. */
+extern sys_mutex_t lock_dm9051_core;
+#define LOCK_TCPIP_COREx()     sys_mutex_lock(&lock_dm9051_core)
+#define ULOCK_TCPIP_COREx()   sys_mutex_unlock(&lock_dm9051_core)
+#else
+#define LOCK_TCPIP_COREx()	//empty test
+#define ULOCK_TCPIP_COREx()	//empty test
+#endif
 
 #if DM9051OPTS_API
 #define DM9051_NUM_LINKUP_RST	9
@@ -265,13 +274,35 @@ uint16_t dm9051_link_show(void);
 #define chipid_on_pin_code_log_s(str, fstr, id)		printf("...%s...          %s Read Chip ID OK: %02x (this CS_EACH_MODE)\r\n", fstr, str, id)
 #define chipid_on_pin_code_log_err(str, fstr, id)	printf("...%s...          %s Read Chip ID error: %02x (this CS_EACH_MODE)\r\n", fstr, str, id)
 
-#define display_ids(fstr, ids)						printf("...%s...          chip ids: %02x %02x %02x %02x %02x (this %s)\r\n", \
-															fstr, ids[0], ids[1], ids[2], ids[3], ids[4], dm9051opts_desccsmode())
-#define display_ida(fstr, id_adv)					printf("...%s...          chip rev: %02x\r\n", fstr, id_adv)
+//#define display_ids(fstr, ids)					printf("...%s...          chip ids: %02x %02x %02x %02x %02x (this %s)\r\n", \
+//															fstr, ids[0], ids[1], ids[2], ids[3], ids[4], DM_GET_DESC(csmode_t, csmode))
+//#define display_ida(fstr, id_adv)					printf("...%s...          chip rev: %02x\r\n", fstr, id_adv)
 
 int display_identity(char *spiname, uint16_t id, uint8_t *ids, uint8_t id_adv);
 int display_verify_chipid(char *str, char *spiname, uint16_t id);
 void display_chipmac(void);
+
+/*
+ * sub of dm9051.c
+ */
+uint16_t impl_dm9051_rx1(uint8_t *buff);
+void impl_dm9051_tx1(uint8_t *buf, uint16_t len);
+
+u16 impl_dm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk);
+uint16_t impl_read_chip_id(void);
+void impl_read_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd);
+uint16_t impl_phy_read(uint16_t uReg);
+
+u16 ev_rxb(uint8_t rxb);
+u16 ev_status(uint8_t rx_status);
+
+int dm9051_init_setup(void);
+int check_chip_id(uint16_t id);
+void dm9051_init_eeprom_dump(void);
+void dm9051_phycore_on(uint16_t nms);
+const uint8_t *hdlr_reset_process(const uint8_t *macaddr, enable_t en);
+
+void dm9051_link_to_hexdump(const void *buffer, size_t len) ;
 
 /*
  * export open functions
