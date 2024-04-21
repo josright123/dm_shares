@@ -323,14 +323,14 @@ void dm9051_boards_initialize(int n)
  * dm9051 spi interface accessing
  *********************************/
 
-static void spi_cs_lo(void) {
+static __inline void spi_cs_lo(void) {
 	gpio_bits_reset(gpio_cs().gpport, gpio_cs().pin); //cs.gpport->clr = cs.pin;
 }
-static void spi_cs_hi(void) {
+static __inline void spi_cs_hi(void) {
 	gpio_bits_set(gpio_cs().gpport, gpio_cs().pin); //cs.gpport->scr = cs.pin;
 }
 
-static uint8_t spi_exc_data(uint8_t byte) {
+static /*const*/ __inline uint8_t spi_exc_data(uint8_t byte) { 
     while(spi_i2s_flag_get(spi_number(), SPI_I2S_TDBE_FLAG) == RESET);	//while(spi_i2s_flag_get(SPI2, SPI_I2S_TDBE_FLAG) == RESET);
     spi_i2s_data_transmit(spi_number(), byte);							//spi_i2s_data_transmit(SPI2, byte); //spi2 tx
     while(spi_i2s_flag_get(spi_number(), SPI_I2S_RDBF_FLAG) == RESET);	//while(spi_i2s_flag_get(SPI2, SPI_I2S_RDBF_FLAG) == RESET);
