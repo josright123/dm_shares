@@ -711,11 +711,39 @@ void dm9051_init_eeprom_dump(void)
 //	display_mac_action(bare_mac_tbl[0], buf); //[0]= ": rd-bare device"
 //}
 
+int is_multicast_ether_addr(const uint8_t *addr)
+{
+	return 0x01 & addr[0];
+}
+int is_zero_ether_addr(const uint8_t *addr)
+{
+	return (*(const uint16_t *)(addr + 0) |
+			*(const uint16_t *)(addr + 2) |
+			*(const uint16_t *)(addr + 4)) == 0;
+}
+
+int is_valid_ether_addr(const uint8_t *addr)
+{
+	/* FF:FF:FF:FF:FF:FF is a multicast address so we don't need to
+	 * explicitly check for it here. */
+	return !is_multicast_ether_addr(addr) && !is_zero_ether_addr(addr);
+}
+
 void dm9051_start(const uint8_t *adr)
 {
+	uint8_t buff[6];
 	dm9051_board_irq_enable(NVIC_PRIORITY_GROUP_0); //_dm9051_board_irq_enable();
 
 //	display_baremac();
+
+	//READ MAC_ADDR_LENGTH REGs //CCC
+	cspi_read_regs(DM9051_PAR, buff, 6, CS_EACH);
+	if (is_valid_ether_addr(buff)) {
+		adr = buff;
+		printf("dm9051 EEPROM valid-mac : %02x %02x %02x %02x %02x %02x\r\n",
+			adr[0],adr[1],adr[2],adr[3],adr[4],adr[5]);
+	}
+
 	display_mac_action(bare_mac_tbl[1], adr); //[1]= ": wr-bare device"
 
 	dm9051_mac_adr(adr);
