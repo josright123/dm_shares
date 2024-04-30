@@ -17,6 +17,17 @@ void dm9051_board_counts(const char *project_name)
 	bannerline_log();
 }
 
+//void dm9051_lock_arch(const char *project_name)
+//{
+//	const char *test1 = "freertos_demo TESTED";
+//
+//	printf("%s start: LWIP_TCPIP_CORE_LOCKING %d  /  LOCK_TCPIP_CORE()= %s\r\n", test1,
+//			1, "sys_mutex_unlock(&lock_tcpip_core)");
+//	printf("%s start: freeRTOS %d  / (TESTED GOOD, Must be sure that SPI lines are solid connection)\r\n", test1, 1);
+//
+//	printf("%s start: freeRTOS %d  / (TESTED GOOD, now, check \"freertos_tcpip_stack/port/lwipopts.h\")\r\n", project_name, freeRTOS);
+//	bannerline_log();
+//}
 void dm9051_lock_arch_show(const char *project_name)
 {
 #if 0
@@ -25,11 +36,6 @@ void dm9051_lock_arch_show(const char *project_name)
 	printf("%s start: LWIP_TCPIP_CORE_LOCKING %d  /  LOCK_TCPIP_CORE()= %s\r\n", test1,
 			1, "sys_mutex_unlock(&lock_tcpip_core)");
 	printf("%s start: freeRTOS %d  / (TESTED GOOD, Must be sure that SPI lines are solid connection)\r\n", test1, 1);
-
-#if 0 //only for Lwip
-	printf("%s start: LWIP_TCPIP_CORE_LOCKING %d  /  LOCK_TCPIP_CORE()= %s\r\n", project_name,
-			LWIP_TCPIP_CORE_LOCKING, "(none)");
-#endif
 
 	printf("%s start: freeRTOS %d  / (TESTED GOOD, now, check \"freertos_tcpip_stack/port/lwipopts.h\")\r\n", project_name, freeRTOS);
 	bannerline_log();
