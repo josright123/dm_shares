@@ -254,7 +254,7 @@ static uint16_t impl_dm9051_rx(uint8_t *buff)
 	if (!OPT_CONFIRM(tx_endbit)) //CH390
 		dm_delay_ms(1);
 
-	#if 	0 	//test.
+	#if 0 	//test.
 	dm9051_rxlog_monitor_rx(2, "Test <<rx  ", buff, rx_len); //HEAD_SPC
 	#endif
 
@@ -396,10 +396,20 @@ uint16_t impl_phy_read(uint16_t uReg)
 //	return NULL;
 //}
 
+void dm9051_boards_initialize(int n)
+{
+  DM_UNUSED_ARG(n);
+  printf("DM9051_DEBUGF-->dm9051_boards_initialize() ..\r\n"); //DM9051_DEBUGF(DM9051_LW_CONF,("DM9051_DEBUGF-->dm9051_boards_initialize() ..\r\n"));
+  cspi_configuration();
+}
+
 const uint8_t *dm9051_init(const uint8_t *adr)
 {
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
+	uint16_t id;
 	const uint8_t *mac = NULL;
-	dm9051_lock_arch("dm9051-demo");
+	dm9051_lock_arch_show("dm9051-demo");
 
 #if freeRTOS
 	if (sys_mutex_new(&lock_dm9051_core) != ERR_OK) {
@@ -414,10 +424,23 @@ const uint8_t *dm9051_init(const uint8_t *adr)
 	//= identify_eth_mac(adr); //has, display_toset_mac();
 	//= hdlr_reset_process(); //has, dm9051_core_reset(); ..dm9051_start(mac);
 	//
-	if (dm9051_init_setup())
-		mac = hdlr_reset_process(identify_eth_mac(adr), DM_TRUE);
+	if (dm9051_init_setup(&id)) {
+#if 1 //need so 'display'
+		display_identity(mstep_spi_conf_name(), 0, NULL, 0, id, ".(Rst.process)"); //printf(".(Rst.process[%d])\r\n", mstep_get_net_index());
+#endif
+		mac = hdlr_reset_process(identify_eth_mac(adr, 0), DM_TRUE);
+		rx_pointer_show("dm9051_start");
+	} else {
+#if 1 //need so 'display'
+		display_identity(mstep_spi_conf_name(), 0, NULL, 0, id, ""); //printf(".(Rst.process[%d])\r\n", mstep_get_net_index());
+		printf(": dm9051_init_setup[%d] ::: FAIL ID %04x\r\n", mstep_get_net_index(), DM_GET_FIELD(uint16_t, read_chip_id));
+#endif
+	}
+	
 	ULOCK_TCPIP_COREx();
 	return mac;
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
 
 uint16_t dm9051_rx(uint8_t *buff)

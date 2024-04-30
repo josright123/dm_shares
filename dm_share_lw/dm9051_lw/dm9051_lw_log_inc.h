@@ -88,11 +88,13 @@ void dm_check_tx(const uint8_t *buf, size_t len);
  */
 #define	function_monitor_rx(hdspc, cause_str, buffer, len) \
 	do { \
-		if (hdspc == 0) \
+		if (hdspc == 0) { \
+			printf("\r\n"); \
 			sprint_hex_dump0(rx_modle_count[RX_MON].allow_num, 0, cause_str ? cause_str : "dm9 monitor <<rx  ", \
 				len, 32, buffer, 0, (len < 70) ? len : 70, /*DM_FALSE*/ DM_TRUE); \
-		else if (rx_modle_count[RX_MON].allow_num < rx_modle[RX_MON].allow_num) { \
+		} else if (rx_modle_count[RX_MON].allow_num < rx_modle[RX_MON].allow_num) { \
 			rx_modle_count[RX_MON].allow_num++; \
+			printf("\r\n"); \
 			sprint_hex_dump0(rx_modle_count[RX_MON].allow_num, 0, cause_str ? cause_str : "dm9 monitor <<rx  ", \
 				len, 32, buffer, 0, (len < 70) ? len : 70, /*DM_FALSE*/ DM_TRUE); /*, DM_TRUE, DGROUP_NONE */ \
 			/* dm_check_rx(buffer, len); */ \

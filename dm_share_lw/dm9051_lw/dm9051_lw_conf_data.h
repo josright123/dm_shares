@@ -50,11 +50,13 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				cs_setting_name, \
 				GPIO_PINOUT(GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK), /* //(PA15) */ \
 			}
-		devconf_at437_spi2("AT32F437 ETHERNET", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
-		devconf_at437_spi4("AT32F437 ETHERNET", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4"),
-		devconf_at437_spi2("AT32F437 ETHERNET", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
-		devconf_at437_spi2("AT32F437 ETHERNET", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
-		devconf_at437_spi1("AT32F437 ETHERNET", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15"),
+			
+		devconf_at437_spi4("AT32F437", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4"),
+		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
+		
+		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
+		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
+		devconf_at437_spi1("AT32F437", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15"),
 //		devconf_at437_spi2("AT32F437 ETHERNET SPI2", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
 //		devconf_at437_spi4("AT32F437 ETHERNET SPI4", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4"),
 //		devconf_at437_spi2("AT32F437 ETHERNET SPI2", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
@@ -270,6 +272,9 @@ optsex_t dm9051optsex[BOARD_SPI_COUNT] = { //const
 			\
 			/* to .read_chip_id */ \
 			0x0000, "read_chip_id", \
+			\
+			/* below, will fixed to be static const */ \
+			\
 			/* //.test_plan_log */ \
 			DM_FALSE, "some test log", \
 			/* //vs MBNDRY_BYTE, "8-bit",/ MBNDRY_WORD, "16-bit",*/ \
@@ -300,13 +305,14 @@ optsex_t dm9051optsex[BOARD_SPI_COUNT] = { //const
 	dmopts_normaldefault(MBNDRY_BYTE, "8-bit"), //CH390 can not use (1, "RX_CTRL Promiscuos mode")
 	dmopts_normaldefault(MBNDRY_BYTE, "8-bit"),
 	dmopts_normaldefault(MBNDRY_WORD, "16-bit mode"),
+	
 	dmopts_normal(MBNDRY_BYTE, "8-bit"),
 	dmopts_test1(MBNDRY_WORD, "16-bit mode"),
 };
 
 
 //(define is as rather than '_ETHERNET_COUNT', refer to as '_ETHERNET_COUNT' counter)
-const eth_node_t node_config[BOARD_SPI_COUNT] = { \
+const eth_node_t node_candidate[BOARD_SPI_COUNT] = { \
 	{ \
 		{0, 0x60, 0x6e, 0x00, 0x00, 0x17,}, \
 		{192, 168, 6,  17}, \
@@ -405,9 +411,7 @@ IS_DECL_FUNCTION(enable_t, generic_core_rst)
 #define gpio_wire_sck()				FIELD_SPIDEV(wire_sck)
 #define gpio_wire_mi()				FIELD_SPIDEV(wire_mi)
 #define gpio_wire_mo()				FIELD_SPIDEV(wire_mo)
-#define gpio_cs()					FIELD_SPIDEV(wire_cs)
 
-#define spi_number()				FIELD_SPIDEV(spidef.spi_num) //spihead().spi_num //= spi_no()
 #define spi_crm()					FIELD_SPIDEV(spidef.spi_crm_clk) //spihead().spi_crm_clk
 #define spi_conf_name()				FIELD_SPIDEV(spidef.spi_name) //spihead().spi_name
 #define spi_iomux()					FIELD_SPIDEV(spidef.iomux)
@@ -440,14 +444,14 @@ IS_DECL_FUNCTION(enable_t, generic_core_rst)
 #define mstep_turn_net_index()		//empty for 1 eth project
 
 //[common.mac]
-#define get_eth_mac()				&node_config[pin_code].mac_addresse[0]
-#define get_eth_ip()				&node_config[pin_code].local_ipaddr[0]
-#define get_eth_gw()				&node_config[pin_code].local_gwaddr[0]
-#define get_eth_mask()				&node_config[pin_code].local_maskaddr[0]
-//#define get_eth_mac()				&mac_addresse[pin_code][0]
-//#define get_eth_ip()				&local_ipaddr[pin_code][0]
-//#define get_eth_gw()				&local_gwaddr[pin_code][0]
-//#define get_eth_mask()			&local_maskaddr[pin_code][0]
+#define candidate_eth_mac()			&node_candidate[pin_code].mac_addresse[0]
+#define candidate_eth_ip()			&node_candidate[pin_code].local_ipaddr[0]
+#define candidate_eth_gw()			&node_candidate[pin_code].local_gwaddr[0]
+#define candidate_eth_mask()		&node_candidate[pin_code].local_maskaddr[0]
+//#define candidate_eth_mac()		&mac_addresse[pin_code][0]
+//#define candidate_eth_ip()		&local_ipaddr[pin_code][0]
+//#define candidate_eth_gw()		&local_gwaddr[pin_code][0]
+//#define candidate_eth_mask()		&local_maskaddr[pin_code][0]
 
 //-
 
@@ -490,15 +494,17 @@ char *mstep_conf_type(void)
 
 // -
 
-const uint8_t *identify_eth_mac(const uint8_t *macadr) {
+const uint8_t *identify_eth_mac(const uint8_t *macadr, int showflg) {
 	const uint8_t *mac;
 
-	DM_SET_FIELD(mac_t, mac, macadr ? macadr : get_eth_mac()); //determine which one, to set to field.
-	mac = DM_GET_FIELD(mac_t, mac);
+	DM_SET_FIELD(mac_t, final_mac, macadr ? macadr : candidate_eth_mac()); //determine which one, to set to field.
+	mac = DM_GET_FIELD(mac_t, final_mac);
 	
-	printf("dm9051_init, %s, device[%d] %s, %s, to set mac/ %02x%02x%02x%02x%02x%02x\r\n",
-			mstep_conf_info(),
+	if (showflg)
+		printf("dm9051_init[%d] %s %s, %s, %s, to set mac/ %02x%02x%02x%02x%02x%02x\r\n",
 			mstep_get_net_index(),
+			mstep_conf_info(),
+			mstep_spi_conf_name(), //spi_conf_name(),
 			mstep_conf_cpu_spi_ethernet(),
 			mstep_conf_cpu_cs_ethernet(),
 			mac[0],
@@ -510,17 +516,98 @@ const uint8_t *identify_eth_mac(const uint8_t *macadr) {
 	return mac;
 }
 
+#if DM9051OPTS_LOG_ENABLE
+void dm9051_opts_iomod_etc(void)
+{
+#if 0
+		int i;
+		GpioDisplay();
+		for (i = 0; i< ETHERNET_COUNT; i++) {
+			mstep_set_net_index(i);
+			printf("iomode[%d] %s / value %02x\r\n", mstep_get_net_index(), 
+					DM_GET_DESC(uint8_t, iomode), OPT_U8(iomode)); //dm9051opts_desciomode(), dm9051opts_iomode()
+		}
+		
+		for (i = 0; i< ETHERNET_COUNT; i++) {
+			mstep_set_net_index(i);
+			printf("csmode[%d] %s\r\n", mstep_get_net_index(), DM_GET_DESC(csmode_t, csmode)); //dm9051opts_desccsmode()
+		}
+		
+		for (i = 0; i< ETHERNET_COUNT; i++) {
+			mstep_set_net_index(i);
+			printf("bmcmod[%d] %s\r\n", i, DM_GET_DESC(bmcrmode_t, bmcrmode)); //dm9051opts_descbmcrmode()
+		}
+		
+		for (i = 0; i< ETHERNET_COUNT; i++) {
+			mstep_set_net_index(i);
+			printf("rxmode[%d] %s\r\n", i, DM_GET_DESC(uint8_t, promismode)); //dm9051opts_descpromismode()
+		}
+		
+	for (i = 0; i< ETHERNET_COUNT; i++) {
+		mstep_set_net_index(i);
+		printf("rxtype[%d] %s\r\n", i, DM_GET_DESC(enable_t, rxtypemode)); //dm9051opts_descrxtypemode()
+	}
+		
+		for (i = 0; i< ETHERNET_COUNT; i++) {
+			mstep_set_net_index(i);
+			printf("chksum[%d] %s / value %02x %s\r\n", i, DM_GET_DESC(enable_t, rxmode_checksum_offload), //dm9051opts_descrxmode_checksum_offload(), ~dm9051opts_desc_rxchecksum_offload(), 
+					OPT_CONFIRM(rxmode_checksum_offload) ? RCSSR_RCSEN : 0,
+					OPT_CONFIRM(rxmode_checksum_offload) ? "(RCSSR_RCSEN)" : " "); //is_dm9051opts_rxmode_checksum_offload ~is_dm9051opts_rxchecksum_offload
+		}
+		
+		for (i = 0; i< ETHERNET_COUNT; i++) {
+			mstep_set_net_index(i);
+			printf("fcrmod[%d] %s / value %02x\r\n", i, DM_GET_DESC(enable_t, flowcontrolmode), //dm9051opts_descflowcontrolmode()
+					OPT_CONFIRM(flowcontrolmode) ? FCR_DEFAULT_CONF : 0); //(_dm9051optsex[mstep_get_net_index()]._flowcontrolmode)
+		}
+		
+		for (i = 0; i< ETHERNET_COUNT; i++) {
+			mstep_set_net_index(i);
+			printf("iomode[%d] %s %s\r\n", i,
+					OPT_CONFIRM(onlybytemode) ? "device: " : "set-to: ",
+					OPT_CONFIRM(onlybytemode) ? DM_GET_DESC(enable_t, onlybytemode) : DM_GET_DESC(uint8_t, iomode));
+												//dm9051opts_desconlybytemode() : dm9051opts_desciomode()
+		}
+		
+	#if TO_ADD_CODE_LATER_BACK
+		for (i = 0; i< ETHERNET_COUNT; i++) {
+			uint8_t *macaddr;
+			mstep_set_net_index(i);
+			macaddr = mstep_eth_mac();
+			printf("config tobe mac[%d] %02x%02x%02x%02x%02x%02x\r\n", i, macaddr[0], macaddr[1], macaddr[2], macaddr[3], macaddr[4], macaddr[5]);
+		}
+	#endif
+	#if TO_ADD_CODE_LATER_BACK
+		for (i = 0; i< ETHERNET_COUNT; i++) {
+			mstep_set_net_index(i);
+			lEepromDisplay(i);
+		}
+	#endif
+	#if TO_ADD_CODE_LATER_BACK
+		for (i = 0; i< ETHERNET_COUNT; i++) {
+			mstep_set_net_index(i);
+			printf("ip[%d] %"U16_F".%"U16_F".%"U16_F".%"U16_F"\r\n", i,
+			  ip4_addr1_16(netif_ip4_addr(&xnetif[i])), 
+			  ip4_addr2_16(netif_ip4_addr(&xnetif[i])),
+			  ip4_addr3_16(netif_ip4_addr(&xnetif[i])), 
+			  ip4_addr4_16(netif_ip4_addr(&xnetif[i])));
+		}
+	#endif
+#endif
+}
+#endif
+
 uint8_t *identify_tcpip_ip(uint8_t *ip4adr) {
-	DM_SET_FIELD(ip_t ,ip, ip4adr ? ip4adr : get_eth_ip());
-	return DM_GET_FIELD(ip_t, ip); //get_eth_ip();
+	DM_SET_FIELD(ip_t ,ip, ip4adr ? ip4adr : candidate_eth_ip());
+	return DM_GET_FIELD(ip_t, ip);
 }
 uint8_t *identify_tcpip_gw(uint8_t *ip4adr) {
-	DM_SET_FIELD(ip_t ,gw, ip4adr ? ip4adr : get_eth_gw());
-	return DM_GET_FIELD(ip_t, gw); //get_eth_gw();
+	DM_SET_FIELD(ip_t ,gw, ip4adr ? ip4adr : candidate_eth_gw());
+	return DM_GET_FIELD(ip_t, gw);
 }
 uint8_t *identify_tcpip_mask(uint8_t *ip4adr) {
-	DM_SET_FIELD(ip_t ,mask, ip4adr ? ip4adr : get_eth_mask());
-	return DM_GET_FIELD(ip_t, mask); //get_eth_mask();
+	DM_SET_FIELD(ip_t ,mask, ip4adr ? ip4adr : candidate_eth_mask());
+	return DM_GET_FIELD(ip_t, mask);
 }
 
 //#define FREERTOS_ETHERNETIF_MAC_ADDR	1 //(netconf.h)
@@ -532,20 +619,20 @@ uint8_t *identify_tcpip_mask(uint8_t *ip4adr) {
 
 //const 
 uint8_t *mstep_eth_mac(void) {
-	return DM_GET_FIELD(mac_t ,mac); //get_eth_mac();
+	return DM_GET_FIELD(mac_t, final_mac);
 }
 
 //const 
 uint8_t *mstep_eth_ip(void) {
-	return DM_GET_FIELD(ip_t, ip); //get_eth_ip();
+	return DM_GET_FIELD(ip_t, ip);
 }
 //const 
 uint8_t *mstep_eth_gw(void) {
-	return DM_GET_FIELD(ip_t, gw); //get_eth_gw();
+	return DM_GET_FIELD(ip_t, gw);
 }
 //const 
 uint8_t *mstep_eth_mask(void) {
-	return DM_GET_FIELD(ip_t, mask); //get_eth_mask();
+	return DM_GET_FIELD(ip_t, mask);
 }
 
 //-

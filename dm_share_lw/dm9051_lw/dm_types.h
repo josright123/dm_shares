@@ -7,10 +7,10 @@
 #define DM_TYPES_GET_FUNC(mtype, field)			dm9051opts_get_##mtype##field(void)
 
 #define DM_TYPES_SET_CALL(mtype, field, setval)	dm9051opts_set_##mtype##field(setval)
-#define DM_TYPES_SET_FUNC(mtype, field)			dm9051opts_set_##mtype##field(const mtype setval)
+#define DM_TYPES_SET_FUNC(mtype, field, setval)	dm9051opts_set_##mtype##field(const mtype setval)
 
-#define DM_TYPES_DESC_CALL(mtype, field)		dm9051opts_desc_##field()
-#define DM_TYPES_DESC_FUNC(mtype, field)		dm9051opts_desc_##field(void)
+#define DM_TYPES_GETDESC_CALL(mtype, field)		dm9051opts_desc_##field()
+#define DM_TYPES_GETDESC_FUNC(mtype, field)		dm9051opts_desc_##field(void)
 		
 #if DM_TYPE == 0
 
@@ -21,21 +21,11 @@
 	typedef uint8_t mac_t[MAC_ADDR_LENGTH];
 	typedef uint8_t ip_t[ADDR_LENGTH];
 
-	// - type 0, call
+	// - type 0, call in the application program
 
-//	#define DM_FUNC(mtype, field) \
-//		DM_TYPES_GET(mtype, field)
-	#define DM_GET_FIELD(mtype, field) \
-		DM_TYPES_GET_CALL(mtype, field)
-		/*= dm9051opts_get_##mtype##field()*/
-
-	#define DM_GET_DESC(mtype, field) \
-		DM_TYPES_DESC_CALL(mtype, field)
-		/*dm9051opts_desc##field()*/
-
-	#define DM_SET_FIELD(mtype, field, setval) \
-		DM_TYPES_SET_CALL(mtype, field, setval)
-		/*dm9051opts_set_##mtype##field(setval)*/
+	#define DM_GET_FIELD(mtype, field)			DM_TYPES_GET_CALL(mtype, field)			/*= dm9051opts_get_##mtype##field()*/
+	#define DM_GET_DESC(mtype, field)			DM_TYPES_GETDESC_CALL(mtype, field)		/*dm9051opts_desc##field()*/
+	#define DM_SET_FIELD(mtype, field, setval)	DM_TYPES_SET_CALL(mtype, field, setval)	/*dm9051opts_set_##mtype##field(setval)*/
 		
 	//#define set_testplanlog				IS_SET_INSTEAD(enable_t, test_plan_log)
 	//#define get_testplanlog				IS_GET_INSTEAD(enable_t, test_plan_log)=
@@ -50,10 +40,10 @@
 	#undef DM_MACRO
 	#define DM_MACRO(rtype, mtype, field) \
 		rtype DM_TYPES_GET_FUNC(mtype, field); \
-		char *DM_TYPES_DESC_FUNC(mtype, field); /*dm9051opts_desc##field(void);*/ \
-		void DM_TYPES_SET_FUNC(mtype, field); /*dm9051opts_set_##mtype##field(const mtype setval);*/
+		char *DM_TYPES_GETDESC_FUNC(mtype, field); /*dm9051opts_desc##field(void);*/ \
+		void DM_TYPES_SET_FUNC(mtype, field, setval); /*dm9051opts_set_##mtype##field(const mtype setval);*/
 
-DM_MACRO(uint8_t*,	mac_t, mac) //(uint8_t*, mac6_t, mac)
+DM_MACRO(uint8_t*,	mac_t, final_mac) //(uint8_t*, mac6_t, mac)
 DM_MACRO(uint8_t*,	ip_t, ip) //(uint8_t*, ip4_t, ip)
 DM_MACRO(uint8_t*,	ip_t, gw) //(uint8_t*, ip4_t, gw)
 DM_MACRO(uint8_t*,	ip_t, mask) //(uint8_t*, ip4_t, mask)
@@ -67,7 +57,7 @@ DM_MACRO(uint8_t*,	ip_t, mask) //(uint8_t*, ip4_t, mask)
 		mtype field; \
 		char *desc##field;
 
-DM_MACRO(void,	mac_t, mac) //(uint8_t*, mac6_t, mac)
+DM_MACRO(void,	mac_t, final_mac) //(uint8_t*, mac6_t, mac)
 DM_MACRO(void,	ip_t, ip) //(uint8_t*, ip4_t, ip)
 DM_MACRO(void,	ip_t, gw) //(uint8_t*, ip4_t, gw)
 DM_MACRO(void,	ip_t, mask) //(uint8_t*, ip4_t, mask)
@@ -81,10 +71,10 @@ DM_MACRO(void,	ip_t, mask) //(uint8_t*, ip4_t, mask)
 		rtype DM_TYPES_GET_FUNC(mtype, field) { \
 			return (rtype) dm9051optsex[mstep_get_net_index()].##field; \
 		} \
-		char *DM_TYPES_DESC_FUNC(mtype, field) { \
+		char *DM_TYPES_GETDESC_FUNC(mtype, field) { \
 			return dm9051optsex[mstep_get_net_index()].desc##field##; \
 		} \
-		void DM_TYPES_SET_FUNC(mtype, field) { /* extended-set-data */ \
+		void DM_TYPES_SET_FUNC(mtype, field, setval) { /* extended-set-data */ \
 			dm9051optsex[mstep_get_net_index()].##field = setval; \
 		}
 	#undef DM_RMACRO
@@ -92,10 +82,10 @@ DM_MACRO(void,	ip_t, mask) //(uint8_t*, ip4_t, mask)
 		rtype DM_TYPES_GET_FUNC(mtype, field) { \
 			return dm9051optsex[mstep_get_net_index()].##field; \
 		} \
-		char *DM_TYPES_DESC_FUNC(mtype, field) { \
+		char *DM_TYPES_GETDESC_FUNC(mtype, field) { \
 			return dm9051optsex[mstep_get_net_index()].desc##field##; \
 		} \
-		void DM_TYPES_SET_FUNC(mtype, field) { /* extended-set-data */ \
+		void DM_TYPES_SET_FUNC(mtype, field, setval) { /* extended-set-data */ \
 			/*dm9051optsex[mstep_get_net_index()].##field = val;*/ \
 			memcpy(dm9051optsex[mstep_get_net_index()].##field, setval, adr_len); \
 		}
@@ -104,7 +94,7 @@ DM_MACRO(void,	ip_t, mask) //(uint8_t*, ip4_t, mask)
 //DM_RMACRO(void,	ip_t, ip)
 //DM_RMACRO(void,	ip_t, gw)
 //DM_RMACRO(void,	ip_t, mask)
-DM_RMACRO(uint8_t*,	mac_t, mac, MAC_ADDR_LENGTH)
+DM_RMACRO(uint8_t*,	mac_t, final_mac, MAC_ADDR_LENGTH)
 DM_RMACRO(uint8_t*,	ip_t, ip, ADDR_LENGTH)
 DM_RMACRO(uint8_t*,	ip_t, gw, ADDR_LENGTH)
 DM_RMACRO(uint8_t*,	ip_t, mask, ADDR_LENGTH)

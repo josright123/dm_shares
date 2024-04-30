@@ -241,21 +241,22 @@ extern sys_mutex_t lock_dm9051_core;
 #endif
 
 #if DM9051OPTS_API
+void dm9051_boards_initialize(int n);
+const uint8_t *dm9051_init(const uint8_t *adr);
+uint16_t dm9051_rx(uint8_t *buff);
+void dm9051_tx(uint8_t *buf, uint16_t len);
+
 #define DM9051_NUM_LINKUP_RST	9
 #define DM9051_NUM_RXLOG_RST	7
 uint16_t dm9051_read_chip_id(void);
 void dm9051_read_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd);
-
-const uint8_t *dm9051_init(const uint8_t *adr);
-uint16_t dm9051_rx(uint8_t *buff);
-void dm9051_tx(uint8_t *buf, uint16_t len);
 
 uint16_t dm9051_bmsr_update(void);
 u16 dm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk);
 //.void ldm9051_mac_adr(const uint8_t *macadd);
 #endif
 
-void dm9051_start(const uint8_t *adr);
+const uint8_t *dm9051_start1(const uint8_t *adr);
 uint16_t dm9051_phy_read(uint32_t reg);
 uint16_t dm9051_eeprom_read(uint16_t word);
 uint16_t dm9051_rx_dump(uint8_t *buff);
@@ -278,7 +279,7 @@ uint16_t dm9051_link_show(void);
 //															fstr, ids[0], ids[1], ids[2], ids[3], ids[4], DM_GET_DESC(csmode_t, csmode))
 //#define display_ida(fstr, id_adv)					printf("...%s...          chip rev: %02x\r\n", fstr, id_adv)
 
-int display_identity(char *spiname, uint16_t id, uint8_t *ids, uint8_t id_adv);
+int display_identity(char *spiname, uint16_t id, uint8_t *ids, uint8_t id_adv, uint16_t idin, char *tail);
 int display_verify_chipid(char *str, char *spiname, uint16_t id);
 void display_chipmac(void);
 
@@ -296,9 +297,8 @@ uint16_t impl_phy_read(uint16_t uReg);
 u16 ev_rxb(uint8_t rxb);
 u16 ev_status(uint8_t rx_status);
 
-int dm9051_init_setup(void);
+int dm9051_init_setup(uint16_t *id);
 int check_chip_id(uint16_t id);
-void dm9051_init_eeprom_dump(void);
 void dm9051_phycore_on(uint16_t nms);
 const uint8_t *hdlr_reset_process(const uint8_t *macaddr, enable_t en);
 

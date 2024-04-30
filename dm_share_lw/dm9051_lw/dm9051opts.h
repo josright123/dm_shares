@@ -17,7 +17,7 @@
  * dm9051_declaration_support
  */
 #define ETHERNET_COUNT_MAX						4 // Correspond to mcu target board's specification
-#define ETHERNET_COUNT								1 //2 //2 //4 //2 //2 //3 //2 //#define get_eth_interfaces() ETH_COUNT
+#define ETHERNET_COUNT								2 //2 //1 //4 //2 //2 //3 //2 //#define get_eth_interfaces() ETH_COUNT
 // #define _AT32F403Axx
 #define _AT32F437xx
 
@@ -147,6 +147,8 @@ typedef enum {
 } bmcrmode_t;
 
 void cpin_poweron_reset(void);
+
+void cspi_configuration(void);
 void cspi_read_regs(uint8_t reg, u8 *buf, u16 len, csmode_t csmode);
 uint8_t cspi_read_reg(uint8_t reg);
 void cspi_write_reg(uint8_t reg, uint8_t val);
@@ -202,6 +204,8 @@ void GpioDisplay(void);
 
 void ethcnt_ifdiplay(void);
 
+void rx_pointer_show(char *headstr);
+
 //void first_log_clear(int i);
 void first_log_init(void);
 u8 first_log_get(int i);
@@ -230,7 +234,7 @@ u8 first_log_get(int i);
 //};
 
 void dm9051_board_counts(const char *project_name);
-void dm9051_lock_arch(const char *project_name);
+void dm9051_lock_arch_show(const char *project_name);
 
 #if DM9051OPTS_API
 //typedef uint16_t (* trn_conn_t)(int i);
@@ -271,6 +275,7 @@ void ETH_COUNT_VOIDFN(voidpin_t f); //internal, voidfn_dual
 void ETH_COUNT_VOIDTX(voidtx_t pinfunc, uint8_t *buf, uint16_t len); //internal, voidtx_dual
 
 //------------------
+void interface_add(int pin);
 
 #define TO_ADD_CODE_LATER_BACK	0
 

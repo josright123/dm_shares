@@ -123,4 +123,7 @@ typedef struct {
 #define GPIO_PINSRC_NULL (gpio_pins_source_type) 0
 #define GPIO_MUX_NULL    (gpio_mux_sel_type)	 0
 
+extern const spi_dev_t devconf[BOARD_SPI_COUNT];
+extern int pin_code;
+
 #endif //HELLO_DRIVER_INTERNAL
