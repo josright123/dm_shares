@@ -38,52 +38,97 @@
  * Here we had the definition header file with : "at32f415_spi.h"
  * for AT32F415 cpu.
  */
-#if 0
-#include <lwip/sys.h> //.temp
-#else
-/** Definitions for error constants. */
-typedef enum {
-/** No error, everything OK. */
-  ERR_OK         = 0,
-/** Out of memory error.     */
-  ERR_MEM        = -1,
-/** Buffer error.            */
-  ERR_BUF        = -2,
-/** Timeout.                 */
-  ERR_TIMEOUT    = -3,
-/** Routing problem.         */
-  ERR_RTE        = -4,
-/** Operation in progress    */
-  ERR_INPROGRESS = -5,
-/** Illegal value.           */
-  ERR_VAL        = -6,
-/** Operation would block.   */
-  ERR_WOULDBLOCK = -7,
-/** Address in use.          */
-  ERR_USE        = -8,
-/** Already connecting.      */
-  ERR_ALREADY    = -9,
-/** Conn already established.*/
-  ERR_ISCONN     = -10,
-/** Not connected.           */
-  ERR_CONN       = -11,
-/** Low-level netif error    */
-  ERR_IF         = -12,
 
-/** Connection aborted.      */
-  ERR_ABRT       = -13,
-/** Connection reset.        */
-  ERR_RST        = -14,
-/** Connection closed.       */
-  ERR_CLSD       = -15,
-/** Illegal argument.        */
-  ERR_ARG        = -16
-} err_enum_t;
+#if 0
+#if 0
+	#include <lwip/sys.h> //.temp
+#else //0
+
+	typedef   signed			char int8_t;
+	typedef int8_t    			s8_t;
+
+	/** Definitions for error constants. */
+	//#if 1
+	typedef enum {
+	/** No error, everything OK. */
+	  ERR_OK         = 0,
+	/** Out of memory error.     */
+	  ERR_MEM        = -1,
+	/** Buffer error.            */
+	  ERR_BUF        = -2,
+	/** Timeout.                 */
+	  ERR_TIMEOUT    = -3,
+	/** Routing problem.         */
+	  ERR_RTE        = -4,
+	/** Operation in progress    */
+	  ERR_INPROGRESS = -5,
+	/** Illegal value.           */
+	  ERR_VAL        = -6,
+	/** Operation would block.   */
+	  ERR_WOULDBLOCK = -7,
+	/** Address in use.          */
+	  ERR_USE        = -8,
+	/** Already connecting.      */
+	  ERR_ALREADY    = -9,
+	/** Conn already established.*/
+	  ERR_ISCONN     = -10,
+	/** Not connected.           */
+	  ERR_CONN       = -11,
+	/** Low-level netif error    */
+	  ERR_IF         = -12,
+
+	/** Connection aborted.      */
+	  ERR_ABRT       = -13,
+	/** Connection reset.        */
+	  ERR_RST        = -14,
+	/** Connection closed.       */
+	  ERR_CLSD       = -15,
+	/** Illegal argument.        */
+	  ERR_ARG        = -16
+	} err_enum_t;
+
+	/** Define LWIP_ERR_T in cc.h if you want to use
+	 *  a different type for your platform (must be signed). */
+	#ifdef LWIP_ERR_T
+	typedef LWIP_ERR_T err_t;
+	#else /* LWIP_ERR_T */
+	typedef s8_t err_t;
+	#endif /* LWIP_ERR_T*/
+	//#endif
+
+	#if NO_SYS
+	#define sys_mutex_new(mu) ERR_OK
+	#else /* NO_SYS */
+
+	//typedef xSemaphoreHandle sys_mutex_t;
+
+	/* Mutex functions: */
+
+	/** Define LWIP_COMPAT_MUTEX if the port has no mutexes and binary semaphores
+		should be used instead */
+	#ifndef LWIP_COMPAT_MUTEX
+	#define LWIP_COMPAT_MUTEX 0
+	#endif
+
+	#if LWIP_COMPAT_MUTEX
+	#define sys_mutex_new(mutex)          sys_sem_new(mutex, 1)
+	#else /* LWIP_COMPAT_MUTEX */
+	err_t sys_mutex_new(sys_mutex_t *mutex);
+	#endif /* LWIP_COMPAT_MUTEX */
+	#endif /* NO_SYS */
+
+#endif //0
 #endif
+
 #include "dm9051opts.h"
 #include "dm9051_lw.h"
 #include "dm9051_lw_debug.h"
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
+
+#if freeRTOS
+	#include "lwip/sys.h"
+	#include "lwip/err.h"
+#endif
 
 /* if "expression" is true, then execute "handler" expression */
 #define DM9051_RX_RERXB(expression, handler) do { if ((expression)) { \
