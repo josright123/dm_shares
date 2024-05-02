@@ -240,6 +240,7 @@ void dm9051_lock_arch_show(const char *project_name);
 //typedef uint16_t (* trn_conn_t)(int i);
 //int TRANS_DUAL(trn_conn_t f); //return : found id number
 void dm9051_opts_display(void);
+void dm9051_mac_ip_display(char *head);
 
 //typedef uint16_t (* trn_nonconn_t)(uint8_t *macadr); //typedef void (* trans_t)(void *arg);
 //int TRANS_NONDUAL(trn_nonconn_t f, uint8_t *arg); //return : chip id

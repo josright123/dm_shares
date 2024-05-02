@@ -138,8 +138,9 @@
 
 #define	DM9051_Read_Rxb	DM9051_Read_Mem2X
 
+//static
 //uint16_t impl_dm9051_rx(uint8_t *buff);
-static uint16_t impl_dm9051_rx(uint8_t *buff)
+uint16_t impl_dm9051_rx0(uint8_t *buff)
 {
 	u8 rxbyte, rx_status;
 	u8 ReceiveData[4];
@@ -349,7 +350,8 @@ static uint16_t impl_dm9051_rx(uint8_t *buff)
 #define DM9051_TX_DELAY(expression, handler) do { if ((expression)) { \
   handler;}} while(0)
 
-static void impl_dm9051_tx(uint8_t *buf, uint16_t len)
+//static
+void impl_dm9051_tx0(uint8_t *buf, uint16_t len)
 {
 	DM9051_Write_Reg(DM9051_TXPLL, len & 0xff);
 	DM9051_Write_Reg(DM9051_TXPLH, (len >> 8) & 0xff);
@@ -362,75 +364,6 @@ static void impl_dm9051_tx(uint8_t *buf, uint16_t len)
 		dm_delay_ms(1); //CH390
 
 	dm9051_txlog_monitor_tx_all(2, buf, len); //_dm9051_txlog_monitor_tx
-}
-
-/*static*/
-u16 impl_dm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk)
-{
-#undef printf
-#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
-	if (zerochk && invalue == 0)
-		return 0; //.printf(": NoError as %u\r\n", valuecode);
-
-	printf(errstr, invalue); //or "0x%02x"
-
-	hdlr_reset_process(mstep_eth_mac(), OPT_CONFIRM(hdlr_confrecv)); //CH390 opts
-	return 0;
-#undef printf
-#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
-}
-
-//static 
-uint16_t impl_read_chip_id(void) {
-	u8 buff[2];
-	cspi_read_regs(DM9051_PIDL, buff, 2, CS_EACH);
-	return buff[0] | buff[1] << 8;
-}
-
-//static
-void impl_read_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd) {
-	*rwpa_wt = (uint32_t)DM9051_Read_Reg(0x24) | (uint32_t)DM9051_Read_Reg(0x25) << 8; //DM9051_RWPAL
-	*mdra_rd = (uint32_t)DM9051_Read_Reg(0x74) | (uint32_t)DM9051_Read_Reg(0x75) << 8; //DM9051_MRRL;
-}
-
-//static
-uint16_t impl_phy_read(uint16_t uReg)
-{
-	int w = 0;
-	u16 uData;
-
-#if 1
-  //_CH390
-  //if (uReg == PHY_STATUS_REG)
-  //{
-	//dm9051_phycore_on(0); //if (uReg == PHY_STATUS_REG)
-  //}
-  if (DM_GET_FIELD(uint16_t, read_chip_id) == 0x9151 && uReg == PHY_STATUS_REG)
-	dm9051_phycore_on(0);
-#endif
-
-	DM9051_Write_Reg(DM9051_EPAR, DM9051_PHY | uReg);
-	DM9051_Write_Reg(DM9051_EPCR, 0xc);
-	dm_delay_us(1);
-	while(DM9051_Read_Reg(DM9051_EPCR) & 0x1) {
-		dm_delay_us(1);
-		if (++w >= 500) //5
-			break;
-	} //Wait complete
-
-	DM9051_Write_Reg(DM9051_EPCR, 0x0);
-	uData = (DM9051_Read_Reg(DM9051_EPDRH) << 8) | DM9051_Read_Reg(DM9051_EPDRL);
-
-	#if 0
-	if (uReg == PHY_STATUS_REG) {
-		if (uData  & PHY_LINKED_BIT)
-			dm9051_set_flags(lw_flag, DM9051_FLAG_LINK_UP);
-		else
-			dm9051_clear_flags(lw_flag, DM9051_FLAG_LINK_UP);
-	}
-	#endif
-
-	return uData;
 }
 
 //static const uint8_t *impl_dm9051_init(const uint8_t *adr)

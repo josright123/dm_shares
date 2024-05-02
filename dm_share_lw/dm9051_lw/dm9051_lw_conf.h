@@ -91,15 +91,19 @@
 #endif //HELLO_DRIVER_INTERNAL
 
 //init
-#if DM9051OPTS_API
 const uint8_t *identify_eth_mac(const uint8_t *macadr, int showflg);
+#if DM9051OPTS_API
 uint8_t *identify_tcpip_ip(uint8_t *ip4adr);
 uint8_t *identify_tcpip_gw(uint8_t *ip4adr);
 uint8_t *identify_tcpip_mask(uint8_t *ip4adr);
+
 uint8_t *mstep_eth_mac(void);
 uint8_t *mstep_eth_ip(void);
 uint8_t *mstep_eth_gw(void);
 uint8_t *mstep_eth_mask(void);
+
+bmcrmode_t mstep_opts_bmcrmode(void);
+
 void mstep_set_net_index(int i);
 int mstep_get_net_index(void);
 void dm9051_irqlines_proc(void);

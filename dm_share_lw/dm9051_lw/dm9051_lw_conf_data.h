@@ -639,6 +639,11 @@ uint8_t *mstep_eth_mask(void) {
 }
 
 //-
+bmcrmode_t mstep_opts_bmcrmode(void) {
+	return DM_GET_FIELD(bmcrmode_t, bmcrmode);
+}
+
+//-
 
 int is_dm9051_board_irq(void)
 {

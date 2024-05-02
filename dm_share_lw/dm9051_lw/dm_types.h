@@ -27,12 +27,12 @@
 	#define DM_GET_DESC(mtype, field)			DM_TYPES_GETDESC_CALL(mtype, field)		/*dm9051opts_desc##field()*/
 	#define DM_SET_FIELD(mtype, field, setval)	DM_TYPES_SET_CALL(mtype, field, setval)	/*dm9051opts_set_##mtype##field(setval)*/
 		
-	//#define set_testplanlog				IS_SET_INSTEAD(enable_t, test_plan_log)
-	//#define get_testplanlog				IS_GET_INSTEAD(enable_t, test_plan_log)=
-	#define get_testplanlog(name)			DM_GET_FIELD(enable_t, name)
+//	#define get_testplanlog(name)			DM_GET_FIELD(enable_t, name)
+
 	#define OPT_U8(name)					DM_GET_FIELD(uint8_t, name) //appcall
 	#define OPT_CS(name)					DM_GET_FIELD(csmode_t, name) //appcall
-	#define OPT_BMCR(name)					DM_GET_FIELD(bmcrmode_t, name) //appcall
+	
+//	#define OPT_BMCR(name)					DM_GET_FIELD(bmcrmode_t, name) //appcall
 	#define OPT_CONFIRM(name)				DM_GET_FIELD(enable_t, name) //appcall (define isonlybytemode(), or OPT_CONFIRM(onlybytemode))
 
 	// - type 0, extern API
