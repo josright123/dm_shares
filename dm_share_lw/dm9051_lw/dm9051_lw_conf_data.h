@@ -51,8 +51,8 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				GPIO_PINOUT(GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK), /* //(PA15) */ \
 			}
 			
-		devconf_at437_spi4("AT32F437", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4"),
 		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
+		devconf_at437_spi4("AT32F437", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4"),
 		
 		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
 		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
@@ -444,6 +444,9 @@ IS_DECL_FUNCTION(enable_t, generic_core_rst)
 #define mstep_turn_net_index()		//empty for 1 eth project
 
 //[common.mac]
+/*
+ * HCC: Hard Core Candidate (hcc)
+ */
 #define candidate_eth_mac()			&node_candidate[pin_code].mac_addresse[0]
 #define candidate_eth_ip()			&node_candidate[pin_code].local_ipaddr[0]
 #define candidate_eth_gw()			&node_candidate[pin_code].local_gwaddr[0]
@@ -493,28 +496,6 @@ char *mstep_conf_type(void)
 }
 
 // -
-
-const uint8_t *identify_eth_mac(const uint8_t *macadr, int showflg) {
-	const uint8_t *mac;
-
-	DM_SET_FIELD(mac_t, final_mac, macadr ? macadr : candidate_eth_mac()); //determine which one, to set to field.
-	mac = DM_GET_FIELD(mac_t, final_mac);
-	
-	if (showflg)
-		printf("dm9051_init[%d] %s %s, %s, %s, to set mac/ %02x%02x%02x%02x%02x%02x\r\n",
-			mstep_get_net_index(),
-			mstep_conf_info(),
-			mstep_spi_conf_name(), //spi_conf_name(),
-			mstep_conf_cpu_spi_ethernet(),
-			mstep_conf_cpu_cs_ethernet(),
-			mac[0],
-			mac[1],
-			mac[2],
-			mac[3],
-			mac[4],
-			mac[5]);
-	return mac;
-}
 
 #if DM9051OPTS_LOG_ENABLE
 void dm9051_opts_iomod_etc(void)
@@ -569,14 +550,14 @@ void dm9051_opts_iomod_etc(void)
 												//dm9051opts_desconlybytemode() : dm9051opts_desciomode()
 		}
 		
-	#if TO_ADD_CODE_LATER_BACK
-		for (i = 0; i< ETHERNET_COUNT; i++) {
-			uint8_t *macaddr;
-			mstep_set_net_index(i);
-			macaddr = mstep_eth_mac();
-			printf("config tobe mac[%d] %02x%02x%02x%02x%02x%02x\r\n", i, macaddr[0], macaddr[1], macaddr[2], macaddr[3], macaddr[4], macaddr[5]);
-		}
-	#endif
+//	#if TO_ADD_CODE_LATER_BACK
+//		for (i = 0; i< ETHERNET_COUNT; i++) {
+//			uint8_t *macaddr;
+//			mstep_set_net_index(i);
+//			macaddr = mstep_eth_mac();
+//			printf("config tobe mac[%d] %02x%02x%02x%02x%02x%02x\r\n", i, macaddr[0], macaddr[1], macaddr[2], macaddr[3], macaddr[4], macaddr[5]);
+//		}
+//	#endif
 	#if TO_ADD_CODE_LATER_BACK
 		for (i = 0; i< ETHERNET_COUNT; i++) {
 			mstep_set_net_index(i);
@@ -596,6 +577,28 @@ void dm9051_opts_iomod_etc(void)
 #endif
 }
 #endif
+
+const uint8_t *identify_eth_mac(const uint8_t *macadr, int showflg) {
+	const uint8_t *mac;
+
+	DM_SET_FIELD(mac_t, final_mac, macadr ? macadr : candidate_eth_mac()); //determine which one, to set to field.
+	mac = DM_GET_FIELD(mac_t, final_mac);
+	
+	if (showflg)
+		printf("dm9051_init[%d] %s %s, %s, %s, to set mac/ %02x%02x%02x%02x%02x%02x\r\n",
+			mstep_get_net_index(),
+			mstep_conf_info(),
+			mstep_spi_conf_name(), //spi_conf_name(),
+			mstep_conf_cpu_spi_ethernet(),
+			mstep_conf_cpu_cs_ethernet(),
+			mac[0],
+			mac[1],
+			mac[2],
+			mac[3],
+			mac[4],
+			mac[5]);
+	return mac;
+}
 
 uint8_t *identify_tcpip_ip(uint8_t *ip4adr) {
 	DM_SET_FIELD(ip_t ,ip, ip4adr ? ip4adr : candidate_eth_ip());

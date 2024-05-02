@@ -41,7 +41,7 @@ int dm9051_link_log_reset_hexdump(const void *buffer, size_t len);
  */
 #if DM9051OPTS_API
 #if DM9051_DEBUG_ENABLE == 1
-#define bannerline_log()   printf("\r\n")
+#define bannerline_log()   printf("\r\n")  //driver provide a macro definition, only. (NOT funcation API function.)
 void dm9051_txlog_monitor_tx(int hdspc, const uint8_t *buffer, size_t len);
 void dm9051_rxlog_monitor_rx_all(int hdspc, const uint8_t *buffer, size_t len);
 void dm9051_rxlog_monitor_rx(int hdspc, char *cause_str, const uint8_t *buffer, size_t len);

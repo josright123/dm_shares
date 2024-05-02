@@ -170,7 +170,6 @@ dm9051[0] up, 192.168.6.33 (bmsr 786d)
 dm9051[0] link up
 tcp_output_segment.s
 ip_output_if.s
-........898.etharp_query(netif........
 ip_output_if.e
 tcp_output_segment.e
   (<TCP>) 00000000:  08 97 98 c3 b9 a2 00 60  6e 00 00 33 08 00 45 00   00 2c 00 00 00 00 ff 06  2e 28 c0 a8 06 21 c0 a8

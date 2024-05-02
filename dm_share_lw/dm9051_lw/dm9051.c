@@ -436,16 +436,27 @@ uint16_t impl_phy_read(uint16_t uReg)
 //static const uint8_t *impl_dm9051_init(const uint8_t *adr)
 //{
 //	if (dm9051_init_setup())
-//		return hdlr_reset_process(identify_eth_mac(adr), DM_TRUE);
+//		return hdlr_reset_process(_identify_eth_mac(adr), DM_TRUE);
 //
 //	return NULL;
 //}
 
+#define	PROJECT_NAME	"dm9051_driver_core"
+
 void dm9051_boards_initialize(int n)
 {
   DM_UNUSED_ARG(n);
+  dm9051_board_counts(PROJECT_NAME); //printf("x2web start: [BOARD_SPI COUNT] %d  /  Operating: [ETHERNET COUNT] %d\r\n", BOARD_SPI_COUNT, ETHERNET_COUNT);
+  dm9051_opts_display();
   printf("DM9051_DEBUGF-->dm9051_boards_initialize() ..\r\n"); //DM9051_DEBUGF(DM9051_LW_CONF,("DM9051_DEBUGF-->dm9051_boards_initialize() ..\r\n"));
+  
   cspi_configuration();
+  dm9051_link_log_reset();
+  
+#if 0
+  dm9051_opts_iomod_etc();
+  dm9051_lock_arch_show("dm9051-demo");
+#endif
 }
 
 const uint8_t *dm9051_init(const uint8_t *adr)
@@ -454,7 +465,7 @@ const uint8_t *dm9051_init(const uint8_t *adr)
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
 	uint16_t id;
 	const uint8_t *mac = NULL;
-	dm9051_lock_arch_show("dm9051-demo");
+//	dm9051_lock_arch_show("dm9051-demo");
 
 #if freeRTOS
 	if (sys_mutex_new(&lock_dm9051_core) != ERR_OK) {
@@ -466,7 +477,7 @@ const uint8_t *dm9051_init(const uint8_t *adr)
 	//mac = impl_dm9051_init(adr); =
 	//
 	//= dm9051_init_setup(); //has, init.
-	//= identify_eth_mac(adr); //has, display_toset_mac();
+	//= _identify_eth_mac(adr); //has, display_toset_mac();
 	//= hdlr_reset_process(); //has, dm9051_core_reset(); ..dm9051_start(mac);
 	//
 	if (dm9051_init_setup(&id)) {
@@ -524,6 +535,8 @@ uint16_t dm9051_bmsr_update(void)
   uint16_t val;
   LOCK_TCPIP_COREx();
   val = impl_phy_read(PHY_STATUS_REG);
+  if (!(val & 0x4))
+	dm9051_link_log_reset();
   ULOCK_TCPIP_COREx();
   return val;
 }

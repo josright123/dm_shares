@@ -500,48 +500,59 @@ int display_identity(char *spiname, uint16_t id, uint8_t *ids, uint8_t id_adv, u
 //			mstep_get_net_index(), buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
 //}
 
-static char *bare_mac_tbl[2] = {
-	": rd-bare device",
-	": wr-bare device",
-};
-
-static void display_eeprom_action(char *head)
+static void display_rw_mac(char *head, const uint8_t *adr)
 {
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
 	int i;
 
-	printf("%s[%d] ::: eeprom[] ", 
-		head, //"--EEPROM[%d] word"
-		mstep_get_net_index());
-
-//	for (i = 0; i < 9; i++)
+	printf(": %s[%d] ::: eeprom[] ", head, mstep_get_net_index());
 	for (i = 0; i < 3; i++) {
 		uint16_t value = dm9051_eeprom_read(i);
 		printf("%04x ", value);
-//		printf("%s%04x",
-//			!(i % 4) ? "  " : " ",
-//			value);
 	}
-	bannerline_log();
+	printf("wr-par[] %02x%02x%02x%02x%02x%02x\r\n", adr[0], adr[1], adr[2], adr[3], adr[4], adr[5]);
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
+}
+
+//static char *bare_mac_tbl[2] = {
+//	": rd-bare device",
+//	": wr-bare device",
+//};
+
+//static void display_eeprom_action(char *head)
+//{
+//#undef printf
+//#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
+//	int i;
+
+//	printf("%s[%d] ::: eeprom[] ", 
+//		head, //"--EEPROM[%d] word"
+//		mstep_get_net_index());
+
+//	for (i = 0; i < 3; i++) {
+//		uint16_t value = dm9051_eeprom_read(i);
+//		printf("%04x ", value);
+//	}
 //	bannerline_log();
-#undef printf
-#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
-}
+//#undef printf
+//#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
+//}
 
-static void display_mac_action(char *head, const uint8_t *adr) {
-#undef printf
-#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
+//static void display_mac_action(char *head, const uint8_t *adr) {
+//#undef printf
+//#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
 
-//	display_mac_bannerline_defaultN = head; // ": rd-bare device";/ ": wr-bare device";
-	printf("%s[%d] ::: chip-mac %02x%02x%02x%02x%02x%02x\r\n",
-//				display_identity_bannerline_title ? display_identity_bannerline_title : display_mac_bannerline_defaultN,
-				head,
-				mstep_get_net_index(), adr[0], adr[1], adr[2], adr[3], adr[4], adr[5]);
+////	display_mac_bannerline_defaultN = head; // ": rd-bare device";/ ": wr-bare device";
+//	printf("%s[%d] ::: chip-mac %02x%02x%02x%02x%02x%02x\r\n",
+////				display_identity_bannerline_title ? display_identity_bannerline_title : display_mac_bannerline_defaultN,
+//				head,
+//				mstep_get_net_index(), adr[0], adr[1], adr[2], adr[3], adr[4], adr[5]);
 
-#undef printf
-#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
-}
+//#undef printf
+//#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
+//}
 
 #define	TIMES_TO_RST	10
 
@@ -579,8 +590,11 @@ const uint8_t *hdlr_reset_process(const uint8_t *macaddr, enable_t en)
 
 	if (en) { //As dm9051_init's whole operations. Only for _CH390
 		macaddr = dm9051_start1(macaddr);
-		display_eeprom_action(bare_mac_tbl[0]);
-		display_mac_action(bare_mac_tbl[1], macaddr); //[1]= ": wr-bare device"
+
+		display_rw_mac("dm9051_start", macaddr);
+//		display_eeprom_action(bare_mac_tbl[0]);
+//		display_mac_action(bare_mac_tbl[1], macaddr); //[1]= ": wr-bare device"
+
 //		rx_pointer_show("dm9051_start");
 	}
 	return macaddr;
@@ -749,29 +763,53 @@ int is_valid_ether_addr(const uint8_t *addr)
 	return !is_multicast_ether_addr(addr) && !is_zero_ether_addr(addr);
 }
 
+const uint8_t *internal_adr_logic(void)
+{
+	const uint8_t *adr;
+	/*
+	 * dm9051 start1 internal logic, i.e.
+	 * Read par, if valid then it's from EEPROM
+	 * otherwise, use Hard Core Candidate (hcc)
+	 */
+	//READ MAC_ADDR_LENGTH REGs //CCC
+	uint8_t buff[6];
+	cspi_read_regs(DM9051_PAR, buff, 6, CS_EACH);
+	if (is_valid_ether_addr(buff)) {
+//			adr = buff;
+		adr = identify_eth_mac(buff, 0); /* Trick1 */
+		printf(": EEPROM valid-mac[%d] ::: %02x %02x %02x %02x %02x %02x\r\n",
+			mstep_get_net_index(), adr[0],adr[1],adr[2],adr[3],adr[4],adr[5]);
+	} else {
+		adr = identify_eth_mac(NULL, 0); /* Trick2 */
+		printf(": Hard Core candidate-mac[%d] ::: %02x %02x %02x %02x %02x %02x\r\n",
+			mstep_get_net_index(), adr[0],adr[1],adr[2],adr[3],adr[4],adr[5]);
+	}
+	return adr;
+}
+
 const uint8_t *dm9051_start1(const uint8_t *adr)
 {
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
-	uint8_t buff[6];
-	dm9051_board_irq_enable(NVIC_PRIORITY_GROUP_0); //_dm9051_board_irq_enable();
-
 //	display_baremac();
-
-	//READ MAC_ADDR_LENGTH REGs //CCC
-	cspi_read_regs(DM9051_PAR, buff, 6, CS_EACH);
-	if (is_valid_ether_addr(buff)) {
-		adr = buff;
-			
-		/* Trick1 */
-		adr = identify_eth_mac(buff, 0);
-		
-		printf(": EEPROM valid-mac[%d] ::: %02x %02x %02x %02x %02x %02x\r\n",
-			mstep_get_net_index(), adr[0],adr[1],adr[2],adr[3],adr[4],adr[5]);
+#if 1
+	if (adr) {
+		if (is_valid_ether_addr(adr)) {
+			adr = identify_eth_mac(adr, 0); /* Trick0 */
+//			printf(": APP ENTER-mac[%d] ::: %02x %02x %02x %02x %02x %02x\r\n",
+//				mstep_get_net_index(), adr[0],adr[1],adr[2],adr[3],adr[4],adr[5]);
+		} else {
+			printf(": APP ENTER-mac[%d] ::: %02x %02x %02x %02x %02x %02x (Invalid)\r\n",
+				mstep_get_net_index(), adr[0],adr[1],adr[2],adr[3],adr[4],adr[5]);
+			adr = internal_adr_logic();
+		}
 	}
-
+	else
+		adr = internal_adr_logic();
+#endif
 //	display_mac_action(bare_mac_tbl[1], adr); //[1]= ": wr-bare device"
 
+	dm9051_board_irq_enable(NVIC_PRIORITY_GROUP_0); //_dm9051_board_irq_enable();
 	dm9051_mac_adr(adr);
 	dm9051_rx_mode();
 	return adr;
