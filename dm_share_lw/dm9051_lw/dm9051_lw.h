@@ -252,7 +252,7 @@ uint16_t dm9051_read_chip_id(void);
 void dm9051_read_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd);
 
 uint16_t dm9051_bmsr_update(void);
-u16 dm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk);
+uint16_t dm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk);
 //.void ldm9051_mac_adr(const uint8_t *macadd);
 #endif
 

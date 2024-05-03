@@ -474,7 +474,7 @@ uint16_t dm9051_bmsr_update(void)
   return val;
 }
 
-u16 dm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk)
+uint16_t dm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk)
 {
 	u16 ret;
 	LOCK_TCPIP_COREx();

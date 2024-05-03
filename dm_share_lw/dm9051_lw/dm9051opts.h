@@ -247,6 +247,7 @@ void dm9051_mac_ip_display(char *head);
 #else
 //#define TRANS_DUAL(f)
 #define dm9051_opts_display()
+#define dm9051_mac_ip_display(head)
 
 /* dm9051opts.c
  * , uint8_t trans_type
