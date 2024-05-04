@@ -5,9 +5,27 @@
 //
 #define board_conf_type	"\"dm9051_at32_mf\""
 
-const void *intr_pack = NULL;
-
 const gp_set_t *option_rst_common = NULL;
+
+struct extscfg_st pe = { //struct linescfg_st 
+	"enable SCFG, extline pc7",
+	{ CRM_GPIOC_PERIPH_CLOCK, EXINT_LINE_7, EXINT9_5_IRQn}, // correspond to and with PC7
+};
+
+gp_set_t gp = {
+	"GPIO pc7", //"AT32 INT PAD, gpio pc7",
+	{GPIOC, GPIO_PINS_7,  CRM_GPIOC_PERIPH_CLOCK, GPIO_MODE_INPUT, 	GPIO_PINSRC_NULL, GPIO_MUX_NULL,}, //(PC7) INT-pin
+};
+
+const struct modscfg_st intrconf = {
+	"SCFG pc7", //"AT32 SCFG, exint pc7",
+	{CRM_GPIOC_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},
+	&pe, //essential
+	&gp,
+};
+
+//const void *intr_pack = NULL;
+const void *intr_pack = &intrconf;
 
 #define SPI_PINSTD(spiname,spinum,crm_clk,iom)	{spiname,spinum,crm_clk, iom}
 #define GPIO_PINNORM(gpport,pin,crm_clk)			{gpport,pin,crm_clk, GPIO_MODE_MUX, GPIO_PINSRC_NULL, GPIO_MUX_NULL}
@@ -661,7 +679,7 @@ static int rst_pin_exister(void) {
 
 static int intr_gpio_mptr(void) {
 	if (intr_gpio_exist()) {
-		printf(": %s :                 intr-pin/ %s\r\n", "config", intr_gpio_info()); //_intr_gpio_exist()->gp_info
+//		printf(": %s :                 intr-pin/ %s\r\n", "config", intr_gpio_info()); //_intr_gpio_exist()->gp_info
 		return 1;
 	}
 	return 0;

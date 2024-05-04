@@ -430,7 +430,7 @@ int display_identity(char *spiname, uint16_t id, uint8_t *ids, uint8_t id_adv, u
 #endif
 	static uint8_t psh_ids1[ETHERNET_COUNT][5], psh_id_adv1[ETHERNET_COUNT];
 	
-	DM_UNUSED_ARG(spiname);
+//	DM_UNUSED_ARG(spiname);
 	
 	DM_UNUSED_ARG(id);
 	if (ids) {
@@ -446,9 +446,9 @@ int display_identity(char *spiname, uint16_t id, uint8_t *ids, uint8_t id_adv, u
 	}
 
 //display_ids(fstr, ids) + display_ida(fstr, id_adv)
-	printf("%s[%d] ::: ids %02x %02x %02x %02x (%s) chip rev %02x, Chip ID %04x (CS_EACH_MODE)%s\r\n",
+	printf("%s[%d] %s ::: ids %02x %02x %02x %02x (%s) chip rev %02x, Chip ID %04x (CS_EACH_MODE)%s\r\n",
 		display_identity_bannerline_title ? display_identity_bannerline_title : display_identity_bannerline_default,
-		mstep_get_net_index(),
+		mstep_get_net_index(), spiname,
 		psh_ids1[mstep_get_net_index()][0], psh_ids1[mstep_get_net_index()][1],
 		psh_ids1[mstep_get_net_index()][2], psh_ids1[mstep_get_net_index()][3], 
 		DM_GET_DESC(csmode_t, csmode), //dm9051opts_desccsmode()
@@ -463,7 +463,7 @@ int display_identity(char *spiname, uint16_t id, uint8_t *ids, uint8_t id_adv, u
 	return 0;
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
-}
+} //spiname
 
 //char *display_identity_bannerline_title = NULL;
 //char *display_identity_bannerline_default =  ": Read device";

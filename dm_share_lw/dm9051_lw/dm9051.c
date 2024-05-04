@@ -383,7 +383,7 @@ void dm9051_boards_initialize(int n)
   dm9051_opts_display();
   printf("DM9051_DEBUGF-->dm9051_boards_initialize() ..\r\n"); //DM9051_DEBUGF(DM9051_LW_CONF,("DM9051_DEBUGF-->dm9051_boards_initialize() ..\r\n"));
   
-  cspi_configuration();
+  board_conf_configuration();
   dm9051_link_log_reset();
   
 #if 0

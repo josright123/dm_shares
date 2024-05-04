@@ -17,9 +17,11 @@
  * dm9051_declaration_support
  */
 #define ETHERNET_COUNT_MAX						4 // Correspond to mcu target board's specification
-#define ETHERNET_COUNT								2 //2 //1 //4 //2 //2 //3 //2 //#define get_eth_interfaces() ETH_COUNT
+#define ETHERNET_COUNT								1 //2 //1 //4 //2 //2 //3 //2 //#define get_eth_interfaces() ETH_COUNT
 // #define _AT32F403Axx
 #define _AT32F437xx
+
+#define	ETHERNET_INTERRUPT_MODE					1
 
 #ifdef freeRTOS_CONF
 #define freeRTOS											freeRTOS_CONF
@@ -148,7 +150,7 @@ typedef enum {
 
 void cpin_poweron_reset(void);
 
-void cspi_configuration(void);
+void board_conf_configuration(void);
 void cspi_read_regs(uint8_t reg, u8 *buf, u16 len, csmode_t csmode);
 uint8_t cspi_read_reg(uint8_t reg);
 void cspi_write_reg(uint8_t reg, uint8_t val);
@@ -277,7 +279,7 @@ void ETH_COUNT_VOIDFN(voidpin_t f); //internal, voidfn_dual
 void ETH_COUNT_VOIDTX(voidtx_t pinfunc, uint8_t *buf, uint16_t len); //internal, voidtx_dual
 
 //------------------
-void interface_add(int pin);
+void interface_all_add(int pin);
 
 #define TO_ADD_CODE_LATER_BACK	0
 

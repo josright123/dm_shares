@@ -31,36 +31,6 @@
 #include "dm9051_lw_cspi.h"
 #include "dm9051_lw_debug.h"
 
-const spi_dev_t *pDevObj[BOARD_SPI_COUNT]; //To be used, in case 'pin_code' can be eliminated mass-quantity.
-
-void DevObj_store(int pin) {
-	pDevObj[pin] = PTR_SPIDEV(pin); //'pin_code'
-}
-
-void cspi_configuration(void)
-{
-  /*int i;
-  for (i = 0; i < n; i++) { //get_eth_interfaces()
-	mstep_set_net_index(i);
-	//.printf("Config %s, %s, %s, %02x%02x%02x%02x%02x%02x\r\n",
-	//	mstep_conf_info(), mstep_conf_cpu_spi_ethernet(), mstep_conf_cpu_cs_ethernet(),
-	//		mac_addresse[mstep_get_net_index()][0],
-	//		mac_addresse[mstep_get_net_index()][1],
-	//		mac_addresse[mstep_get_net_index()][2],
-	//		mac_addresse[mstep_get_net_index()][3],
-	//		mac_addresse[mstep_get_net_index()][4],
-	//		mac_addresse[mstep_get_net_index()][5]);
-
-	interface_add(i);
-  }*/
-  
-  ETH_COUNT_VOIDFN(DevObj_store);
-  ETH_COUNT_VOIDFN(interface_add); //voidfn_dual
-  cpin_poweron_reset();
-  dmf.dly_ms(30);
-}
-
-// -
 /*********************************
  * dm9051 spi interface accessing
  *********************************/

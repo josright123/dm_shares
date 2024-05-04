@@ -62,6 +62,14 @@ typedef struct {
 	gpio_t wire_cs;
 } spi_dev_t;
 
+/*
+ * interrupt,
+ *  modscfg_st =
+ *    struct extint_init_st
+ *    struct extscfg_st *
+ *      struct extline_st
+ *    struct gp_set_st *
+ */
 typedef struct extint_init_st {
 	crm_periph_clock_type scfg_clk;
 #if !defined(AT32F437xx)
@@ -73,21 +81,29 @@ typedef struct extint_init_st {
 #endif
 } extint_init_t;
 
-typedef struct extline_st {
+//typedef 
+struct extline_st {
 	crm_periph_clock_type intr_crm_clk; //CRM_GPIOC_PERIPH_CLOCK,
 	uint32_t extline; //= LINE
 	IRQn_Type irqn; //= EXINTn_m
-} extline_t;
+}; //extline_t;
 
 struct extscfg_st { //struct linescfg_st
 	const char *irq_enable_inf;	
-	extline_t extline;
+	struct extline_st extline;
 };
 
 typedef struct gp_set_st {
 	const char *gp_info;	
 	const gpio_t gp;
 } gp_set_t;
+
+// line: intrconf.extend->extline.extline
+// void *intr_pack = &intrconf;
+//
+// exint_extline()	=  PTR_EXINTD(extend->extline.extline)
+// PTR_EXINTD(extend->extline.extline) =
+// 	(((struct modscfg_st *)intr_pack)->extend->extline.extline)
 
 struct modscfg_st {
 	const char *scfg_inf;	
@@ -96,6 +112,9 @@ struct modscfg_st {
 	struct gp_set_st *option; //gp_set_t
 };
 
+/*
+ * candidate
+ */
 typedef struct eth_node_st {
   uint8_t mac_addresse[MAC_ADDR_LENGTH];
   uint8_t local_ipaddr[ADDR_LENGTH];

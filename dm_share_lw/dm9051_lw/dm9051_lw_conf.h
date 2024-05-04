@@ -106,7 +106,10 @@ bmcrmode_t mstep_opts_bmcrmode(void);
 
 void mstep_set_net_index(int i);
 int mstep_get_net_index(void);
+
 void dm9051_irqlines_proc(void);
+void ethernetif_line7_proc(int i);
+
 #endif
 
 //void mstep_next_net_index(void);
