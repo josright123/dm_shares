@@ -19,6 +19,10 @@ gp_set_t gp = {
 	"GPIO pc7",
 	{GPIOC, GPIO_PINS_7,  CRM_GPIOC_PERIPH_CLOCK, GPIO_MODE_INPUT, 	GPIO_PINSRC_NULL, GPIO_MUX_NULL,}, //(PC7) INT-pin
 };
+gp_set_t gp_a0 = {
+	"GPIO pa0",
+	{GPIOA, GPIO_PINS_0,  CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_INPUT, 	GPIO_PINSRC_NULL, GPIO_MUX_NULL,}, //(PA0) INT-pin
+};
 
 //[CRM_SCFG_PERIPH_CLOCK] //essential
 struct extscfg_st pe = {
@@ -38,14 +42,14 @@ struct extscfg_st pe_a0 = {
 			{CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOA, SCFG_PINS_SOURCE0}, \
 		/*	{CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},*/ \
 			&pe_a0, /*essential*/ \
-			NULL
+			&gp_a0 /*NULL*/
 	#define devconf_intr_c7 \
 			"SCFG pc7", \
 			{CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7}, \
 		/*	{CRM_GPIOC_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},*/ \
 			&pe, /*essential*/ \
 			&gp
-		
+
 const struct modscfg_st devconf_at437_intr_a0 = {
 	devconf_intr_a0,
 };
