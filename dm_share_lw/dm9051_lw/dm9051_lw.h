@@ -260,6 +260,8 @@ uint16_t dm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk);
 //.void ldm9051_mac_adr(const uint8_t *macadd);
 #endif
 
+void DEBUG_refresh_isr_check(void);
+
 const uint8_t *dm9051_start1(const uint8_t *adr);
 uint16_t dm9051_phy_read(uint32_t reg);
 uint16_t dm9051_eeprom_read(uint16_t word);

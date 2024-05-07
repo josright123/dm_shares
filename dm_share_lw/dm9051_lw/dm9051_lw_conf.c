@@ -229,6 +229,7 @@ void dm9051_board_irq_enable(void)
 	const struct extscfg_st *pexint_set = (const struct extscfg_st *) exint_scfg_ptr();
 	if (pexint_set) {
 		exint_enable(pexint_set);
+		DEBUG_refresh_isr_check();
 	}
 }
 

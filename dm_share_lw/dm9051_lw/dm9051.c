@@ -519,6 +519,13 @@ int dm9051_rx_isr_check(int pin)
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
 
+void DEBUG_refresh_isr_check(void)
+{
+  int i;
+  for (i = 0; i< ETHERNET_COUNT; i++)
+	test_line7_ienter[i] = 0;
+}
+
 void dm9051_tx(uint8_t *buf, uint16_t len)
 {
 	LOCK_TCPIP_COREx();
