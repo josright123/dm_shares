@@ -17,7 +17,7 @@
  * dm9051_declaration_support
  */
 #define ETHERNET_COUNT_MAX						4 // Correspond to mcu target board's specification
-#define ETHERNET_COUNT								1 //2 //1 //4 //2 //2 //3 //2 //#define get_eth_interfaces() ETH_COUNT
+#define ETHERNET_COUNT								2 //2 //1 //4 //2 //2 //3 //2 //#define get_eth_interfaces() ETH_COUNT
 // #define _AT32F403Axx
 #define _AT32F437xx
 
@@ -221,7 +221,9 @@ u8 first_log_get(int i);
 	devconf[pin_code].field
 
 #define PTR_EXINTD(field) \
-	(((struct modscfg_st *)intr_pack)->field)
+	(((const struct modscfg_st **)intr_packPT)[pin_code]->field)
+//	(((struct modscfg_st *)intr_packPT)[pin_code].field)
+//	(((struct modscfg_st *)intr_packPT)[pin_code]->field)
 
 #define PTR_RSTGPIO(field) \
 	((option_rst_common)->field)
@@ -279,6 +281,8 @@ void ETH_COUNT_VOIDFN(voidpin_t f); //internal, voidfn_dual
 void ETH_COUNT_VOIDTX(voidtx_t pinfunc, uint8_t *buf, uint16_t len); //internal, voidtx_dual
 
 //------------------
+uint32_t DataObj_EXINT_extline(int pin);
+int DataObj_EXINT_Pin(uint32_t exint_line);
 void interface_all_add(int pin);
 
 #define TO_ADD_CODE_LATER_BACK	0

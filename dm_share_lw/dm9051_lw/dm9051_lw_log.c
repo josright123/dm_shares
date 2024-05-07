@@ -153,7 +153,7 @@ static void arp_tx(const uint8_t *buf, size_t len, int fullcheck)
 	//if (cb.tmp.flg_wait_uni_arp_finish == 0) {
 		if (!IsBroadcast(buf)) {
 			/* [unicast-] */
-			printf("  Below is arp_unicast_safty_tx [CASE3 ]\r\n");
+			printf("  Tx a arp_uni-cast [CASE3 ]\r\n");
 			//cb.arp_uni_out_tx.val++;
 			//if (cb.arp_uni_out_tx.enable) {
 				//cb.tmp.arp_we_trans_count++; //inc 1

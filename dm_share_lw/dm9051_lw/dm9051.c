@@ -376,6 +376,7 @@ void impl_dm9051_tx0(uint8_t *buf, uint16_t len)
 
 #define	PROJECT_NAME	"dm9051_driver_core"
 
+//void dm9051_spi_configuration(int n)
 void dm9051_boards_initialize(int n)
 {
   DM_UNUSED_ARG(n);
@@ -439,6 +440,83 @@ uint16_t dm9051_rx(uint8_t *buff)
 	len = impl_dm9051_rx1(buff);
 	ULOCK_TCPIP_COREx();
 	return len;
+}
+
+uint32_t sys_now(void);
+
+#define ICHK_FREQ_MS		725 //25 //250 //1500
+#define ICHK_FREQ_MS_MIN	125
+
+static uint32_t isr_local_time[ETHERNET_COUNT] = { 0 };
+static int test_line7_ienter[ETHERNET_COUNT] = { 0 };
+
+uint16_t dm9051_rx_isr(uint8_t *buff)
+{
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
+
+int xp = 0;
+
+	uint16_t len;
+	uint8_t isr;
+	int pin;
+	LOCK_TCPIP_COREx();
+	
+  pin = mstep_get_net_index();
+	
+  isr = cspi_read_reg(DM9051_ISR);
+  DM9051_Write_Reg(DM9051_ISR, isr);
+
+//if (isr & 1)
+	isr_local_time[pin] = sys_now() + ICHK_FREQ_MS;
+	
+if ((isr & 1) && (test_line7_ienter[pin] < 3))
+	xp = 1;
+
+if (xp)
+  printf("INFO[%d]: line7() enter %d ... isr %02x\r\n", pin, ++test_line7_ienter[pin], isr);
+
+	len = impl_dm9051_rx1(buff);
+
+if (xp) {
+
+//DM9051_Write_Reg(DM9051_ISR, isr); //Place, Latest!
+  isr = cspi_read_reg(DM9051_ISR);
+  printf("INFO[%d]: line7() exit %d ... isr %02x\r\n", pin, test_line7_ienter[pin], isr);
+}
+
+	ULOCK_TCPIP_COREx();
+	return len;
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
+}
+
+int dm9051_rx_isr_check(int pin)
+{
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
+	int check = 0;
+	uint8_t isr;
+	if (sys_now() > isr_local_time[pin]) {
+		LOCK_TCPIP_COREx();
+
+		isr = cspi_read_reg(DM9051_ISR);
+		if (isr & 1) {
+			printf("*INFO[%d]: dm9051_rx_isr_check() enter %d ... isr %02x\r\n", pin, ++test_line7_ienter[pin], isr);
+			DM9051_Write_Reg(DM9051_ISR, isr);
+			isr = cspi_read_reg(DM9051_ISR);
+			printf("*INFO[%d]: dm9051_rx_isr_check() exit %d ... isr %02x\r\n", pin, test_line7_ienter[pin], isr);
+			check = 1; // or rx_handler_direct(pin, FALSE/TRUE);
+			isr_local_time[pin] = sys_now() + ICHK_FREQ_MS;
+		}
+		else
+			isr_local_time[pin] = sys_now() + ICHK_FREQ_MS_MIN;
+
+		ULOCK_TCPIP_COREx();
+	}
+	return check;
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
 
 void dm9051_tx(uint8_t *buf, uint16_t len)

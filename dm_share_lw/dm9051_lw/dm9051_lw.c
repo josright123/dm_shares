@@ -809,7 +809,7 @@ const uint8_t *dm9051_start1(const uint8_t *adr)
 #endif
 //	display_mac_action(bare_mac_tbl[1], adr); //[1]= ": wr-bare device"
 
-	dm9051_board_irq_enable(NVIC_PRIORITY_GROUP_0); //_dm9051_board_irq_enable();
+	dm9051_board_irq_enable(); //_dm9051_board_irq_enable(NVIC_PRIORITY_GROUP_0);
 	dm9051_mac_adr(adr);
 	dm9051_rx_mode();
 	return adr;

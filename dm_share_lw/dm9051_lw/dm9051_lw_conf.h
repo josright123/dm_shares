@@ -102,20 +102,21 @@ uint8_t *mstep_eth_ip(void);
 uint8_t *mstep_eth_gw(void);
 uint8_t *mstep_eth_mask(void);
 
+//uint32_t extline_A(void);
+
 bmcrmode_t mstep_opts_bmcrmode(void);
 
 void mstep_set_net_index(int i);
 int mstep_get_net_index(void);
 
-void dm9051_irqlines_proc(void);
-void ethernetif_line7_proc(int i);
+//void dm9051_irqlines_proc(void);
 
 #endif
 
 //void mstep_next_net_index(void);
 char *mstep_conf_cpu_spi_ethernet(void);
 char *mstep_spi_conf_name(void);
-void dm9051_board_irq_enable(nvic_priority_group_type priority); //void _dm9051_board_irq_enable(void);
+void dm9051_board_irq_enable(void); //void _dm9051_board_irq_enable(void);
 
 #if 1 //lw_config
 #define DM9051_Poweron_Reset	cpin_poweron_reset

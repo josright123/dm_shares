@@ -7,35 +7,66 @@
 
 const gp_set_t *option_rst_common = NULL;
 
-struct extscfg_st pe = { //struct linescfg_st 
-	"enable SCFG, extline pc7",
-	{ CRM_GPIOC_PERIPH_CLOCK, EXINT_LINE_7, EXINT9_5_IRQn}, // correspond to and with PC7
-};
+//-
 
+#define SPI_PINSTD(spiname,spinum,crm_clk,iom)		{spiname,spinum,crm_clk, iom}
+#define GPIO_PINNORM(gpport,pin,crm_clk)			{gpport,pin,crm_clk, GPIO_MODE_MUX,		GPIO_PINSRC_NULL, GPIO_MUX_NULL}
+#define GPIO_PINMUX(gpport,pin,crm_clk,pinsrc,mux)	{gpport,pin,crm_clk, GPIO_MODE_MUX,		pinsrc,mux}
+#define GPIO_PINOUT(gpport,pin,crm_clk)				{gpport,pin,crm_clk, GPIO_MODE_OUTPUT,	GPIO_PINSRC_NULL, GPIO_MUX_NULL}
+
+//optional
 gp_set_t gp = {
-	"GPIO pc7", //"AT32 INT PAD, gpio pc7",
+	"GPIO pc7",
 	{GPIOC, GPIO_PINS_7,  CRM_GPIOC_PERIPH_CLOCK, GPIO_MODE_INPUT, 	GPIO_PINSRC_NULL, GPIO_MUX_NULL,}, //(PC7) INT-pin
 };
 
-const struct modscfg_st intrconf = {
-	"SCFG pc7", //"AT32 SCFG, exint pc7",
-	{CRM_GPIOC_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},
-	&pe, //essential
-	&gp,
+//[CRM_SCFG_PERIPH_CLOCK] //essential
+struct extscfg_st pe = {
+	"enable SCFG, extline pc7",
+	{ CRM_GPIOC_PERIPH_CLOCK, EXINT_LINE_7, EXINT9_5_IRQn, NVIC_PRIORITY_GROUP_0}, // correspond to and with PC7
 };
 
-//const void *intr_pack = NULL;
-const void *intr_pack = &intrconf;
+//[CRM_SCFG_PERIPH_CLOCK] //essential
+struct extscfg_st pe_a0 = {
+	"enable SCFG, extline pa0",
+	{ CRM_GPIOA_PERIPH_CLOCK, EXINT_LINE_0, EXINT0_IRQn, NVIC_PRIORITY_GROUP_4}, // correspond to and with PA0
+};
 
-#define SPI_PINSTD(spiname,spinum,crm_clk,iom)	{spiname,spinum,crm_clk, iom}
-#define GPIO_PINNORM(gpport,pin,crm_clk)			{gpport,pin,crm_clk, GPIO_MODE_MUX, GPIO_PINSRC_NULL, GPIO_MUX_NULL}
-#define GPIO_PINMUX(gpport,pin,crm_clk,pinsrc,mux)	{gpport,pin,crm_clk, GPIO_MODE_MUX, pinsrc,mux}
-#define GPIO_PINOUT(gpport,pin,crm_clk)		{gpport,pin,crm_clk, GPIO_MODE_OUTPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL}
+	//AT32F437xx
+	#define devconf_intr_a0 \
+			"SCFG pa0", \
+			{CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOA, SCFG_PINS_SOURCE0}, \
+		/*	{CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},*/ \
+			&pe_a0, /*essential*/ \
+			NULL
+	#define devconf_intr_c7 \
+			"SCFG pc7", \
+			{CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7}, \
+		/*	{CRM_GPIOC_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},*/ \
+			&pe, /*essential*/ \
+			&gp
+		
+const struct modscfg_st devconf_at437_intr_a0 = {
+	devconf_intr_a0,
+};
+const struct modscfg_st devconf_at437_intr_c7 = {
+	devconf_intr_c7,
+};
+
+//-
+
+const struct modscfg_st *intrconf_PT[BOARD_SPI_COUNT] = {
+	&devconf_at437_intr_a0,
+	&devconf_at437_intr_c7,
+};
+
+const void **intr_packPT = (const void **)intrconf_PT; //[All intr.] //= or all NULL;
+//const void *intr_pack = intrconf; //[All intr.] //= or all NULL;
 	
 const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 	#ifdef AT32F437xx
 		//AT32F437xx
-		#define devconf_at437_spi2(info, spi_setting_name, cs_setting_name) \
+		#define devconf_at437_spi2(info, spi_setting_name, cs_setting_name, intrcfg) \
 			{ \
 				info, \
 				SPI_PINSTD("SPI2", SPI2, CRM_SPI2_PERIPH_CLOCK, IO_MUX_NULL), \
@@ -45,8 +76,9 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				GPIO_PINMUX(GPIOD, GPIO_PINS_4, CRM_GPIOD_PERIPH_CLOCK, GPIO_PINS_SOURCE4, GPIO_MUX_6),	/* //MOSI */ \
 				cs_setting_name, \
 				GPIO_PINOUT(GPIOD, GPIO_PINS_0, CRM_GPIOD_PERIPH_CLOCK), /* //(PD0) */ \
+				intrcfg, \
 			}
-		#define devconf_at437_spi4(info, spi_setting_name, cs_setting_name) \
+		#define devconf_at437_spi4(info, spi_setting_name, cs_setting_name, intrcfg) \
 			{ \
 				info, \
 				SPI_PINSTD("SPI4", SPI4, CRM_SPI4_PERIPH_CLOCK, IO_MUX_NULL), \
@@ -56,8 +88,9 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				GPIO_PINMUX(GPIOE, GPIO_PINS_6, CRM_GPIOE_PERIPH_CLOCK, GPIO_PINS_SOURCE6, GPIO_MUX_5),	/* //MOSI */ \
 				cs_setting_name, \
 				GPIO_PINOUT(GPIOE, GPIO_PINS_4, CRM_GPIOE_PERIPH_CLOCK), /* //(PE4) */ \
+				intrcfg, \
 			}
-		#define devconf_at437_spi1(info, spi_setting_name, cs_setting_name) \
+		#define devconf_at437_spi1(info, spi_setting_name, cs_setting_name, intrcfg) \
 			{ \
 				info, \
 				SPI_PINSTD("SPI1", SPI1, CRM_SPI1_PERIPH_CLOCK, IO_MUX_NULL), \
@@ -67,19 +100,21 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				GPIO_PINMUX(GPIOA, GPIO_PINS_7, CRM_GPIOA_PERIPH_CLOCK, GPIO_PINS_SOURCE7, GPIO_MUX_5),	/* //MOSI */ \
 				cs_setting_name, \
 				GPIO_PINOUT(GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK), /* //(PA15) */ \
+				intrcfg, \
 			}
+		//AT32F437xx
 			
-		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
-		devconf_at437_spi4("AT32F437", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4"),
+		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", &devconf_at437_intr_a0),
+		devconf_at437_spi4("AT32F437", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4", &devconf_at437_intr_c7),
 		
-		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
-		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
-		devconf_at437_spi1("AT32F437", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15"),
-//		devconf_at437_spi2("AT32F437 ETHERNET SPI2", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
-//		devconf_at437_spi4("AT32F437 ETHERNET SPI4", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4"),
-//		devconf_at437_spi2("AT32F437 ETHERNET SPI2", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
-//		devconf_at437_spi2("AT32F437 ETHERNET SPI2", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
-//		devconf_at437_spi1("AT32F437 ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15"),
+		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", &devconf_at437_intr_a0),
+		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", &devconf_at437_intr_a0),
+		devconf_at437_spi1("AT32F437", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", NULL),
+//		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", TBD),
+//		devconf_at437_spi4("AT32F437", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4", TBD),
+//		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", TBD),
+//		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", TBD),
+//		devconf_at437_spi1("AT32F437", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", TBD),
 	#elif defined (AT32F413xx) || defined (AT32F415xx)
 		//(AT32F413/415)
 		#define GPIO_PININ(gpport,pin,crm_clk)		{gpport,pin,crm_clk, GPIO_MODE_INPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL}
@@ -140,6 +175,8 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				cs_setting_name, \
 				GPIO_PINOUT(gp_port,	gp_pin,			gp_crm_clk), /* //(PA4) */ \
 			}
+		//AT32F4xx
+		
 		devconf_at413_spi2("AT32F413 ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12"),
 		devconf_at413_spi1a("AT32F413 ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15",
 			GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK, IO_CRM_CLOCK),
@@ -172,6 +209,8 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				cs_setting_name, \
 				{gpport,	pin, 			gpio_crm_clk, 				GPIO_MODE_OUTPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL}, /* //(PA4) Test-ISP2 OK */ \
 			}
+		//AT32F4xx
+		
 		devconf_at403a_spi1("AT32F403A ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa4", GPIOA, GPIO_PINS_4, CRM_GPIOA_PERIPH_CLOCK),
 		devconf_at403a_spi2("AT32F403A ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12"),	
 		/*!< pa15 must jtag-dp disabled and sw-dp enabled */
@@ -180,6 +219,8 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 		#error "not defined board"
 	#endif
 };
+
+//-
 
 optsex_t dm9051optsex[BOARD_SPI_COUNT] = { //const 
 	#define dmopts_normal(iomode, iomode_name) \
@@ -434,10 +475,12 @@ IS_DECL_FUNCTION(enable_t, generic_core_rst)
 #define spi_conf_name()				FIELD_SPIDEV(spidef.spi_name) //spihead().spi_name
 #define spi_iomux()					FIELD_SPIDEV(spidef.iomux)
 
-#define exint_exister()				((struct modscfg_st *)intr_pack)
-#define exint_data()				((struct modscfg_st *)intr_pack)
-#define exint_scfg_ptr()			!exint_data() ? NULL : ((struct modscfg_st *)intr_pack)->extend
-#define intr_gpio_exister()			!exint_data() ? 0 : !(((struct modscfg_st *)intr_pack)->option) ? 0 : 1
+//#define exint_exister()			((struct modscfg_st *)intr_packPT)
+#define exint_data()				((const struct modscfg_st **)intr_packPT)
+#define exint_scfg_ptr()			!exint_data() ? NULL : ((const struct modscfg_st **)intr_packPT)[pin_code]->extend
+#define intr_gpio_exister()			!exint_data() ? 0 : !(((const struct modscfg_st **)intr_packPT)[pin_code]->option) ? 0 : 1
+//#define exint_scfg_ptr()			!exint_data() ? NULL : ((struct modscfg_st *)intr_packPT[pin_code])->extend
+//#define intr_gpio_exister()			!exint_data() ? 0 : !(((struct modscfg_st *)intr_packPT[pin_code])->option) ? 0 : 1
 #define scfg_info()					PTR_EXINTD(scfg_inf)
 #define scfg_crm()					PTR_EXINTD(scfg_init.scfg_clk)
 #define scfg_port()					PTR_EXINTD(scfg_init.scfg_port_src)
@@ -663,8 +706,15 @@ bmcrmode_t mstep_opts_bmcrmode(void) {
 
 //-
 
+//uint32_t extline_A(void) {
+//	return exint_extline();
+//}
+
+//-
+
 int is_dm9051_board_irq(void)
 {
+//	pexint_set = ((struct modscfg_st *)intr_packPT)[pin_code].extend; //exint_scfg_ptr();
 	const struct extscfg_st *pexint_set = (const struct extscfg_st *) exint_scfg_ptr();
 	return pexint_set ? 1 : 0;
 }

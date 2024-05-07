@@ -242,8 +242,12 @@ extern sys_mutex_t lock_dm9051_core;
 
 #if DM9051OPTS_API
 void dm9051_boards_initialize(int n);
+//void dm9051_spi_configuration(int n);
+
 const uint8_t *dm9051_init(const uint8_t *adr);
 uint16_t dm9051_rx(uint8_t *buff);
+uint16_t dm9051_rx_isr(uint8_t *buff);
+int dm9051_rx_isr_check(int pin);
 void dm9051_tx(uint8_t *buf, uint16_t len);
 
 #define DM9051_NUM_LINKUP_RST	9

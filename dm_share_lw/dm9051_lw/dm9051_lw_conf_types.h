@@ -28,20 +28,6 @@ typedef enum
 } gpio_mux_sel_type;
 #endif
 
-//typedef enum {
-//} iomux_t;
-#define  IO_MUX_NULL                    	((uint16_t)0x0000) /*!< subordinate  */
-#define  IO_MUX_PINREMAP                 	((uint16_t)0x0001) /*!< subordinate mode a (such as f413)*/
-#define  IO_MUX_GPIOMUX                 	((uint16_t)0x0002) /*!< subordinate mode b (such as f437) */
-#define  IO_CRM_CLOCK                 		((uint16_t)0x0100) /*!< subordinate mode c (such as f413 clock) */
-
-typedef struct spihead_sel_st {
-  char *spi_name;
-  spi_type *spi_num;        		//= SPIPORT;
-  crm_periph_clock_type spi_crm_clk;	//= SPI_CRM_CLK;
-  uint16_t iomux;
-} spihead_t;
-
 typedef struct gpio_sel_st {
 	gpio_type *gpport;        		//= PORT;
 	uint16_t pin;           		//= PIN;
@@ -50,17 +36,6 @@ typedef struct gpio_sel_st {
 	gpio_pins_source_type pinsrc;
 	gpio_mux_sel_type muxsel;
 } gpio_t;
-
-typedef struct {
-	char *info;
-	spihead_t spidef;
-	char *cpu_spi_info;	//cpu name is for the purpose to lead the pins, for easy recogition!
-	gpio_t wire_sck;
-	gpio_t wire_mi;
-	gpio_t wire_mo;
-	char *cpu_cs_info;
-	gpio_t wire_cs;
-} spi_dev_t;
 
 /*
  * interrupt,
@@ -81,22 +56,15 @@ typedef struct extint_init_st {
 #endif
 } extint_init_t;
 
-//typedef 
-struct extline_st {
-	crm_periph_clock_type intr_crm_clk; //CRM_GPIOC_PERIPH_CLOCK,
-	uint32_t extline; //= LINE
-	IRQn_Type irqn; //= EXINTn_m
-}; //extline_t;
-
 struct extscfg_st { //struct linescfg_st
 	const char *irq_enable_inf;	
-	struct extline_st extline;
+	struct extline_st {
+		crm_periph_clock_type intr_crm_clk; //CRM_GPIOC_PERIPH_CLOCK,
+		uint32_t extline; //= LINE
+		IRQn_Type irqn; //= EXINTn_m
+		nvic_priority_group_type priority; //_group;
+	} extline;
 };
-
-typedef struct gp_set_st {
-	const char *gp_info;	
-	const gpio_t gp;
-} gp_set_t;
 
 // line: intrconf.extend->extline.extline
 // void *intr_pack = &intrconf;
@@ -105,12 +73,43 @@ typedef struct gp_set_st {
 // PTR_EXINTD(extend->extline.extline) =
 // 	(((struct modscfg_st *)intr_pack)->extend->extline.extline)
 
+typedef struct gp_set_st {
+	const char *gp_info;	
+	const gpio_t gp;
+} gp_set_t;
+
 struct modscfg_st {
 	const char *scfg_inf;	
 	struct extint_init_st scfg_init; //extint_init_t
 	struct extscfg_st *extend; //struct linescfg_st *extend; //essential
 	struct gp_set_st *option; //gp_set_t
 };
+
+//typedef enum {
+//} iomux_t;
+#define  IO_MUX_NULL                    	((uint16_t)0x0000) /*!< subordinate  */
+#define  IO_MUX_PINREMAP                 	((uint16_t)0x0001) /*!< subordinate mode a (such as f413)*/
+#define  IO_MUX_GPIOMUX                 	((uint16_t)0x0002) /*!< subordinate mode b (such as f437) */
+#define  IO_CRM_CLOCK                 		((uint16_t)0x0100) /*!< subordinate mode c (such as f413 clock) */
+
+typedef struct spihead_sel_st {
+  char *spi_name;
+  spi_type *spi_num;        		//= SPIPORT;
+  crm_periph_clock_type spi_crm_clk;	//= SPI_CRM_CLK;
+  uint16_t iomux;
+} spihead_t;
+
+typedef struct {
+	char *info;
+	spihead_t spidef;
+	char *cpu_spi_info;	//cpu name is for the purpose to lead the pins, for easy recogition!
+	gpio_t wire_sck;
+	gpio_t wire_mi;
+	gpio_t wire_mo;
+	char *cpu_cs_info;
+	gpio_t wire_cs;
+	const struct modscfg_st *intr;
+} spi_dev_t;
 
 /*
  * candidate
