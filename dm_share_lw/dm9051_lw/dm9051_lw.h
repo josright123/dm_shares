@@ -258,6 +258,8 @@ void dm9051_read_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd);
 uint16_t dm9051_bmsr_update(void);
 uint16_t dm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk);
 //.void ldm9051_mac_adr(const uint8_t *macadd);
+
+#define ERR_HDLR_PRINT(errs, uval)	errs, uval
 #endif
 
 void DEBUG_refresh_isr_check(void);
