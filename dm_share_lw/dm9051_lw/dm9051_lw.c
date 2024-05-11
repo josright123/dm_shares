@@ -511,7 +511,7 @@ static void display_rw_mac(char *head, const uint8_t *adr)
 		uint16_t value = dm9051_eeprom_read(i);
 		printf("%04x ", value);
 	}
-	printf("wr-par[] %02x%02x%02x%02x%02x%02x\r\n", adr[0], adr[1], adr[2], adr[3], adr[4], adr[5]);
+	printf("chip-par[] %02x%02x%02x%02x%02x%02x\r\n", adr[0], adr[1], adr[2], adr[3], adr[4], adr[5]); //wr-par
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
@@ -556,12 +556,39 @@ static void display_rw_mac(char *head, const uint8_t *adr)
 
 #define	TIMES_TO_RST	10
 
-void rx_pointer_show(char *headstr)
+//void rx_pointer_show(char *headstr)
+//{
+//	u16 rwpa_w, mdra_ingress;
+//	impl_read_rx_pointers(&rwpa_w, &mdra_ingress);
+//	printf("%s[%d].e %s rwpa %04x / igrss %04x\r\n",
+//			headstr, mstep_get_net_index(), mstep_spi_conf_name(), rwpa_w, mdra_ingress);
+//}
+
+//void rx_isr_show(char *headstr)
+//{
+//	uint8_t isr;
+//	isr = DM9051_Read_Reg(DM9051_ISR);
+//	printf("%s[%d].e %s isr 0x%02x\r\n",
+//			headstr, mstep_get_net_index(), mstep_spi_conf_name(), isr);
+//}
+
+uint8_t rx_pointers_isr_show(char *headstr)
 {
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
+
 	u16 rwpa_w, mdra_ingress;
+	uint8_t isr;
 	impl_read_rx_pointers(&rwpa_w, &mdra_ingress);
-	printf("%s(pin = %d).e rwpa %04x / igrss %04x\r\n",
-			headstr, mstep_get_net_index(), rwpa_w, mdra_ingress);
+	isr = DM9051_Read_Reg(DM9051_ISR);
+	printf("%s[%d] %s rwpa %04x / igrss %04x\r\n",
+			headstr, mstep_get_net_index(), mstep_spi_conf_name(), rwpa_w, mdra_ingress);
+	printf("%s[%d] %s isr 0x%02x\r\n",
+			headstr, mstep_get_net_index(), mstep_spi_conf_name(), isr);
+	return isr;
+
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
 
 u8 ret_fire_time(u8 *histc, int csize, int i, u8 rxb)
@@ -595,7 +622,7 @@ const uint8_t *hdlr_reset_process(const uint8_t *macaddr, enable_t en)
 //		display_eeprom_action(bare_mac_tbl[0]);
 //		display_mac_action(bare_mac_tbl[1], macaddr); //[1]= ": wr-bare device"
 
-//		rx_pointer_show("dm9051_start");
+//		_rx_pointer_show("dm9051_start");
 	}
 	return macaddr;
 }
@@ -611,11 +638,11 @@ u16 ev_rxb(uint8_t rxb)
 		if (rxb == (i+2)) {
 			histc[i]++;
 			times = ret_fire_time(histc, sizeof(histc), i, rxb);
-			return impl_dm9051_err_hdlr(" : rxbErr %u times :: dm9051_core_reset()\r\n", times, 1); //As: Hdlr (times : TIMES_TO_RST or 0)
+			return impl_dm9051_err_hdlr("_dm9051f[%d] : rxbErr %u times :: dm9051_core_reset()\r\n", PINCOD, times, 1); //As: Hdlr (times : TIMES_TO_RST or 0)
 			                //: Read device[0] :::
 		}
 	}
-	return impl_dm9051_err_hdlr(" _dm9051f rxb error times (No way!) : %u\r\n", times, 0); //As: Hdlr (times : 1, zerochk : 0)
+	return impl_dm9051_err_hdlr(" _dm9051f[%d] rxb error times (No way!) : %u\r\n", PINCOD, times, 0); //As: Hdlr (times : 1, zerochk : 0)
 }
 
 //static
@@ -632,7 +659,7 @@ u16 ev_status(uint8_t rx_status)
 	if (rx_status & RSR_CE) printf(" crc-err");
 	if (rx_status & RSR_FOE) printf(" rx-memory-overflow-err");
 	bannerline_log();
-	return impl_dm9051_err_hdlr("_dm9051f rx_status error : 0x%02x\r\n", rx_status, 0);
+	return impl_dm9051_err_hdlr("_dm9051f[%d] rx_status error : 0x%02x\r\n", PINCOD, rx_status, 0);
 }
 
 /* if "expression" is true, then execute "handler" expression */
@@ -664,7 +691,7 @@ uint16_t dm9051_rx_dump(uint8_t *buff)
 	rx_len = ReceiveData[2] + (ReceiveData[3] << 8);
 
 	DM9051_RX_BREAK((rx_status & 0xbf), return ev_status(rx_status)); //_err_hdlr("_dm9051f rx_status error : 0x%02x\r\n", rx_status, 0)
-	DM9051_RX_BREAK((rx_len > RX_POOL_BUFSIZE), return impl_dm9051_err_hdlr("_dm9051f rx_len error : %u\r\n", rx_len, 0));
+	DM9051_RX_BREAK((rx_len > RX_POOL_BUFSIZE), return impl_dm9051_err_hdlr("_dm9051f[%d] rx_len error : %u\r\n", PINCOD, rx_len, 0));
 
 	DM9051_Read_Mem(buff, rx_len);
 	DM9051_Write_Reg(DM9051_ISR, 0x80);

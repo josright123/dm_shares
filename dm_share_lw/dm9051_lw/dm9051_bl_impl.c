@@ -103,16 +103,23 @@ uint16_t impl_phy_read(uint16_t uReg)
   handler;}} while(0)
 
 /*static*/
-u16 impl_dm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk)
+u16 impl_dm9051_err_hdlr(char *errstr, int pincode, u32 invalue, u8 zerochk)
 {
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
 	if (zerochk && invalue == 0)
 		return 0; //.printf(": NoError as %u\r\n", valuecode);
 
-	printf(errstr, invalue); //or "0x%02x"
+	printf(errstr, pincode, invalue); //or "0x%02x"
 
 	hdlr_reset_process(mstep_eth_mac(), OPT_CONFIRM(hdlr_confrecv)); //CH390 opts
+	
+#if 1
+//	rx_pointer_show("dm9051_err_hdlr");
+//	rx_isr_show("dm9051_err_hdlr");
+	rx_pointers_isr_show("dm9051_err_hdlr");
+#endif
+
 	return 0;
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
@@ -139,7 +146,7 @@ static uint16_t buff_rx(uint8_t *buff)
 	//instead of : err_hdlr("_dm9051f rx_status error : 0x%02x\r\n", rx_status, 0)
 	DM9051_RX_BREAK((rx_status & 0xbf), return ev_status(rx_status));
 	//instead of : err_hdlr("_dm9051f rx_len error : %u\r\n", rx_len, 0));
-	DM9051_RX_BREAK((rx_len > RX_POOL_BUFSIZE), return impl_dm9051_err_hdlr("_dm9051f rx_len error : %u\r\n", rx_len, 0));
+	DM9051_RX_BREAK((rx_len > RX_POOL_BUFSIZE), return impl_dm9051_err_hdlr("_dm9051f[%d] rx_len error : %u\r\n", PINCOD, rx_len, 0));
 
 	DM9051_Read_Mem(buff, rx_len);
 	DM9051_Write_Reg(DM9051_ISR, 0x80);

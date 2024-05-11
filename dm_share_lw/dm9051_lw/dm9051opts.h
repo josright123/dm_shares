@@ -206,7 +206,9 @@ void GpioDisplay(void);
 
 void ethcnt_ifdiplay(void);
 
-void rx_pointer_show(char *headstr);
+//void rx_pointer_show(char *headstr);
+//void rx_isr_show(char *headstr);
+uint8_t rx_pointers_isr_show(char *headstr);
 
 //void first_log_clear(int i);
 void first_log_init(void);

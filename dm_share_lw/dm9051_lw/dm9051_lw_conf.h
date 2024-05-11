@@ -106,6 +106,7 @@ uint8_t *mstep_eth_mask(void);
 
 bmcrmode_t mstep_opts_bmcrmode(void);
 
+#define PINCOD mstep_get_net_index()
 void mstep_set_net_index(int i);
 int mstep_get_net_index(void);
 

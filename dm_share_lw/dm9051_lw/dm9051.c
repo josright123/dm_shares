@@ -292,7 +292,7 @@ uint16_t impl_dm9051_rx0(uint8_t *buff)
 	#endif
 
 	DM9051_RX_BREAK((rx_status & 0xbf), return ev_status(rx_status)); //_err_hdlr("_dm9051f rx_status error : 0x%02x\r\n", rx_status, 0)
-	DM9051_RX_BREAK((rx_len > RX_POOL_BUFSIZE), return impl_dm9051_err_hdlr("_dm9051f rx_len error : %u\r\n", rx_len, 0));
+	DM9051_RX_BREAK((rx_len > RX_POOL_BUFSIZE), return impl_dm9051_err_hdlr("_dm9051f[%d] rx_len error : %u\r\n", PINCOD, rx_len, 0));
 
 	DM9051_Read_Mem(buff, rx_len);
 	DM9051_Write_Reg(DM9051_ISR, 0x80);
@@ -419,7 +419,9 @@ const uint8_t *dm9051_init(const uint8_t *adr)
 		display_identity(mstep_spi_conf_name(), 0, NULL, 0, id, ".(Rst.process)"); //printf(".(Rst.process[%d])\r\n", mstep_get_net_index());
 #endif
 		mac = hdlr_reset_process(identify_eth_mac(adr, 0), DM_TRUE);
-		rx_pointer_show("dm9051_start");
+//		rx_pointer_show("dm9051_start");
+//		rx_isr_show("dm9051_err_hdlr");
+		rx_pointers_isr_show("dm9051_start");
 	} else {
 #if 1 //need so 'display'
 		display_identity(mstep_spi_conf_name(), 0, NULL, 0, id, ""); //printf(".(Rst.process[%d])\r\n", mstep_get_net_index());
@@ -443,52 +445,52 @@ uint16_t dm9051_rx(uint8_t *buff)
 }
 
 uint32_t sys_now(void);
-
 #define ICHK_FREQ_MS		725 //25 //250 //1500
 #define ICHK_FREQ_MS_MIN	125
 
-static uint32_t isr_local_time[ETHERNET_COUNT] = { 0 };
 static int test_line7_ienter[ETHERNET_COUNT] = { 0 };
 
-uint16_t dm9051_rx_isr(uint8_t *buff)
-{
-#undef printf
-#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
+//uint16_t dm9051_rx_isr(uint8_t *buff)
+//{
+//#undef printf
+//#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
 
-	int xp = 0;
-	int pin;
+//	int xp = 0;
+//	int pin;
 
-	uint8_t isr;
-	uint16_t len;
-	
-	LOCK_TCPIP_COREx();
-	
-	pin = mstep_get_net_index();
-	
-  isr = cspi_read_reg(DM9051_ISR);
-  DM9051_Write_Reg(DM9051_ISR, isr);
+//	uint8_t isr;
+//	uint16_t len;
+//	
+//	LOCK_TCPIP_COREx();
+//	
+//	pin = mstep_get_net_index();
+//	
+//  isr = cspi_read_reg(DM9051_ISR);
+//  DM9051_Write_Reg(DM9051_ISR, isr);
 
-	//if (isr & 1)
-	isr_local_time[pin] = sys_now() + ICHK_FREQ_MS;
-	
-	if ((isr & 1) && (test_line7_ienter[pin] < 3))
-		xp = 1;
+//	//if (isr & 1)
+//	isr_local_time[pin] = sys_now() + ICHK_FREQ_MS;
+//	
+//	if ((isr & 1) && (test_line7_ienter[pin] < 3))
+//		xp = 1;
 
-	if (xp)
-	  printf("INFO[%d]: line7() enter %d ... isr %02x\r\n", pin, ++test_line7_ienter[pin], isr);
+//	if (xp)
+//	  printf("INFO[%d]: line7() enter %d ... isr %02x\r\n", pin, ++test_line7_ienter[pin], isr);
 
-	len = impl_dm9051_rx1(buff);
+//	len = impl_dm9051_rx1(buff);
 
-	if (xp) {
-	  isr = cspi_read_reg(DM9051_ISR);
-	  printf("INFO[%d]: line7() exit %d ... isr %02x\r\n", pin, test_line7_ienter[pin], isr);
-	}
+//	if (xp) {
+//	  isr = cspi_read_reg(DM9051_ISR);
+//	  printf("INFO[%d]: line7() exit %d ... isr %02x\r\n", pin, test_line7_ienter[pin], isr);
+//	}
 
-	ULOCK_TCPIP_COREx();
-	return len;
-#undef printf
-#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
-}
+//	ULOCK_TCPIP_COREx();
+//	return len;
+//#undef printf
+//#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
+//}
+
+static uint32_t isr_local_time[ETHERNET_COUNT] = { 0 };
 
 int dm9051_rx_isr_check(int pin)
 {
@@ -499,12 +501,12 @@ int dm9051_rx_isr_check(int pin)
 	if (sys_now() > isr_local_time[pin]) {
 		LOCK_TCPIP_COREx();
 
-		isr = cspi_read_reg(DM9051_ISR);
+		isr = DM9051_Read_Reg(DM9051_ISR);
 		if (isr & 1) {
-			printf("*INFO[%d]: dm9051_rx_isr_check() enter %d ... isr %02x\r\n", pin, ++test_line7_ienter[pin], isr);
+			printf("*INFO[%d]: dm9051_rx_isr_check(%d) enter ... isr %02x\r\n", pin, ++test_line7_ienter[pin], isr);  //"%d" 
 			DM9051_Write_Reg(DM9051_ISR, isr);
-			isr = cspi_read_reg(DM9051_ISR);
-			printf("*INFO[%d]: dm9051_rx_isr_check() exit %d ... isr %02x\r\n", pin, test_line7_ienter[pin], isr);
+			isr = DM9051_Read_Reg(DM9051_ISR);
+			printf("*INFO[%d]: dm9051_rx_isr_check(%d) exit ... isr %02x\r\n", pin, test_line7_ienter[pin], isr);
 			check = 1; // or rx_handler_direct(pin, FALSE/TRUE);
 			isr_local_time[pin] = sys_now() + ICHK_FREQ_MS;
 		}
@@ -518,12 +520,12 @@ int dm9051_rx_isr_check(int pin)
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
 
-void DEBUG_refresh_isr_check(void)
-{
-  int i;
-  for (i = 0; i< ETHERNET_COUNT; i++)
-	test_line7_ienter[i] = 0;
-}
+//void DEBUG_refresh_isr_check(void)
+//{
+//  int i;
+//  for (i = 0; i< ETHERNET_COUNT; i++)
+//	test_line7_ienter[i] = 0;
+//}
 
 void dm9051_rx_isr_clean(void)
 {
@@ -591,7 +593,7 @@ uint16_t dm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk)
 {
 	u16 ret;
 	LOCK_TCPIP_COREx();
-	ret = impl_dm9051_err_hdlr(errstr, invalue, zerochk);
+	ret = impl_dm9051_err_hdlr(errstr, PINCOD, invalue, zerochk);
 	ULOCK_TCPIP_COREx();
 	return ret;
 }

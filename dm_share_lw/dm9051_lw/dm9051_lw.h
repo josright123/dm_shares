@@ -228,7 +228,6 @@ void dm9051_poweron_rst(void);
 //void dm9051_mac_adr(const uint8_t *macadd);
 //.uint16_t .dm9051_bmsr_update(void);
 //uint16_t impl_read_chip_id(void);
-//u16 impl_dm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk);
 
 #if freeRTOS
 /** The global semaphore to lock the stack. */
@@ -260,7 +259,7 @@ uint16_t dm9051_bmsr_update(void);
 uint16_t dm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk);
 //.void ldm9051_mac_adr(const uint8_t *macadd);
 
-#define ERR_HDLR_PRINT(errs, uval)	errs, uval
+#define ERR_HDLR_PRINT(errs, pincod_param, uval)	errs, uval
 #endif
 
 void DEBUG_refresh_isr_check(void);
@@ -298,7 +297,7 @@ void display_chipmac(void);
 uint16_t impl_dm9051_rx1(uint8_t *buff);
 void impl_dm9051_tx1(uint8_t *buf, uint16_t len);
 
-u16 impl_dm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk);
+u16 impl_dm9051_err_hdlr(char *errstr, int pincode, u32 invalue, u8 zerochk);
 uint16_t impl_read_chip_id(void);
 void impl_read_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd);
 uint16_t impl_phy_read(uint16_t uReg);

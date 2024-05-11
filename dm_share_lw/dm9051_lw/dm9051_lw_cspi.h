@@ -26,8 +26,23 @@
 #ifndef __DM9051_CSPI_H
 #define __DM9051_CSPI_H
 
+#include "dm9051_lw_conf_types.h"
 #define spi_number()				FIELD_SPIDEV(spidef.spi_num) //spihead().spi_num //= spi_no()
+#define spi_crm()					FIELD_SPIDEV(spidef.spi_crm_clk) //spihead().spi_crm_clk
+#define gpio_wire_sck()				FIELD_SPIDEV(wire_sck)
+#define gpio_wire_mi()				FIELD_SPIDEV(wire_mi)
+#define gpio_wire_mo()				FIELD_SPIDEV(wire_mo)
 #define gpio_cs()					FIELD_SPIDEV(wire_cs)
 
+#define spi_iomux()					FIELD_SPIDEV(spidef.iomux)
+
+void gpio_pin_config(const gpio_t *gpio, gpio_pull_type gppull);
+void spi_add(void);
+
+/* used in struct data declaration */
+#define SPI_PINSTD(spiname,spinum,crm_clk,iom)		{spiname,spinum,crm_clk, iom}
+#define GPIO_PINNORM(gpport,pin,crm_clk)			{gpport,pin,crm_clk, GPIO_MODE_MUX,		GPIO_PINSRC_NULL, GPIO_MUX_NULL}
+#define GPIO_PINMUX(gpport,pin,crm_clk,pinsrc,mux)	{gpport,pin,crm_clk, GPIO_MODE_MUX,		pinsrc,mux}
+#define GPIO_PINOUT(gpport,pin,crm_clk)				{gpport,pin,crm_clk, GPIO_MODE_OUTPUT,	GPIO_PINSRC_NULL, GPIO_MUX_NULL}
 
 #endif //__DM9051_CSPI_H

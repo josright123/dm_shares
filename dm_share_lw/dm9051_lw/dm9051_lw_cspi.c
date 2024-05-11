@@ -27,9 +27,113 @@
   */
 #include "dm9051opts.h"
 #include "dm9051_lw.h"
-#include "dm9051_lw_conf_types.h"
+//#include "dm9051_lw_conf_types.h"
 #include "dm9051_lw_cspi.h"
-#include "dm9051_lw_debug.h"
+#include "dm9051_lw_cspi_data.h"
+
+//[spi configuration]
+/**
+  * @brief  spi configuration.
+  * @param  spi_inf_t* =
+  *         struct {
+  *         	spi_type *num;        			//= SPIPORT;
+  *         	crm_periph_clock_type spi_crm_clk;	//= SPI_CRM_CLK;
+  *         } spi_inf_t;
+  * @retval None
+  */
+static void spi_config(void)
+{
+  spi_init_type spi_init_struct;
+  crm_periph_clock_enable(spi_crm(), TRUE); //crm_spi_clk(_pinCode), CRM_SPI3_PERIPH_CLOCK/CRM_SPI2_PERIPH_CLOCK
+
+  spi_default_para_init(&spi_init_struct);
+  spi_init_struct.transmission_mode = SPI_TRANSMIT_FULL_DUPLEX;
+  spi_init_struct.master_slave_mode = SPI_MODE_MASTER;
+  spi_init_struct.mclk_freq_division = SPI_MCLK_DIV_8;
+  //spi_init_struct.first_bit_transmission = SPI_FIRST_BIT_LSB;
+  spi_init_struct.first_bit_transmission = SPI_FIRST_BIT_MSB;
+  spi_init_struct.frame_bit_num = SPI_FRAME_8BIT;
+  spi_init_struct.clock_polarity = SPI_CLOCK_POLARITY_LOW;
+  //spi_init_struct.clock_phase = SPI_CLOCK_PHASE_2EDGE;
+  spi_init_struct.clock_phase = SPI_CLOCK_PHASE_1EDGE;
+  spi_init_struct.cs_mode_selection = SPI_CS_SOFTWARE_MODE;
+  spi_init(spi_number(), &spi_init_struct); //SPI2, _spi_num(_pinCode)
+  spi_enable(spi_number(), TRUE); //SPI2, _spi_num(_pinCode)
+}
+
+//[Add GPIO]
+/*********************************
+  * @brief  gpio pin configuration
+  * @brief  spi configuration
+  * @brief  exint configuration
+ *********************************/
+//static 
+void gpio_pin_config(const gpio_t *gpio, gpio_pull_type gppull) //, gpio_mode_type gpmode
+{
+  gpio_init_type gpio_init_struct;
+  crm_periph_clock_enable(gpio->gpio_crm_clk, TRUE); /* enable the gpioa clock */
+
+  gpio_default_para_init(&gpio_init_struct);
+  gpio_init_struct.gpio_out_type  		= GPIO_OUTPUT_PUSH_PULL;
+  gpio_init_struct.gpio_drive_strength	= GPIO_DRIVE_STRENGTH_STRONGER;
+  gpio_init_struct.gpio_mode			= gpio->gpio_mode; //gpmode; //GPIO_MODE_INPUT;
+
+  gpio_init_struct.gpio_pull			= gppull; //exint_cfg.gpio_pull; //GPIO_PULL_DOWN; GPIO_PULL_UP; //GPIO_PULL_NONE;
+  gpio_init_struct.gpio_pins			= gpio->pin;
+  gpio_init(gpio->gpport, &gpio_init_struct);
+
+ #ifdef AT32F437xx
+  if ((gpio->gpio_mode == GPIO_MODE_MUX) && (gpio->muxsel != GPIO_MUX_NULL))
+	gpio_pin_mux_config(gpio->gpport, gpio->pinsrc, gpio->muxsel);
+  #if 0
+  else {
+    // only for intr-gpio
+	/*if (intr_gpio_exister())*/
+		// only for intr-gpio
+		printf("f437 : %s, no gpio_pin_mux_config()\r\n", intr_gpio_info());
+  }
+  #endif
+ #endif
+}
+
+/**
+  * @brief  gpio configuration.
+  * @brief  spi configuration.
+  * @brief  exint configuration.
+  */
+//static
+void spi_add(void) //=== pins_config(); //total_eth_count++;
+{
+//.#ifndef AT32F437xx
+  //Setting of Non-f437
+  if (spi_number() == SPI1) {
+	  if  (spi_iomux() & IO_CRM_CLOCK) {
+
+		#ifndef AT32F437xx //.
+	    crm_periph_clock_enable(CRM_IOMUX_PERIPH_CLOCK, TRUE); //Non-f437,iomux-config
+	    gpio_pin_remap_config(SWJTAG_GMUX_010, TRUE); //Non-f437,iomux-config
+		#endif //.
+	  }
+	  if  (spi_iomux() & IO_MUX_PINREMAP) {
+
+		#ifndef AT32F437xx //.
+		  gpio_pin_remap_config(SPI1_MUX_01, TRUE); //Non-f437,remap
+		#endif //.
+	  }
+  }
+//.#endif
+  bannerline_log();
+  printf("gpio_pin_config: SCK-gpio\r\n");
+  gpio_pin_config(&gpio_wire_sck(), GPIO_PULL_NONE); //,GPIO_MODE_MUX
+  printf("gpio_pin_config: MI-gpio\r\n");
+  gpio_pin_config(&gpio_wire_mi(), GPIO_PULL_NONE); //,GPIO_MODE_MUX
+  printf("gpio_pin_config: MO-gpio\r\n");
+  gpio_pin_config(&gpio_wire_mo(), GPIO_PULL_NONE); //,GPIO_MODE_MUX //GPIO_PULL_UP; //test ffff
+
+  spi_config(); //(spi_port_ptr(_pinCode));
+  printf("gpio_pin_config: CS-gpio\r\n");
+  gpio_pin_config(&gpio_cs(), GPIO_PULL_NONE); //,GPIO_MODE_OUTPUT
+}
 
 /*********************************
  * dm9051 spi interface accessing
