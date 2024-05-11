@@ -223,7 +223,8 @@ u8 first_log_get(int i);
 	devconf[pin_code].field
 
 #define PTR_EXINTD(field) \
-	(((const struct modscfg_st **)intr_packPT)[pin_code]->field)
+	FIELD_SPIDEV(intr)->field
+//	(((const struct modscfg_st **)intr_packPT)[pin_code]->field)
 //	(((struct modscfg_st *)intr_packPT)[pin_code].field)
 //	(((struct modscfg_st *)intr_packPT)[pin_code]->field)
 

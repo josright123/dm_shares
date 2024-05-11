@@ -54,13 +54,11 @@ const struct modscfg_st devconf_at437_intr_c7 = {
 
 //-
 
-const struct modscfg_st *intrconf_PT[BOARD_SPI_COUNT] = {
-	&devconf_at437_intr_a0,
-	&devconf_at437_intr_c7,
-};
-
-const void **intr_packPT = (const void **)intrconf_PT; //[All intr.] //= or all NULL;
-//const void *intr_pack = intrconf; //[All intr.] //= or all NULL;
+//const struct modscfg_st *intrconf_PT[BOARD_SPI_COUNT] = {
+//	&devconf_at437_intr_a0,
+//	&devconf_at437_intr_c7,
+//};
+//const void **intr_packPT = (const void **)intrconf_PT; //const void *intr_pack = intrconf; //[All interr.] //= or all NULL;
 
 //-
 
@@ -313,11 +311,16 @@ IS_DECL_FUNCTION(enable_t, generic_core_rst)
 #define spi_conf_name()				FIELD_SPIDEV(spidef.spi_name) //spihead().spi_name
 
 //#define exint_exister()			((struct modscfg_st *)intr_packPT)
-#define exint_data()				((const struct modscfg_st **)intr_packPT)
-#define exint_scfg_ptr()			!exint_data() ? NULL : ((const struct modscfg_st **)intr_packPT)[pin_code]->extend
-#define intr_gpio_exister()			!exint_data() ? 0 : !(((const struct modscfg_st **)intr_packPT)[pin_code]->option) ? 0 : 1
 //#define exint_scfg_ptr()			!exint_data() ? NULL : ((struct modscfg_st *)intr_packPT[pin_code])->extend
 //#define intr_gpio_exister()			!exint_data() ? 0 : !(((struct modscfg_st *)intr_packPT[pin_code])->option) ? 0 : 1
+
+#define exint_data()				(1)
+#define exint_scfg_ptr()			FIELD_SPIDEV(intr)->extend
+#define intr_gpio_exister()			!(FIELD_SPIDEV(intr)->option) ? 0 : 1
+//#define exint_data()				((const struct modscfg_st **)intr_packPT)
+//#define exint_scfg_ptr()			!exint_data() ? NULL : ((const struct modscfg_st **)intr_packPT)[pin_code]->extend
+//#define intr_gpio_exister()			!exint_data() ? 0 : !(((const struct modscfg_st **)intr_packPT)[pin_code]->option) ? 0 : 1
+
 #define scfg_info()					PTR_EXINTD(scfg_inf)
 #define scfg_crm()					PTR_EXINTD(scfg_init.scfg_clk)
 #define scfg_port()					PTR_EXINTD(scfg_init.scfg_port_src)
@@ -566,7 +569,7 @@ static int rst_pin_exister(void) {
 
 static int intr_gpio_mptr(void) {
 	if (intr_gpio_exist()) {
-//		printf(": %s :                 intr-pin/ %s\r\n", "config", intr_gpio_info()); //_intr_gpio_exist()->gp_info
+//		printf(": %s :                 interr-pin/ %s\r\n", "config", intr_gpio_info()); //_intr_gpio_exist()->gp_info
 		return 1;
 	}
 	return 0;

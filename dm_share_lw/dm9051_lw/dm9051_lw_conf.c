@@ -148,7 +148,7 @@ void exint_mconfig(exint_polarity_config_type polarity)
 //static void config_exint(gpio_pull_type gppull, exint_polarity_config_type polarity)
 //{
 //  if (intr_gpio_mptr()) {
-//	  printf("................................ dm9051 gpio_pin_config(for intr)\r\n");
+//	  printf("................................ dm9051 gpio_pin_config(for interr)\r\n");
 //	  printf("gpio_pin_config: INTR-gpio\r\n");
 //	  gpio_pin_config(intr_gpio_ptr(), gppull);
 //  }
@@ -169,7 +169,7 @@ void intr_add(void)
   };
  
   if (intr_gpio_mptr()) {
-	  printf("................................ dm9051 gpio_pin_config(for intr)\r\n");
+	  printf("................................ dm9051 gpio_pin_config(for interr)\r\n");
 	  printf("gpio_pin_config: INTR-gpio\r\n");
 	  gpio_pin_config(intr_gpio_ptr(), confi.gppull);
   }
@@ -182,8 +182,8 @@ static void exint_enable(const struct extscfg_st *pexint_set) {
 	
 //	printf(": %s :                 exint-enable/ %s\r\n", "config", exint_enable_info()); //pexint_set
 	bannerline_log();
-	printf("irq_priority[%d]: priority = 0x%x !\r\n", mstep_get_index(), pexint_set->extline.priority); //or "NVIC_PRIORITY_GROUP_0"
-	printf("irq_enable[%d]: %s\r\n", mstep_get_index(), exint_enable_info()); //pexint_set
+	printf("irq_priority[%d]: priority = 0x%x !\r\n", pincod, pexint_set->extline.priority); //or "NVIC_PRIORITY_GROUP_0"
+	printf("irq_enable[%d]: %s\r\n", pincod, exint_enable_info()); //pexint_set
 	bannerline_log();
 
 //NVIC_PRIORITY_GROUP_0/NVIC_PRIORITY_GROUP_4, //nvic_priority_group_type priority
@@ -299,8 +299,9 @@ conf_list_t DataObj;
 //};
 void DataObj_store(int pin) {
 	DataObj.devconf[pin] = &devconf[pin]; //PTR_SPIDEV(pin); //'pin_code'
-	if (intr_packPT)
-	  DataObj.intrconf[pin] = ((const struct modscfg_st **)intr_packPT)[pin]; //Can it in case NULL ok ?
+//	if (_intr_packPT)
+	DataObj.intrconf[pin] =  //instead of, ((const struct modscfg_st **)_intr_packPT)[pin];
+								intr_pointer(); //Can it in case NULL ok ?
 //	  DataObj.intrconf[pin] = &((struct modscfg_st *)intr_packPT)[pin];
 }
 

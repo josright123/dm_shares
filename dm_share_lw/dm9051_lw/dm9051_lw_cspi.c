@@ -87,9 +87,9 @@ void gpio_pin_config(const gpio_t *gpio, gpio_pull_type gppull) //, gpio_mode_ty
 	gpio_pin_mux_config(gpio->gpport, gpio->pinsrc, gpio->muxsel);
   #if 0
   else {
-    // only for intr-gpio
+    // only for interr-gpio
 	/*if (intr_gpio_exister())*/
-		// only for intr-gpio
+		// only for interr-gpio
 		printf("f437 : %s, no gpio_pin_mux_config()\r\n", intr_gpio_info());
   }
   #endif
