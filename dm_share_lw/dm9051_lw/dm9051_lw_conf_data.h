@@ -14,6 +14,7 @@ const gp_set_t *option_rst_common = NULL;
 #define GPIO_PINMUX(gpport,pin,crm_clk,pinsrc,mux)	{gpport,pin,crm_clk, GPIO_MODE_MUX,		pinsrc,mux}
 #define GPIO_PINOUT(gpport,pin,crm_clk)				{gpport,pin,crm_clk, GPIO_MODE_OUTPUT,	GPIO_PINSRC_NULL, GPIO_MUX_NULL}
 
+#ifdef AT32F437xx
 //optional
 gp_set_t gp = {
 	"GPIO pc7",
@@ -50,6 +51,7 @@ struct extscfg_st pe_a0 = {
 			&pe, /*essential*/ \
 			&gp
 
+
 const struct modscfg_st devconf_at437_intr_a0 = {
 	devconf_intr_a0,
 };
@@ -64,9 +66,67 @@ const struct modscfg_st *intrconf_PT[BOARD_SPI_COUNT] = {
 	&devconf_at437_intr_c7,
 };
 
-const void **intr_packPT = (const void **)intrconf_PT; //[All intr.] //= or all NULL;
+#elif defined (AT32F403Axx) || defined (AT32F403xx) || defined (AT32F407xx)
+// //optional
+// gp_set_t gp = {
+// 	"GPIO pc7",
+// 	{GPIOC, GPIO_PINS_7,  CRM_GPIOC_PERIPH_CLOCK, GPIO_MODE_INPUT, 	GPIO_PINSRC_NULL, GPIO_MUX_NULL,}, //(PC7) INT-pin
+// };
+// gp_set_t gp_a0 = {
+// 	"GPIO pa0",
+// 	{GPIOA, GPIO_PINS_0,  CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_INPUT, 	GPIO_PINSRC_NULL, GPIO_MUX_NULL,}, //(PA0) INT-pin
+// };
+
+//[CRM_SCFG_PERIPH_CLOCK] //essential
+struct extscfg_st pe_c7 = {
+	"enable SCFG, extline pc7",
+	{ CRM_GPIOC_PERIPH_CLOCK, EXINT_LINE_7, EXINT9_5_IRQn, NVIC_PRIORITY_GROUP_0}, // correspond to and with PC7
+};
+
+//[CRM_SCFG_PERIPH_CLOCK] //essential
+struct extscfg_st pe_c6 = {
+	"enable SCFG, extline pc6",
+	{ CRM_GPIOC_PERIPH_CLOCK, EXINT_LINE_6, EXINT9_5_IRQn, NVIC_PRIORITY_GROUP_0}, // or NVIC_PRIORITY_GROUP_4, correspond to and with PC7
+};
+
+	//AT32F403xxx
+	#define devconf_intr_c6 \
+		"GPIO pc6", \
+		{CRM_IOMUX_PERIPH_CLOCK, GPIO_PORT_SOURCE_GPIOC, GPIO_PINS_SOURCE6}, \
+		/*	{CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},*/ \
+			&pe_c6, /*essential*/ \
+			NULL	// NULL for 403a, &gp for 437.
+
+	#define devconf_intr_c7 \
+			"GPIO pc7", \
+					{CRM_IOMUX_PERIPH_CLOCK, GPIO_PORT_SOURCE_GPIOC, GPIO_PINS_SOURCE7}, \
+		/*	{CRM_GPIOC_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},*/ \
+			&pe_c7, /*essential*/ \
+			NULL	// &gp  // for 437.
+
+
+const struct modscfg_st devconf_at403a_intr_c6 = {
+	devconf_intr_c6,
+};
+const struct modscfg_st devconf_at403a_intr_c7 = {
+	devconf_intr_c7,
+};
+
+//-
+
+const struct modscfg_st *intrconf_PT[BOARD_SPI_COUNT] = {
+	&devconf_at403a_intr_c7,		// For SPI1
+	&devconf_at403a_intr_c6,		// For SPI2
+};
+
+#else
+	#error "not defined intrconf_PT"
+#endif
+
+
+const void **intr_packPT = (const void **)intrconf_PT; 		//[All intr.] //= or all NULL;
 //const void *intr_pack = intrconf; //[All intr.] //= or all NULL;
-	
+
 const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 	#ifdef AT32F437xx
 		//AT32F437xx
@@ -107,10 +167,10 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				intrcfg, \
 			}
 		//AT32F437xx
-			
+
 		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", &devconf_at437_intr_a0),
 		devconf_at437_spi4("AT32F437", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4", &devconf_at437_intr_c7),
-		
+
 		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", &devconf_at437_intr_a0),
 		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", &devconf_at437_intr_a0),
 		devconf_at437_spi1("AT32F437", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", NULL),
@@ -180,7 +240,7 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				GPIO_PINOUT(gp_port,	gp_pin,			gp_crm_clk), /* //(PA4) */ \
 			}
 		//AT32F4xx
-		
+
 		devconf_at413_spi2("AT32F413 ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12"),
 		devconf_at413_spi1a("AT32F413 ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15",
 			GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK, IO_CRM_CLOCK),
@@ -190,7 +250,7 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 		devconf_at413_spi1a("AT32F413 ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa4",
 			GPIOA, GPIO_PINS_4, CRM_GPIOA_PERIPH_CLOCK, IO_MUX_NULL),
 	#elif defined (AT32F403Axx) || defined (AT32F403xx) || defined (AT32F407xx)
-		#define devconf_at403a_spi2(info, spi_setting_name, cs_setting_name) \
+		#define devconf_at403a_spi2(info, spi_setting_name, cs_setting_name, intrcfg) \
 			{ \
 				info, \
 				{"SPI2", SPI2, CRM_SPI2_PERIPH_CLOCK}, \
@@ -201,8 +261,9 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				cs_setting_name, \
 				{GPIOB, GPIO_PINS_12, CRM_GPIOB_PERIPH_CLOCK, GPIO_MODE_OUTPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL}, /* //(PB12) Test-ISP2 OK */ \
 				/*{GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK, 				GPIO_MODE_OUTPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL},*/ /* //(PA15) Test-ISP2 OK */ \
+				intrcfg, \
 			}
-		#define devconf_at403a_spi1(info, spi_setting_name, cs_setting_name, gpport, pin, gpio_crm_clk) \
+		#define devconf_at403a_spi1(info, spi_setting_name, cs_setting_name, gpport, pin, gpio_crm_clk, intrcfg) \
 			{ \
 				info, \
 				{"SPI1",	SPI1,			CRM_SPI1_PERIPH_CLOCK}, \
@@ -212,11 +273,12 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				{GPIOA,		GPIO_PINS_7, 	CRM_GPIOA_PERIPH_CLOCK, 	GPIO_MODE_MUX,	GPIO_PINSRC_NULL, GPIO_MUX_NULL}, /* //IMOSI */ \
 				cs_setting_name, \
 				{gpport,	pin, 			gpio_crm_clk, 				GPIO_MODE_OUTPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL}, /* //(PA4) Test-ISP2 OK */ \
+				intrcfg, \
 			}
 		//AT32F4xx
-		
-		devconf_at403a_spi1("AT32F403A ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa4", GPIOA, GPIO_PINS_4, CRM_GPIOA_PERIPH_CLOCK),
-		devconf_at403a_spi2("AT32F403A ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12"),	
+		// devconf_at403a_spi2("AT32F403A ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12", &devconf_at403a_intr_c6),
+		devconf_at403a_spi1("AT32F403A ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa4", GPIOA, GPIO_PINS_4, CRM_GPIOA_PERIPH_CLOCK, &devconf_at403a_intr_c7),
+		devconf_at403a_spi2("AT32F403A ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12", &devconf_at403a_intr_c6),
 		/*!< pa15 must jtag-dp disabled and sw-dp enabled */
 		// devconf_at403a_spi1("AT32F403A ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", /*GPIOB, GPIO_PINS_12, CRM_GPIOB_PERIPH_CLOCK*/ GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK),
 	#else
@@ -226,7 +288,7 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 
 //-
 
-optsex_t dm9051optsex[BOARD_SPI_COUNT] = { //const 
+optsex_t dm9051optsex[BOARD_SPI_COUNT] = { //const
 	#define dmopts_normal(iomode, iomode_name) \
 		{ \
 			/* .set_name */ \
@@ -368,7 +430,7 @@ optsex_t dm9051optsex[BOARD_SPI_COUNT] = { //const
 	dmopts_normaldefault(MBNDRY_BYTE, "8-bit"), //CH390 can not use (1, "RX_CTRL Promiscuos mode")
 	dmopts_normaldefault(MBNDRY_BYTE, "8-bit"),
 	dmopts_normaldefault(MBNDRY_WORD, "16-bit mode"),
-	
+
 	dmopts_normal(MBNDRY_BYTE, "8-bit"),
 	dmopts_test1(MBNDRY_WORD, "16-bit mode"),
 };
@@ -407,7 +469,7 @@ const eth_node_t node_candidate[BOARD_SPI_COUNT] = { \
 		{255, 255, 255, 0}, \
 	}, \
 };
- 
+
 /*const uint8_t mac_addresse[BOARD_SPI_COUNT][MAC_ADDR_LENGTH] = { \
 	{0, 0x60, 0x6e, 0x00, 0x01, 0x17,}, \
 	{0, 0x60, 0x6e, 0x00, 0x01, 0x26,}, \
@@ -570,43 +632,43 @@ void dm9051_opts_iomod_etc(void)
 		GpioDisplay();
 		for (i = 0; i< ETHERNET_COUNT; i++) {
 			mstep_set_net_index(i);
-			printf("iomode[%d] %s / value %02x\r\n", mstep_get_net_index(), 
+			printf("iomode[%d] %s / value %02x\r\n", mstep_get_net_index(),
 					DM_GET_DESC(uint8_t, iomode), OPT_U8(iomode)); //dm9051opts_desciomode(), dm9051opts_iomode()
 		}
-		
+
 		for (i = 0; i< ETHERNET_COUNT; i++) {
 			mstep_set_net_index(i);
 			printf("csmode[%d] %s\r\n", mstep_get_net_index(), DM_GET_DESC(csmode_t, csmode)); //dm9051opts_desccsmode()
 		}
-		
+
 		for (i = 0; i< ETHERNET_COUNT; i++) {
 			mstep_set_net_index(i);
 			printf("bmcmod[%d] %s\r\n", i, DM_GET_DESC(bmcrmode_t, bmcrmode)); //dm9051opts_descbmcrmode()
 		}
-		
+
 		for (i = 0; i< ETHERNET_COUNT; i++) {
 			mstep_set_net_index(i);
 			printf("rxmode[%d] %s\r\n", i, DM_GET_DESC(uint8_t, promismode)); //dm9051opts_descpromismode()
 		}
-		
+
 	for (i = 0; i< ETHERNET_COUNT; i++) {
 		mstep_set_net_index(i);
 		printf("rxtype[%d] %s\r\n", i, DM_GET_DESC(enable_t, rxtypemode)); //dm9051opts_descrxtypemode()
 	}
-		
+
 		for (i = 0; i< ETHERNET_COUNT; i++) {
 			mstep_set_net_index(i);
-			printf("chksum[%d] %s / value %02x %s\r\n", i, DM_GET_DESC(enable_t, rxmode_checksum_offload), //dm9051opts_descrxmode_checksum_offload(), ~dm9051opts_desc_rxchecksum_offload(), 
+			printf("chksum[%d] %s / value %02x %s\r\n", i, DM_GET_DESC(enable_t, rxmode_checksum_offload), //dm9051opts_descrxmode_checksum_offload(), ~dm9051opts_desc_rxchecksum_offload(),
 					OPT_CONFIRM(rxmode_checksum_offload) ? RCSSR_RCSEN : 0,
 					OPT_CONFIRM(rxmode_checksum_offload) ? "(RCSSR_RCSEN)" : " "); //is_dm9051opts_rxmode_checksum_offload ~is_dm9051opts_rxchecksum_offload
 		}
-		
+
 		for (i = 0; i< ETHERNET_COUNT; i++) {
 			mstep_set_net_index(i);
 			printf("fcrmod[%d] %s / value %02x\r\n", i, DM_GET_DESC(enable_t, flowcontrolmode), //dm9051opts_descflowcontrolmode()
 					OPT_CONFIRM(flowcontrolmode) ? FCR_DEFAULT_CONF : 0); //(_dm9051optsex[mstep_get_net_index()]._flowcontrolmode)
 		}
-		
+
 		for (i = 0; i< ETHERNET_COUNT; i++) {
 			mstep_set_net_index(i);
 			printf("iomode[%d] %s %s\r\n", i,
@@ -614,7 +676,7 @@ void dm9051_opts_iomod_etc(void)
 					OPT_CONFIRM(onlybytemode) ? DM_GET_DESC(enable_t, onlybytemode) : DM_GET_DESC(uint8_t, iomode));
 												//dm9051opts_desconlybytemode() : dm9051opts_desciomode()
 		}
-		
+
 //	#if TO_ADD_CODE_LATER_BACK
 //		for (i = 0; i< ETHERNET_COUNT; i++) {
 //			uint8_t *macaddr;
@@ -633,9 +695,9 @@ void dm9051_opts_iomod_etc(void)
 		for (i = 0; i< ETHERNET_COUNT; i++) {
 			mstep_set_net_index(i);
 			printf("ip[%d] %"U16_F".%"U16_F".%"U16_F".%"U16_F"\r\n", i,
-			  ip4_addr1_16(netif_ip4_addr(&xnetif[i])), 
+			  ip4_addr1_16(netif_ip4_addr(&xnetif[i])),
 			  ip4_addr2_16(netif_ip4_addr(&xnetif[i])),
-			  ip4_addr3_16(netif_ip4_addr(&xnetif[i])), 
+			  ip4_addr3_16(netif_ip4_addr(&xnetif[i])),
 			  ip4_addr4_16(netif_ip4_addr(&xnetif[i])));
 		}
 	#endif
@@ -648,7 +710,7 @@ const uint8_t *identify_eth_mac(const uint8_t *macadr, int showflg) {
 
 	DM_SET_FIELD(mac_t, final_mac, macadr ? macadr : candidate_eth_mac()); //determine which one, to set to field.
 	mac = DM_GET_FIELD(mac_t, final_mac);
-	
+
 	if (showflg)
 		printf("dm9051_init[%d] %s %s, %s, %s, to set mac/ %02x%02x%02x%02x%02x%02x\r\n",
 			mstep_get_net_index(),
@@ -685,20 +747,20 @@ uint8_t *identify_tcpip_mask(uint8_t *ip4adr) {
 //#else
 //#endif
 
-//const 
+//const
 uint8_t *mstep_eth_mac(void) {
 	return DM_GET_FIELD(mac_t, final_mac);
 }
 
-//const 
+//const
 uint8_t *mstep_eth_ip(void) {
 	return DM_GET_FIELD(ip_t, ip);
 }
-//const 
+//const
 uint8_t *mstep_eth_gw(void) {
 	return DM_GET_FIELD(ip_t, gw);
 }
-//const 
+//const
 uint8_t *mstep_eth_mask(void) {
 	return DM_GET_FIELD(ip_t, mask);
 }

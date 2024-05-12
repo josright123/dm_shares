@@ -444,8 +444,16 @@ uint16_t dm9051_rx(uint8_t *buff)
 
 uint32_t sys_now(void);
 
-#define ICHK_FREQ_MS		725 //25 //250 //1500
-#define ICHK_FREQ_MS_MIN	125
+// ???????? yi-cheng
+#ifdef AT32F403Axx
+uint32_t sys_now(void)
+{
+  return 0;
+}
+#endif
+
+#define ICHK_FREQ_MS			725 //25 //250 //1500
+#define ICHK_FREQ_MS_MIN		125
 
 static uint32_t isr_local_time[ETHERNET_COUNT] = { 0 };
 static int test_line7_ienter[ETHERNET_COUNT] = { 0 };

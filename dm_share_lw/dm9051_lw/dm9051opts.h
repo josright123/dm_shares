@@ -18,10 +18,10 @@
  */
 #define ETHERNET_COUNT_MAX						4 // Correspond to mcu target board's specification
 #define ETHERNET_COUNT								2 //2 //1 //4 //2 //2 //3 //2 //#define get_eth_interfaces() ETH_COUNT
-// #define _AT32F403Axx
-#define _AT32F437xx
+#define _AT32F403Axx
+// #define _AT32F437xx
 
-#define	ETHERNET_INTERRUPT_MODE					1
+#define	ETHERNET_INTERRUPT_MODE				        1
 
 #ifdef freeRTOS_CONF
 #define freeRTOS											freeRTOS_CONF
@@ -213,7 +213,7 @@ void first_log_init(void);
 u8 first_log_get(int i);
 
 //------------------
-	
+
 #define PTR_SPIDEV(pin) /* new */ \
 	&devconf[pin]
 
