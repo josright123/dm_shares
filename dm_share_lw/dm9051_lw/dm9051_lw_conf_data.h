@@ -62,8 +62,8 @@ const struct modscfg_st devconf_at437_intr_c7 = {
 //-
 
 const struct modscfg_st *intrconf_PT[BOARD_SPI_COUNT] = {
-	&devconf_at437_intr_a0,
 	&devconf_at437_intr_c7,
+	&devconf_at437_intr_a0,
 };
 
 #elif defined (AT32F403Axx) || defined (AT32F403xx) || defined (AT32F407xx)
@@ -169,11 +169,12 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 			}
 		//AT32F437xx
 
+		devconf_at437_spi1("AT32F437", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", &devconf_at437_intr_c7),
 		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", &devconf_at437_intr_a0),
 		devconf_at437_spi4("AT32F437", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4", &devconf_at437_intr_c7),
 
 		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", &devconf_at437_intr_a0),
-		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", &devconf_at437_intr_a0),
+//		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", &devconf_at437_intr_a0),
 		devconf_at437_spi1("AT32F437", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", NULL),
 //		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", TBD),
 //		devconf_at437_spi4("AT32F437", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4", TBD),
