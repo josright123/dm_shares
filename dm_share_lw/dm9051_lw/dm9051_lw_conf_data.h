@@ -125,7 +125,8 @@ const struct modscfg_st *intrconf_PT[BOARD_SPI_COUNT] = {
 
 
 const void **intr_packPT = (const void **)intrconf_PT; 		//[All intr.] //= or all NULL;
-//const void *intr_pack = intrconf; //[All intr.] //= or all NULL;
+// const void **intr_packPT = (const void **)NULL;
+// const void *intr_pack = intrconf; //[All intr.] //= or all NULL;
 
 const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 	#ifdef AT32F437xx
@@ -277,8 +278,10 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 			}
 		//AT32F4xx
 		// devconf_at403a_spi2("AT32F403A ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12", &devconf_at403a_intr_c6),
-		devconf_at403a_spi1("AT32F403A ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa4", GPIOA, GPIO_PINS_4, CRM_GPIOA_PERIPH_CLOCK, &devconf_at403a_intr_c7),
-		devconf_at403a_spi2("AT32F403A ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12", &devconf_at403a_intr_c6),
+		// devconf_at403a_spi1("AT32F403A ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa4", GPIOA, GPIO_PINS_4, CRM_GPIOA_PERIPH_CLOCK, &devconf_at403a_intr_c7),
+		// devconf_at403a_spi2("AT32F403A ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12", &devconf_at403a_intr_c6),
+		devconf_at403a_spi1("AT32F403A ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa4", GPIOA, GPIO_PINS_4, CRM_GPIOA_PERIPH_CLOCK, NULL),
+		devconf_at403a_spi2("AT32F403A ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12", NULL),
 		/*!< pa15 must jtag-dp disabled and sw-dp enabled */
 		// devconf_at403a_spi1("AT32F403A ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", /*GPIOB, GPIO_PINS_12, CRM_GPIOB_PERIPH_CLOCK*/ GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK),
 	#else
