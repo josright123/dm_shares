@@ -444,14 +444,6 @@ uint16_t dm9051_rx(uint8_t *buff)
 
 uint32_t sys_now(void);
 
-// ???????? yi-cheng
-#ifdef AT32F403Axx
-uint32_t sys_now(void)
-{
-  return 0;
-}
-#endif
-
 #define ICHK_FREQ_MS			725 //25 //250 //1500
 #define ICHK_FREQ_MS_MIN		125
 
