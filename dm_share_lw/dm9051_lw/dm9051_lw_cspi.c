@@ -51,9 +51,11 @@ static __inline void spi_cs_hi(void)
 
 static __inline uint8_t spi_exc_data(uint8_t byte)
 {
-  while (spi_i2s_flag_get(spi_number(), SPI_I2S_TDBE_FLAG) == RESET);                                        // while(spi_i2s_flag_get(SPI2, SPI_I2S_TDBE_FLAG) == RESET);
+  while (spi_i2s_flag_get(spi_number(), SPI_I2S_TDBE_FLAG) == RESET)
+    ;                                        // while(spi_i2s_flag_get(SPI2, SPI_I2S_TDBE_FLAG) == RESET);
   spi_i2s_data_transmit(spi_number(), byte); // spi_i2s_data_transmit(SPI2, byte); //spi2 tx
-  while (spi_i2s_flag_get(spi_number(), SPI_I2S_RDBF_FLAG) == RESET);                                                 // while(spi_i2s_flag_get(SPI2, SPI_I2S_RDBF_FLAG) == RESET);
+  while (spi_i2s_flag_get(spi_number(), SPI_I2S_RDBF_FLAG) == RESET)
+    ;                                                 // while(spi_i2s_flag_get(SPI2, SPI_I2S_RDBF_FLAG) == RESET);
   return (uint8_t)spi_i2s_data_receive(spi_number()); // return (uint8_t) spi_i2s_data_receive(SPI2); //spi2 rx (rx_pad)
 }
 
@@ -87,7 +89,8 @@ void cspi_read_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode)
     {
       // printf("cspi_read_reg(reg) ..\r\n");
       buf[i] = cspi_read_reg(reg);
-      if (par_regs); // printf("each read reg %02x = %02x\r\n", reg, buf[i]);
+      if (par_regs)
+        ; // printf("each read reg %02x = %02x\r\n", reg, buf[i]);
     }
   }
 }
@@ -153,7 +156,8 @@ void cspi_write_regs(uint8_t reg, u8 *buf, u16 len, csmode_t csmode)
     for (i = 0; i < len; i++, reg++)
     {
       cspi_write_reg(reg + i, buf[i]);
-      if (par_regs); // printf("each read reg %02x = %02x\r\n", reg, buf[i]);
+      if (par_regs)
+        ; // printf("each read reg %02x = %02x\r\n", reg, buf[i]);
     }
   }
 }
