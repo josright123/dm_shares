@@ -259,7 +259,8 @@ uint16_t dm9051_bmsr_update(void);
 uint16_t dm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk);
 //.void ldm9051_mac_adr(const uint8_t *macadd);
 
-#define ERR_HDLR_PRINT(errs, pincod_param, uval)	errs, uval
+#define ERR_HDLR_PRINT(errs, uval)						errs, uval
+#define ERR_HDLR_PRINT_NEW(errs, pincod_param, uval)	errs, uval
 #endif
 
 void DEBUG_refresh_isr_check(void);

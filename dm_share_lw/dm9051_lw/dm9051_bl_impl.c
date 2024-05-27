@@ -107,10 +107,25 @@ u16 impl_dm9051_err_hdlr(char *errstr, int pincode, u32 invalue, u8 zerochk)
 {
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
+	char buf[76];
+	int space_size = 76, n = 0;
 	if (zerochk && invalue == 0)
 		return 0; //.printf(": NoError as %u\r\n", valuecode);
 
+#if 0
 	printf(errstr, pincode, invalue); //or "0x%02x"
+#else
+	n += snprintf(buf+n, space_size-n, "----- [.]");
+	n += snprintf(buf+n, space_size-n, errstr, pincode, invalue);
+	
+	if (n >= 76) n = 75;
+	buf[n] = 0;
+	
+	bannerline_log();
+	printf("----- [.]");
+	printf(errstr, pincode, invalue); //or "0x%02x"
+	printf(buf);
+#endif
 
 	hdlr_reset_process(mstep_eth_mac(), OPT_CONFIRM(hdlr_confrecv)); //CH390 opts
 	

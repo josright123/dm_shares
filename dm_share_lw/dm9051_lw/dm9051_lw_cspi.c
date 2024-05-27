@@ -76,22 +76,35 @@ void gpio_pin_config(const gpio_t *gpio, gpio_pull_type gppull) //, gpio_mode_ty
   gpio_default_para_init(&gpio_init_struct);
   gpio_init_struct.gpio_out_type  		= GPIO_OUTPUT_PUSH_PULL;
   gpio_init_struct.gpio_drive_strength	= GPIO_DRIVE_STRENGTH_STRONGER;
-  gpio_init_struct.gpio_mode			= gpio->gpio_mode; //gpmode; //GPIO_MODE_INPUT;
+  gpio_init_struct.gpio_mode			= gpio->pmux->gpio_mode; //gmode
+											//gpio->gpio_mode; //gpmode; //GPIO_MODE_INPUT;
 
   gpio_init_struct.gpio_pull			= gppull; //exint_cfg.gpio_pull; //GPIO_PULL_DOWN; GPIO_PULL_UP; //GPIO_PULL_NONE;
   gpio_init_struct.gpio_pins			= gpio->pin;
   gpio_init(gpio->gpport, &gpio_init_struct);
-
+  
  #ifdef AT32F437xx
-  if ((gpio->gpio_mode == GPIO_MODE_MUX) && (gpio->muxsel != GPIO_MUX_NULL))
-	gpio_pin_mux_config(gpio->gpport, gpio->pinsrc, gpio->muxsel);
+ 
+  //temp
+  if (!gpio->pmux) {
+	printf("------ - - - NOT allow a NULL pmux field - - - ------\r\n");
+	return;
+  }
+
+  if (gpio->pmux->gpio_mode == GPIO_MODE_MUX) {
+		gpio_pin_mux_config(gpio->gpport, gpio->pmux->pinsrc, gpio->pmux->muxsel);
+		return;
+  }
+//  if ((gpio->gpio_mode == GPIO_MODE_MUX) && (gpio->muxsel != GPIO_MUX_NULL)) {
+//		gpio_pin_mux_config(gpio->gpport, gpio->pinsrc, gpio->muxsel);
+//		return;
+//  }
+	
   #if 0
-  else {
     // only for interr-gpio
 	/*if (intr_gpio_exister())*/
-		// only for interr-gpio
-		printf("f437 : %s, no gpio_pin_mux_config()\r\n", intr_gpio_info());
-  }
+	// only for interr-gpio
+	printf("f437 : %s, no gpio_pin_mux_config()\r\n", intr_gpio_info());
   #endif
  #endif
 }

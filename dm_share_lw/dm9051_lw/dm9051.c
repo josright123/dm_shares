@@ -490,32 +490,61 @@ static int test_line7_ienter[ETHERNET_COUNT] = { 0 };
 //#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 //}
 
+static uint16_t dm9051_isr_clean(void)
+{
+	uint16_t isrs;
+	
+	LOCK_TCPIP_COREx();
+	isrs = DM9051_Read_Reg(DM9051_ISR);
+	if (isrs & 1) {
+		DM9051_Write_Reg(DM9051_ISR, (uint8_t) isrs);
+		isrs |= DM9051_Read_Reg(DM9051_ISR) << 8;
+	}
+	ULOCK_TCPIP_COREx();
+
+	return isrs;
+}
+
 static uint32_t isr_local_time[ETHERNET_COUNT] = { 0 };
 
 int dm9051_rx_isr_check(int pin)
 {
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
-	int check = 0;
-	uint8_t isr;
-	if (sys_now() > isr_local_time[pin]) {
-		LOCK_TCPIP_COREx();
 
-		isr = DM9051_Read_Reg(DM9051_ISR);
-		if (isr & 1) {
-			printf("*INFO[%d]: dm9051_rx_isr_check(%d) enter ... isr %02x\r\n", pin, ++test_line7_ienter[pin], isr);  //"%d" 
-			DM9051_Write_Reg(DM9051_ISR, isr);
-			isr = DM9051_Read_Reg(DM9051_ISR);
-			printf("*INFO[%d]: dm9051_rx_isr_check(%d) exit ... isr %02x\r\n", pin, test_line7_ienter[pin], isr);
+	int check = 0;
+	uint16_t isrs;
+	if (sys_now() > isr_local_time[pin]) {
+		isrs = dm9051_isr_clean();
+		if (isrs & 1) {
 			check = 1; // or rx_handler_direct(pin, FALSE/TRUE);
+			printf("*INFO[%d]: isr_check(%d) enter ... isr %02x\r\n", pin, ++test_line7_ienter[pin], isrs & 0xff);
+			//isr = DM9051_Read_Reg(DM9051_ISR);
+			printf("*INFO[%d]: isr_check(%d) exit ... isr %02x\r\n", pin, test_line7_ienter[pin], isrs >> 8);
 			isr_local_time[pin] = sys_now() + ICHK_FREQ_MS;
 		}
 		else
 			isr_local_time[pin] = sys_now() + ICHK_FREQ_MS_MIN;
-
-		ULOCK_TCPIP_COREx();
 	}
 	return check;
+		
+//	LOCK_TCPIP_COREx();
+
+//	isr = DM9051_Read_Reg(DM9051_ISR);
+//	if (isr & 1) {
+//		printf("*INFO[%d]: isr_check(%d) enter ... isr %02x\r\n", pin, ++test_line7_ienter[pin], isr);  //"%d" 
+//		DM9051_Write_Reg(DM9051_ISR, isr);
+//		isr = DM9051_Read_Reg(DM9051_ISR);
+//		printf("*INFO[%d]: isr_check(%d) exit ... isr %02x\r\n", pin, test_line7_ienter[pin], isr);
+//		check = 1; // or rx_handler_direct(pin, FALSE/TRUE);
+//		isr_local_time[pin] = sys_now() + ICHK_FREQ_MS;
+//	}
+//	else
+//		isr_local_time[pin] = sys_now() + ICHK_FREQ_MS_MIN;
+
+//	ULOCK_TCPIP_COREx();
+//	return check;
+
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
@@ -529,31 +558,51 @@ int dm9051_rx_isr_check(int pin)
 
 void dm9051_rx_isr_clean(void)
 {
+  dm9051_isr_clean();
+  
+#if 0
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
 
   static int test_line_ienter[ETHERNET_COUNT] = { 0 };
   int pin = mstep_get_net_index();
-  int xp = 0;
-  uint8_t isr;
+  uint16_t isrs;
+//  int xp = 0;
+  
+  isrs = dm9051_isr_clean();
+  if ((isrs & 1) && (test_line_ienter[pin] < 3)) {
+//	xp = 1;
+//  if (xp)
+	printf("INP.a[%d]: extline enter %d ... isr %02x\r\n", pin, ++test_line_ienter[pin], isrs & 0xff);
+	//LOCK_TCPIP_COREx();
+	//isr = DM9051_Read_Reg(DM9051_ISR);
+	//ULOCK_TCPIP_COREx();
+	printf("INP.b[%d]: extline exit %d ... isr %02x\r\n", pin, test_line_ienter[pin], isrs >> 8);
+  }
 
-  isr = DM9051_Read_Reg(DM9051_ISR);
-	
-	if ((isr & 1) && (test_line_ienter[pin] < 3))
-	  xp = 1;
+//..........
+//  LOCK_TCPIP_COREx();
+//  
+//  isr = DM9051_Read_Reg(DM9051_ISR);
+//	
+//	if ((isr & 1) && (test_line_ienter[pin] < 3))
+//	  xp = 1;
 
-	if (xp)
-	  printf("INP.a[%d]: extline enter %d ... isr %02x\r\n", pin, ++test_line_ienter[pin], isr);
+//	if (xp)
+//	  printf("INP.a[%d]: extline enter %d ... isr %02x\r\n", pin, ++test_line_ienter[pin], isr);
 
-  DM9051_Write_Reg(DM9051_ISR, isr);
+//  DM9051_Write_Reg(DM9051_ISR, isr);
 
-	if (xp) {
-		isr = DM9051_Read_Reg(DM9051_ISR);
-		printf("INP.b[%d]: extline exit %d ... isr %02x\r\n", pin, test_line_ienter[pin], isr);
-	}
+//	if (xp) {
+//		isr = DM9051_Read_Reg(DM9051_ISR);
+//		printf("INP.b[%d]: extline exit %d ... isr %02x\r\n", pin, test_line_ienter[pin], isr);
+//	}
+//	
+//	ULOCK_TCPIP_COREx();
 
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
+#endif
 }
 
 void dm9051_tx(uint8_t *buf, uint16_t len)

@@ -12,11 +12,11 @@ const gp_set_t *option_rst_common = NULL;
 //optional
 gp_set_t gp = {
 	"GPIO pc7",
-	{GPIOC, GPIO_PINS_7,  CRM_GPIOC_PERIPH_CLOCK, GPIO_MODE_INPUT, 	GPIO_PINSRC_NULL, GPIO_MUX_NULL,}, //(PC7) INT-pin
+	{GPIOC, GPIO_PINS_7,  CRM_GPIOC_PERIPH_CLOCK, &mode_input, }, //(PC7) INT-pin //GPIO_MODE_INPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL
 };
 gp_set_t gp_a0 = {
 	"GPIO pa0",
-	{GPIOA, GPIO_PINS_0,  CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_INPUT, 	GPIO_PINSRC_NULL, GPIO_MUX_NULL,}, //(PA0) INT-pin
+	{GPIOA, GPIO_PINS_0,  CRM_GPIOA_PERIPH_CLOCK, &mode_input, }, //(PA0) INT-pin //GPIO_MODE_INPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL
 };
 
 //[CRM_SCFG_PERIPH_CLOCK] //essential
@@ -307,8 +307,6 @@ IS_DECL_FUNCTION(enable_t, generic_core_rst)
 #define cpu_spi_conf_name()			FIELD_SPIDEV(cpu_spi_info) //devconf[pin_code].cpu_api_info
 #define cpu_cs_conf_name()			FIELD_SPIDEV(cpu_cs_info)
 #define spihead()					FIELD_SPIDEV(spidef)
-
-#define spi_conf_name()				FIELD_SPIDEV(spidef.spi_name) //spihead().spi_name
 
 //#define exint_exister()			((struct modscfg_st *)intr_packPT)
 //#define exint_scfg_ptr()			!exint_data() ? NULL : ((struct modscfg_st *)intr_packPT[pin_code])->extend

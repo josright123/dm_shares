@@ -28,13 +28,27 @@ typedef enum
 } gpio_mux_sel_type;
 #endif
 
-typedef struct gpio_sel_st {
-	gpio_type *gpport;        		//= PORT;
-	uint16_t pin;           		//= PIN;
-	crm_periph_clock_type gpio_crm_clk;  //= CRM_CLK;	
+
+#define GPIO_MODE_NULL		(gpio_mode_type)		0x0F
+#define GPIO_PINSRC_NULL 	(gpio_pins_source_type)	0x0F //0
+#define GPIO_MUX_NULL    	(gpio_mux_sel_type)		0x0F //0
+
+typedef struct gpio_mux_st {
 	gpio_mode_type gpio_mode;		//= type
 	gpio_pins_source_type pinsrc;
 	gpio_mux_sel_type muxsel;
+} gpio_mux_t;
+
+typedef struct gpio_sel_st {
+	gpio_type *gpport;        		//= PORT;
+	uint16_t pin;           		//= PIN;
+	crm_periph_clock_type gpio_crm_clk;  //= CRM_CLK;
+#if 0
+	gpio_mode_type gpio_mode;
+	gpio_pins_source_type pinsrc;
+	gpio_mux_sel_type muxsel;
+#endif	
+	const gpio_mux_t *pmux;
 } gpio_t;
 
 /*
@@ -137,9 +151,6 @@ typedef struct {
 //#define scfg_exint_system_ready			1
 //#define gpio_mux_sel_type_system_declaration	1
 #endif
-
-#define GPIO_PINSRC_NULL (gpio_pins_source_type) 0
-#define GPIO_MUX_NULL    (gpio_mux_sel_type)	 0
 
 //extern const struct modscfg_st devconf_at437_intr_a0;
 extern const struct modscfg_st devconf_at437_intr_a0;
