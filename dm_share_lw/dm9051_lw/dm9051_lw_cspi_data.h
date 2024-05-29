@@ -6,13 +6,12 @@
 //	GPIO_MODE_OUTPUT,	GPIO_PINSRC_NULL,	GPIO_MUX_NULL
 	
 /* used in struct data declaration */
-#define SPI_PINSTD(spiname,spinum,crm_clk,iom)				{spiname, spinum, crm_clk, iom}
+#define SPI_PINSTD(spiname,spinum,crmclk,iom)				{spiname, spinum, crmclk, iom}
 
-#define GPIO_PINMUX(gpport,pin,crm_clk, S,M, ptrmux)		{gpport,pin,crm_clk, ptrmux} //, MUX_DATA(S, M)
-#define GPIO_PINOUT(gpport,pin,crm_clk, ptrmux)				{gpport,pin,crm_clk, ptrmux} //, OUTPUT_DATA()
-
-#define GPIO_PINNORM(gpport,pin,crm_clk, ptrmux)			{gpport,pin,crm_clk, ptrmux} //used (AT32F413/415)
-#define GPIO_PININ(gpport,pin,crm_clk, ptrmux)				{gpport,pin,crm_clk, ptrmux} //used (AT32F413/415)
+#define GPIO_PINMUX(gpport,pin,crmclk, ptrmux)			{gpport,pin,crmclk, ptrmux} //, MUX_DATA(S, M)
+#define GPIO_PINOUT(gpport,pin,crmclk, ptrmux)				{gpport,pin,crmclk, ptrmux} //, OUTPUT_DATA()
+#define GPIO_PINNORM(gpport,pin,crmclk, ptrmux)				{gpport,pin,crmclk, ptrmux} //used (AT32F413/415)
+#define GPIO_PININ(gpport,pin,crmclk, ptrmux)				{gpport,pin,crmclk, ptrmux} //used (AT32F413/415)
 		
 #define MUX_DATA(src,muxto)	\
 	GPIO_MODE_MUX, src, muxto,
@@ -45,9 +44,9 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				info, \
 				SPI_PINSTD("SPI2", SPI2, CRM_SPI2_PERIPH_CLOCK, IO_MUX_NULL), \
 				spi_setting_name, \
-				GPIO_PINMUX(GPIOD, GPIO_PINS_1, CRM_GPIOD_PERIPH_CLOCK, GPIO_PINS_SOURCE1, GPIO_MUX_6, &src1_mux6),  /* //SCK */ \
-				GPIO_PINMUX(GPIOC, GPIO_PINS_2, CRM_GPIOC_PERIPH_CLOCK, GPIO_PINS_SOURCE2, GPIO_MUX_5, &src2_mux5),	/* //MISO */ \
-				GPIO_PINMUX(GPIOD, GPIO_PINS_4, CRM_GPIOD_PERIPH_CLOCK, GPIO_PINS_SOURCE4, GPIO_MUX_6, &src4_mux6),	/* //MOSI */ \
+				GPIO_PINMUX(GPIOD, GPIO_PINS_1, CRM_GPIOD_PERIPH_CLOCK, &src1_mux6),  /* //SCK */ \
+				GPIO_PINMUX(GPIOC, GPIO_PINS_2, CRM_GPIOC_PERIPH_CLOCK, &src2_mux5),	/* //MISO */ \
+				GPIO_PINMUX(GPIOD, GPIO_PINS_4, CRM_GPIOD_PERIPH_CLOCK, &src4_mux6),	/* //MOSI */ \
 				cs_setting_name, \
 				GPIO_PINOUT(GPIOD, GPIO_PINS_0, CRM_GPIOD_PERIPH_CLOCK, &mode_output), /* //(PD0) */ \
 				intrcfg, \
@@ -57,9 +56,9 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				info, \
 				SPI_PINSTD("SPI4", SPI4, CRM_SPI4_PERIPH_CLOCK, IO_MUX_NULL), \
 				spi_setting_name, \
-				GPIO_PINMUX(GPIOE, GPIO_PINS_2, CRM_GPIOE_PERIPH_CLOCK, GPIO_PINS_SOURCE2, GPIO_MUX_5, &src2_mux5), /* //SCK */ \
-				GPIO_PINMUX(GPIOE, GPIO_PINS_5, CRM_GPIOE_PERIPH_CLOCK, GPIO_PINS_SOURCE5, GPIO_MUX_5, &src5_mux5),	/* //MISO */ \
-				GPIO_PINMUX(GPIOE, GPIO_PINS_6, CRM_GPIOE_PERIPH_CLOCK, GPIO_PINS_SOURCE6, GPIO_MUX_5, &src6_mux5),	/* //MOSI */ \
+				GPIO_PINMUX(GPIOE, GPIO_PINS_2, CRM_GPIOE_PERIPH_CLOCK, &src2_mux5), /* //SCK */ \
+				GPIO_PINMUX(GPIOE, GPIO_PINS_5, CRM_GPIOE_PERIPH_CLOCK, &src5_mux5),	/* //MISO */ \
+				GPIO_PINMUX(GPIOE, GPIO_PINS_6, CRM_GPIOE_PERIPH_CLOCK, &src6_mux5),	/* //MOSI */ \
 				cs_setting_name, \
 				GPIO_PINOUT(GPIOE, GPIO_PINS_4, CRM_GPIOE_PERIPH_CLOCK, &mode_output), /* //(PE4) */ \
 				intrcfg, \
@@ -69,21 +68,22 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				info, \
 				SPI_PINSTD("SPI1", SPI1, CRM_SPI1_PERIPH_CLOCK, IO_MUX_NULL), \
 				spi_setting_name, \
-				GPIO_PINMUX(GPIOA, GPIO_PINS_5, CRM_GPIOA_PERIPH_CLOCK, GPIO_PINS_SOURCE5, GPIO_MUX_5, &src5_mux5), /* //SCK */ \
-				GPIO_PINMUX(GPIOA, GPIO_PINS_6, CRM_GPIOA_PERIPH_CLOCK, GPIO_PINS_SOURCE6, GPIO_MUX_5, &src6_mux5),	/* //MISO */ \
-				GPIO_PINMUX(GPIOA, GPIO_PINS_7, CRM_GPIOA_PERIPH_CLOCK, GPIO_PINS_SOURCE7, GPIO_MUX_5, &src7_mux5),	/* //MOSI */ \
+				GPIO_PINMUX(GPIOA, GPIO_PINS_5, CRM_GPIOA_PERIPH_CLOCK, &src5_mux5), /* //SCK */ \
+				GPIO_PINMUX(GPIOA, GPIO_PINS_6, CRM_GPIOA_PERIPH_CLOCK, &src6_mux5),	/* //MISO */ \
+				GPIO_PINMUX(GPIOA, GPIO_PINS_7, CRM_GPIOA_PERIPH_CLOCK, &src7_mux5),	/* //MOSI */ \
 				cs_setting_name, \
 				GPIO_PINOUT(GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK, &mode_output), /* //(PA15) */ \
 				intrcfg, \
 			}
 		//AT32F437xx
+		
+		devconf_at437_spi1("AT32F437", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", NULL), //DM9051A BENCH BOARD V1.0
 			
 		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", &devconf_at437_intr_a0),
 		devconf_at437_spi4("AT32F437", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4", &devconf_at437_intr_c7),
 		
 		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", &devconf_at437_intr_a0),
 		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", &devconf_at437_intr_a0),
-		devconf_at437_spi1("AT32F437", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", NULL),
 //		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", TBD),
 //		devconf_at437_spi4("AT32F437", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4", TBD),
 //		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", TBD),
@@ -96,11 +96,11 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				info, \
 				SPI_PINSTD("SPI2", SPI2, CRM_SPI2_PERIPH_CLOCK, IO_MUX_NULL), \
 				spi_setting_name, \
-				GPIO_PINNORM(GPIOB, GPIO_PINS_13, CRM_GPIOB_PERIPH_CLOCK, &mode_null), /* //SCK */ \
-				GPIO_PINNORM(GPIOB, GPIO_PINS_14, CRM_GPIOB_PERIPH_CLOCK, &mode_null), /* //MISO */ \
-				GPIO_PINNORM(GPIOB, GPIO_PINS_15, CRM_GPIOB_PERIPH_CLOCK, &mode_null), /* //MOSI */ \
+				GPIO_PINNORM(GPIOB, GPIO_PINS_13, CRM_GPIOB_PERIPH_CLOCK, 	&mode_null), /* //SCK */ \
+				GPIO_PINNORM(GPIOB, GPIO_PINS_14, CRM_GPIOB_PERIPH_CLOCK, 	&mode_null), /* //MISO */ \
+				GPIO_PINNORM(GPIOB, GPIO_PINS_15, CRM_GPIOB_PERIPH_CLOCK, 	&mode_null), /* //MOSI */ \
 				cs_setting_name, \
-				GPIO_PINOUT(GPIOB, GPIO_PINS_12, CRM_GPIOB_PERIPH_CLOCK, &mode_output), /* //(PB12) */ \
+				GPIO_PINOUT(GPIOB, GPIO_PINS_12, CRM_GPIOB_PERIPH_CLOCK,	&mode_output), /* //(PB12) */ \
 				/* GPIO_PINOUT(GPIOA, GPIO_PINS_4, CRM_GPIOA_PERIPH_CLOCK), (PB12) */ \
 			}
 		#define devconf_at413_spi1_0(info, spi_setting_name, cs_setting_name, gp_port, gp_pin, gp_crm_clk) \
@@ -126,7 +126,7 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				GPIO_PINNORM(GPIOB,		GPIO_PINS_14,	CRM_GPIOB_PERIPH_CLOCK, &mode_null),	/* //MISO */ \
 				GPIO_PINNORM(GPIOB,		GPIO_PINS_15,	CRM_GPIOB_PERIPH_CLOCK, &mode_null),	/* //MOSI */ \
 				cs_setting_name, \
-				GPIO_PINOUT(GPIOB,	GPIO_PINS_12,	CRM_GPIOB_PERIPH_CLOCK, &mode_output), /* //(PB12) */ \
+				GPIO_PINOUT(GPIOB,	GPIO_PINS_12,		CRM_GPIOB_PERIPH_CLOCK, &mode_output), /* //(PB12) */ \
 			}
 		#define devconf_at413_spi1a(info, spi_setting_name, cs_setting_name, gp_port, gp_pin, gp_crm_clk, iom) { \
 				info, \
@@ -136,7 +136,7 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				GPIO_PININ(GPIOA,		GPIO_PINS_6,	CRM_GPIOA_PERIPH_CLOCK, &mode_input), /* //MISO */ \
 				GPIO_PINNORM(GPIOA,		GPIO_PINS_7,	CRM_GPIOA_PERIPH_CLOCK, &mode_null), /* //MOSI */ \
 				cs_setting_name, \
-				GPIO_PINOUT(gp_port,	gp_pin,			gp_crm_clk, &mode_output), /* //(PA4) */ \
+				GPIO_PINOUT(gp_port,	gp_pin,			gp_crm_clk,				&mode_output), /* //(PA4) */ \
 			}
 		#define devconf_at413_spi1b(info, spi_setting_name, cs_setting_name, gp_port, gp_pin, gp_crm_clk, iom) { \
 				info, \
@@ -146,7 +146,7 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				GPIO_PININ(GPIOB,		GPIO_PINS_4,	CRM_GPIOB_PERIPH_CLOCK, &mode_input), /* //MISO */ \
 				GPIO_PINNORM(GPIOB,		GPIO_PINS_5,	CRM_GPIOB_PERIPH_CLOCK, &mode_null), /* //MOSI */ \
 				cs_setting_name, \
-				GPIO_PINOUT(gp_port,	gp_pin,			gp_crm_clk, &mode_output), /* //(PA4) */ \
+				GPIO_PINOUT(gp_port,	gp_pin,			gp_crm_clk,				&mode_output), /* //(PA4) */ \
 			}
 		//AT32F4xx
 		
@@ -187,7 +187,7 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 		devconf_at403a_spi1("AT32F403A ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa4", GPIOA, GPIO_PINS_4, CRM_GPIOA_PERIPH_CLOCK),
 		devconf_at403a_spi2("AT32F403A ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12"),	
 		/*!< pa15 must jtag-dp disabled and sw-dp enabled */
-		// devconf_at403a_spi1("AT32F403A ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", /*GPIOB, GPIO_PINS_12, CRM_GPIOB_PERIPH_CLOCK*/ GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK),
+		// devconf_at403a_spi1("AT32F403A ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK), /*GPIOB, GPIO_PINS_12, CRM_GPIOB_PERIPH_CLOCK*/ 
 	#else
 		#error "not defined board"
 	#endif

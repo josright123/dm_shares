@@ -28,6 +28,19 @@ typedef enum
 } gpio_mux_sel_type;
 #endif
 
+//typedef enum {
+//} iomux_t;
+#define  IO_MUX_NULL                    	((uint16_t)0x0000) /*!< subordinate  */
+#define  IO_MUX_PINREMAP                 	((uint16_t)0x0001) /*!< subordinate mode a (such as f413)*/
+#define  IO_MUX_GPIOMUX                 	((uint16_t)0x0002) /*!< subordinate mode b (such as f437) */
+#define  IO_CRM_CLOCK                 		((uint16_t)0x0100) /*!< subordinate mode c (such as f413 clock) */
+
+typedef struct spihead_sel_st {
+  char *spi_name;
+  spi_type *spi_num;        		//= SPIPORT;
+  crm_periph_clock_type spi_crm_clk;	//= SPI_CRM_CLK;
+  uint16_t iomux;
+} spihead_t;
 
 #define GPIO_MODE_NULL		(gpio_mode_type)		0x0F
 #define GPIO_PINSRC_NULL 	(gpio_pins_source_type)	0x0F //0
@@ -42,13 +55,12 @@ typedef struct gpio_mux_st {
 typedef struct gpio_sel_st {
 	gpio_type *gpport;        		//= PORT;
 	uint16_t pin;           		//= PIN;
-	crm_periph_clock_type gpio_crm_clk;  //= CRM_CLK;
-#if 0
-	gpio_mode_type gpio_mode;
-	gpio_pins_source_type pinsrc;
-	gpio_mux_sel_type muxsel;
-#endif	
+	crm_periph_clock_type gp_crmclk;  //= CRM_CLK;
+//	gpio_mode_type gpio_mode;
+//	gpio_pins_source_type pinsrc;
+//	gpio_mux_sel_type muxsel;
 	const gpio_mux_t *pmux;
+	uint16_t iomux_to_instead; //instead of 'iomux'
 } gpio_t;
 
 /*
@@ -98,20 +110,6 @@ struct modscfg_st {
 	struct extscfg_st *extend; //struct linescfg_st *extend; //essential
 	struct gp_set_st *option; //gp_set_t
 };
-
-//typedef enum {
-//} iomux_t;
-#define  IO_MUX_NULL                    	((uint16_t)0x0000) /*!< subordinate  */
-#define  IO_MUX_PINREMAP                 	((uint16_t)0x0001) /*!< subordinate mode a (such as f413)*/
-#define  IO_MUX_GPIOMUX                 	((uint16_t)0x0002) /*!< subordinate mode b (such as f437) */
-#define  IO_CRM_CLOCK                 		((uint16_t)0x0100) /*!< subordinate mode c (such as f413 clock) */
-
-typedef struct spihead_sel_st {
-  char *spi_name;
-  spi_type *spi_num;        		//= SPIPORT;
-  crm_periph_clock_type spi_crm_clk;	//= SPI_CRM_CLK;
-  uint16_t iomux;
-} spihead_t;
 
 typedef struct {
 	char *info;

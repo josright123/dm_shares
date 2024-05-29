@@ -71,7 +71,7 @@ static void spi_config(void)
 void gpio_pin_config(const gpio_t *gpio, gpio_pull_type gppull) //, gpio_mode_type gpmode
 {
   gpio_init_type gpio_init_struct;
-  crm_periph_clock_enable(gpio->gpio_crm_clk, TRUE); /* enable the gpioa clock */
+  crm_periph_clock_enable(gpio->gp_crmclk, TRUE); /* enable the gpioa clock */
 
   gpio_default_para_init(&gpio_init_struct);
   gpio_init_struct.gpio_out_type  		= GPIO_OUTPUT_PUSH_PULL;
@@ -95,18 +95,25 @@ void gpio_pin_config(const gpio_t *gpio, gpio_pull_type gppull) //, gpio_mode_ty
 		gpio_pin_mux_config(gpio->gpport, gpio->pmux->pinsrc, gpio->pmux->muxsel);
 		return;
   }
-//  if ((gpio->gpio_mode == GPIO_MODE_MUX) && (gpio->muxsel != GPIO_MUX_NULL)) {
-//		gpio_pin_mux_config(gpio->gpport, gpio->pinsrc, gpio->muxsel);
-//		return;
-//  }
 	
+  //Display-print for '&mode_null' found in f437
   #if 0
-    // only for interr-gpio
+    // only for inter-gpio
 	/*if (intr_gpio_exister())*/
-	// only for interr-gpio
 	printf("f437 : %s, no gpio_pin_mux_config()\r\n", intr_gpio_info());
   #endif
+
  #endif
+}
+
+//static 
+int de_pin(const gpio_t *gpio) {
+	int n;
+	
+	for (n = 0; n < 16; n++)
+		if (gpio->pin & (1 << n))
+			return n;
+	return 99; //? unknow
 }
 
 /**
@@ -136,15 +143,16 @@ void spi_add(void) //=== pins_config(); //total_eth_count++;
   }
 //.#endif
   bannerline_log();
-  printf("gpio_pin_config: SCK-gpio\r\n");
+  printf("gpio_pin_config: SCK-gpio %d\r\n", de_pin(&gpio_wire_sck()));
+  printf("gpio_pin_config: MI-gpio %d\r\n", de_pin(&gpio_wire_mi()));
+  printf("gpio_pin_config: MO-gpio %d\r\n", de_pin(&gpio_wire_mo()));
+  printf("gpio_pin_config: CS-gpio %d\r\n", de_pin(&gpio_cs()));
+  
   gpio_pin_config(&gpio_wire_sck(), GPIO_PULL_NONE); //,GPIO_MODE_MUX
-  printf("gpio_pin_config: MI-gpio\r\n");
   gpio_pin_config(&gpio_wire_mi(), GPIO_PULL_NONE); //,GPIO_MODE_MUX
-  printf("gpio_pin_config: MO-gpio\r\n");
   gpio_pin_config(&gpio_wire_mo(), GPIO_PULL_NONE); //,GPIO_MODE_MUX //GPIO_PULL_UP; //test ffff
 
   spi_config(); //(spi_port_ptr(_pinCode));
-  printf("gpio_pin_config: CS-gpio\r\n");
   gpio_pin_config(&gpio_cs(), GPIO_PULL_NONE); //,GPIO_MODE_OUTPUT
 }
 
@@ -202,6 +210,8 @@ void cspi_read_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode)
 	  }
 	}
 }
+
+//.cspi_write_regs
 
 uint8_t cspi_read_reg(uint8_t reg) //static (todo)
 {

@@ -44,6 +44,7 @@
 //#include "lwip/tcpip.h" //.temp
 #include "dm9051opts.h"
 #include "dm9051_lw.h"
+#include "dm9051_lw_cspi.h"
 #include "dm9051_lw_debug.h"
 
 // printf("(dm9 xfer) %.8x: %s", i, linebuf);

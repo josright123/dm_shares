@@ -96,7 +96,7 @@ void dm_delay_ms(uint16_t nms) {
   * @param  struct exint_st* =
   * 	   struct exint_st {
   * 		struct {
-  * 			crm_periph_clock_type crm_clk; //CRM_GPIOC_PERIPH_CLOCK,
+  * 			crm_periph_clock_type crmclk; //CRM_GPIOC_PERIPH_CLOCK,
   * 			uint32_t extline; //= LINE
   * 			IRQn_Type irqn; //= EXINTn_m
   * 		} extline;
@@ -156,6 +156,14 @@ void exint_mconfig(exint_polarity_config_type polarity)
 //  exint_mconfig(polarity);
 //}
 
+void rst_add(void)
+{
+  if (rst_pin_mexist()) {
+//	printf("gpio_pin_config: RST-gpio %d\r\n", de_pin(&rst_gpio_ptr()));
+	gpio_pin_config(rst_gpio_ptr(), GPIO_PULL_UP); //=(rst_gpio_ptr(_pinCode), GPIO_PULL_UP); //,GPIO_MODE_OUTPUT
+  }
+}
+
 void intr_add(void)
 {
 //  config_exint(GPIO_PULL_UP, EXINT_TRIGGER_FALLING_EDGE);
@@ -169,8 +177,8 @@ void intr_add(void)
   };
  
   if (intr_gpio_mptr()) {
-	  printf("................................ dm9051 gpio_pin_config(for interr)\r\n");
-	  printf("gpio_pin_config: INTR-gpio\r\n");
+	  printf("................................ dm9051 gpio_pin_config(for intr)\r\n");
+	  printf("gpio_pin_config: INTR-gpio\r\n"); //" %d", de_pin(&intr_gpio_ptr())
 	  gpio_pin_config(intr_gpio_ptr(), confi.gppull);
   }
 
@@ -244,14 +252,6 @@ void dm9051_board_irq_enable(void)
 //  exint_flag_clear(EXINT_LINE_4);
 //  nvic_irq_enable(EXINT4_IRQn, 1, 0);
 //}
-
-void rst_add(void)
-{
-  if (rst_pin_mexist()) {
-	printf("gpio_pin_config: RST-gpio\r\n");
-	gpio_pin_config(rst_gpio_ptr(), GPIO_PULL_UP); //=(rst_gpio_ptr(_pinCode), GPIO_PULL_UP); //,GPIO_MODE_OUTPUT
-  }
-}
 
 void interface_all_add(int pin)
 {

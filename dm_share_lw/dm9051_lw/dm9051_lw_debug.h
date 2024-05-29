@@ -63,6 +63,10 @@
 // example usage: DM9051_DEBUGF(DM9051_DBG_ON, ("dm9051_lw: %s: %d\n", __func__, __LINE__));
 // example usage: DM9051_DEBUGF(DM9051_LW_CONF, ("dm9051_lw: %s: %d\n", __func__, __LINE__));
 
+
+int de_pin(const gpio_t *gpio);
+
+
 #ifdef __cplusplus
 }
 #endif

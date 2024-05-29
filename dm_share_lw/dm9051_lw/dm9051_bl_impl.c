@@ -43,6 +43,7 @@
 #endif
 #include "dm9051opts.h"
 #include "dm9051_lw.h"
+#include "dm9051_lw_cspi.h"
 #include "dm9051_lw_debug.h"
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 
