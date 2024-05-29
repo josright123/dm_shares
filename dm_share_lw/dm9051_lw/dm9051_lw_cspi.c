@@ -129,14 +129,16 @@ void spi_add(void) //=== pins_config(); //total_eth_count++;
   if (spi_number() == SPI1) {
 	  if  (spi_iomux() & IO_CRM_CLOCK) {
 
-		#ifndef AT32F437xx //.
+		#if !defined(AT32F437xx) || defined(AT32F413xx) || defined(AT32F415xx) || \
+			defined(AT32F403Axx) || defined(AT32F403xx) || defined(AT32F407xx)
 	    crm_periph_clock_enable(CRM_IOMUX_PERIPH_CLOCK, TRUE); //Non-f437,iomux-config
 	    gpio_pin_remap_config(SWJTAG_GMUX_010, TRUE); //Non-f437,iomux-config
 		#endif //.
 	  }
 	  if  (spi_iomux() & IO_MUX_PINREMAP) {
 
-		#ifndef AT32F437xx //.
+		#if !defined(AT32F437xx) || defined(AT32F413xx) || defined(AT32F415xx) || \
+			defined(AT32F403Axx) || defined(AT32F403xx) || defined(AT32F407xx)
 		  gpio_pin_remap_config(SPI1_MUX_01, TRUE); //Non-f437,remap
 		#endif //.
 	  }
@@ -229,6 +231,43 @@ uint8_t cspi_read_reg(uint8_t reg) //static (todo)
 #endif
 	return val;
 }
+
+void cspi_write_regs(uint8_t reg, u8 *buf, u16 len, csmode_t csmode)
+{
+  int i;
+  int par_regs = (reg == DM9051_PAR);
+
+  if (csmode == CS_LONG)
+  {
+#if freeRTOS_ENABLE_MUTEX && (JOS_MUTEX_LO_INIT || JOS_MUTEX_LINK || JOS_MUTEX_RX || JOS_MUTEX_TX)
+    INIT_CSPI_CORE()
+    LOCK_CSPI_CORE(0)
+#endif
+    dm9051if_cs_lo();
+    for (i = 0; i < len; i++, reg++)
+    {
+      dm9051_spi_command_write(reg | OPC_REG_W);
+      dm9051_spi_command_write(buf[i]);
+
+      if (par_regs)
+        printf("long read reg %02x = %02x\r\n", reg, buf[i]);
+    }
+    dm9051if_cs_hi();
+#if freeRTOS_ENABLE_MUTEX && (JOS_MUTEX_LO_INIT || JOS_MUTEX_LINK || JOS_MUTEX_RX || JOS_MUTEX_TX)
+    UNLOCK_CSPI_CORE()
+#endif
+  }
+  else
+  { // CS_EACH
+    for (i = 0; i < len; i++, reg++)
+    {
+      cspi_write_reg(reg + i, buf[i]);
+      if (par_regs)
+        ; // printf("each read reg %02x = %02x\r\n", reg, buf[i]);
+    }
+  }
+}
+
 void cspi_write_reg(uint8_t reg, uint8_t val)
 {
 #if freeRTOS_ENABLE_MUTEX && (JOS_MUTEX_LO_INIT || JOS_MUTEX_LINK || JOS_MUTEX_RX || JOS_MUTEX_TX)

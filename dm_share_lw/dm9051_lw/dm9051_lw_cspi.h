@@ -38,7 +38,6 @@
 #define gpio_wire_mi()				FIELD_SPIDEV(wire_mi)
 #define gpio_wire_mo()				FIELD_SPIDEV(wire_mo)
 #define gpio_cs()					FIELD_SPIDEV(wire_cs)
-#define intr_pointer()				FIELD_SPIDEV(intr)
 
 void gpio_pin_config(const gpio_t *gpio, gpio_pull_type gppull);
 void spi_add(void);

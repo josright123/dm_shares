@@ -120,7 +120,7 @@ typedef struct {
 	gpio_t wire_mo;
 	char *cpu_cs_info;
 	gpio_t wire_cs;
-	const struct modscfg_st *intr;
+	const struct modscfg_st *intr_cfg;
 } spi_dev_t;
 
 /*

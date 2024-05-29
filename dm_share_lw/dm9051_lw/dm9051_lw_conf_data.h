@@ -36,13 +36,13 @@ struct extscfg_st pe_a0 = {
 			"SCFG pa0", \
 			{CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOA, SCFG_PINS_SOURCE0}, \
 		/*	{CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},*/ \
-			&pe_a0, /*essential*/ \
+			&pe_a0, /*extend (essential)*/ \
 			&gp_a0 /*NULL*/
 	#define devconf_intr_c7 \
 			"SCFG pc7", \
 			{CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7}, \
 		/*	{CRM_GPIOC_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},*/ \
-			&pe, /*essential*/ \
+			&pe, /*extend (essential)*/ \
 			&gp
 
 const struct modscfg_st devconf_at437_intr_a0 = {
@@ -308,32 +308,13 @@ IS_DECL_FUNCTION(enable_t, generic_core_rst)
 #define cpu_cs_conf_name()			FIELD_SPIDEV(cpu_cs_info)
 #define spihead()					FIELD_SPIDEV(spidef)
 
-//#define exint_exister()			((struct modscfg_st *)intr_packPT)
-//#define exint_scfg_ptr()			!exint_data() ? NULL : ((struct modscfg_st *)intr_packPT[pin_code])->extend
-//#define intr_gpio_exister()			!exint_data() ? 0 : !(((struct modscfg_st *)intr_packPT[pin_code])->option) ? 0 : 1
-
-#define exint_data()				(1)
-#define exint_scfg_ptr()			FIELD_SPIDEV(intr)->extend
-#define intr_gpio_exister()			!(FIELD_SPIDEV(intr)->option) ? 0 : 1
-//#define exint_data()				((const struct modscfg_st **)intr_packPT)
-//#define exint_scfg_ptr()			!exint_data() ? NULL : ((const struct modscfg_st **)intr_packPT)[pin_code]->extend
-//#define intr_gpio_exister()			!exint_data() ? 0 : !(((const struct modscfg_st **)intr_packPT)[pin_code]->option) ? 0 : 1
-
-#define scfg_info()					PTR_EXINTD(scfg_inf)
-#define scfg_crm()					PTR_EXINTD(scfg_init.scfg_clk)
-#define scfg_port()					PTR_EXINTD(scfg_init.scfg_port_src)
-#define scfg_pin()					PTR_EXINTD(scfg_init.scfg_pin_src)
 #define intr_data_scfg()			PTR_EXINTD(extend)
-#define exint_enable_info()			PTR_EXINTD(extend->irq_enable_inf)
-#define exint_extline()				PTR_EXINTD(extend->extline.extline)
-#define exint_crm()					PTR_EXINTD(extend->extline.intr_crm_clk)
 #define intr_gpio_data()			PTR_EXINTD(option)
 
 #define rst_gpio_data()				(option_rst_common)
 #define rst_gpio_exister()			(rst_gpio_data() ? 1 : 0)
 
 #define intr_gpio_info()			PTR_EXINTD(option->gp_info) //NO_USED
-#define intr_gpio_ptr()				((const gpio_t *)(&PTR_EXINTD(option->gp)))
 
 #define rst_gpio_info()				PTR_RSTGPIO(gp_info)
 #define rst_gpio_ptr()				((const gpio_t *)(&PTR_RSTGPIO(gp)))
@@ -550,27 +531,8 @@ bmcrmode_t mstep_opts_bmcrmode(void) {
 
 //-
 
-int is_dm9051_board_irq(void)
-{
-//	pexint_set = ((struct modscfg_st *)intr_packPT)[pin_code].extend; //exint_scfg_ptr();
-	const struct extscfg_st *pexint_set = (const struct extscfg_st *) exint_scfg_ptr();
-	return pexint_set ? 1 : 0;
-}
-
-int intr_gpio_exist(void) {
-	return intr_gpio_exister();
-}
-
 static int rst_pin_exister(void) {
 	return rst_gpio_exister();
-}
-
-static int intr_gpio_mptr(void) {
-	if (intr_gpio_exist()) {
-//		printf(": %s :                 interr-pin/ %s\r\n", "config", intr_gpio_info()); //_intr_gpio_exist()->gp_info
-		return 1;
-	}
-	return 0;
 }
 
 static int rst_pin_mexist(void) {

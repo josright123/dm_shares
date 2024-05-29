@@ -518,7 +518,7 @@ int dm9051_rx_isr_check(int pin)
 	if (sys_now() > isr_local_time[pin]) {
 		isrs = dm9051_isr_clean();
 		if (isrs & 1) {
-			check = 1; // or rx_handler_direct(pin, FALSE/TRUE);
+			check = 1; // or _rx_handler_direct(pin, FALSE/TRUE);
 			printf("*INFO[%d]: isr_check(%d) enter ... isr %02x\r\n", pin, ++test_line7_ienter[pin], isrs & 0xff);
 			//isr = DM9051_Read_Reg(DM9051_ISR);
 			printf("*INFO[%d]: isr_check(%d) exit ... isr %02x\r\n", pin, test_line7_ienter[pin], isrs >> 8);
@@ -537,7 +537,7 @@ int dm9051_rx_isr_check(int pin)
 //		DM9051_Write_Reg(DM9051_ISR, isr);
 //		isr = DM9051_Read_Reg(DM9051_ISR);
 //		printf("*INFO[%d]: isr_check(%d) exit ... isr %02x\r\n", pin, test_line7_ienter[pin], isr);
-//		check = 1; // or rx_handler_direct(pin, FALSE/TRUE);
+//		check = 1; // or _rx_handler_direct(pin, FALSE/TRUE);
 //		isr_local_time[pin] = sys_now() + ICHK_FREQ_MS;
 //	}
 //	else

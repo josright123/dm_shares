@@ -21,7 +21,7 @@
 // #define _AT32F403Axx
 #define _AT32F437xx
 
-#define	ETHERNET_INTERRUPT_MODE					1
+#define	ETHERNET_INTERRUPT_MODE					1 // Please keep define to 1, INT or POLLING by _data.h
 
 #ifdef freeRTOS_CONF
 #define freeRTOS											freeRTOS_CONF
@@ -153,6 +153,7 @@ void cpin_poweron_reset(void);
 void board_conf_configuration(void);
 void cspi_read_regs(uint8_t reg, u8 *buf, u16 len, csmode_t csmode);
 uint8_t cspi_read_reg(uint8_t reg);
+void cspi_write_regs(uint8_t reg, u8 *buf, u16 len, csmode_t csmode);
 void cspi_write_reg(uint8_t reg, uint8_t val);
 uint8_t cspi_read_mem2x(void);
 void cspi_read_mem(u8 *buf, u16 len);
@@ -223,7 +224,7 @@ u8 first_log_get(int i);
 	devconf[pin_code].field
 
 #define PTR_EXINTD(field) \
-	FIELD_SPIDEV(intr)->field
+	FIELD_SPIDEV(intr_cfg)->field
 //	(((const struct modscfg_st **)intr_packPT)[pin_code]->field)
 //	(((struct modscfg_st *)intr_packPT)[pin_code].field)
 //	(((struct modscfg_st *)intr_packPT)[pin_code]->field)
