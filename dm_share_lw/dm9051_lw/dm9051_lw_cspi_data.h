@@ -77,9 +77,9 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 			}
 		//AT32F437xx
 		
+		devconf_at437_spi1("AT32F437", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", &devconf_at437_intr_c7), //DM9051A BENCH BOARD V1.0
 		devconf_at437_spi1("AT32F437", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", NULL), //Note: NULL got no interrupt, and could faii crash! Need debug.
 																					//DM9051A BENCH BOARD V1.0
-		devconf_at437_spi1("AT32F437", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", &devconf_at437_intr_c7), //DM9051A BENCH BOARD V1.0
 			
 		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", &devconf_at437_intr_a0),
 		devconf_at437_spi4("AT32F437", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4", &devconf_at437_intr_c7),

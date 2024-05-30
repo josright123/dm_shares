@@ -459,6 +459,8 @@ void dm9051_opts_iomod_etc(void)
 #endif
 
 const uint8_t *identify_eth_mac(const uint8_t *macadr, int showflg) {
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
 	const uint8_t *mac;
 
 	DM_SET_FIELD(mac_t, final_mac, macadr ? macadr : candidate_eth_mac()); //determine which one, to set to field.
@@ -478,6 +480,8 @@ const uint8_t *identify_eth_mac(const uint8_t *macadr, int showflg) {
 			mac[4],
 			mac[5]);
 	return mac;
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
 
 uint8_t *identify_tcpip_ip(uint8_t *ip4adr) {

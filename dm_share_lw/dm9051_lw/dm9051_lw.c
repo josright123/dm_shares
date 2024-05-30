@@ -506,13 +506,14 @@ static void display_rw_mac(char *head, const uint8_t *adr)
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
 	int i;
-
+	
+	bannerline_log();
 	printf(": %s[%d] ::: eeprom[] ", head, mstep_get_net_index());
 	for (i = 0; i < 3; i++) {
 		uint16_t value = dm9051_eeprom_read(i);
 		printf("%04x ", value);
 	}
-	printf("chip-par[] %02x%02x%02x%02x%02x%02x\r\n", adr[0], adr[1], adr[2], adr[3], adr[4], adr[5]); //wr-par
+	printf("set chip-par[] %02x%02x%02x%02x%02x%02x\r\n", adr[0], adr[1], adr[2], adr[3], adr[4], adr[5]); //wr-par
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
@@ -827,7 +828,7 @@ const uint8_t *dm9051_start1(const uint8_t *adr)
 //			printf(": APP ENTER-mac[%d] ::: %02x %02x %02x %02x %02x %02x\r\n",
 //				mstep_get_net_index(), adr[0],adr[1],adr[2],adr[3],adr[4],adr[5]);
 		} else {
-			printf(": APP ENTER-mac[%d] ::: %02x %02x %02x %02x %02x %02x (Invalid)\r\n",
+			printf(": APP DEF-INVAL-mac[%d] ::: %02x %02x %02x %02x %02x %02x (Invalid)\r\n",
 				mstep_get_net_index(), adr[0],adr[1],adr[2],adr[3],adr[4],adr[5]);
 			adr = internal_adr_logic();
 		}

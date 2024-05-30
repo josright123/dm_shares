@@ -30,8 +30,10 @@
 //#include "dm9051_lw_conf_types.h"
 #include "dm9051_lw_cspi.h"
 #include "dm9051_lw_cint.h"
-#include "dm9051_lw_conf_data.h" //1.yicheng
 #include "dm9051_lw_debug.h"
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
+
+#include "dm9051_lw_conf_data.h" //1.yicheng 2.later than 'board_printf'
 
 //#ifdef AT32F437xx
 //#include "dm9051_lw_conf_at437x2spi.h" //1.yicheng
@@ -76,11 +78,13 @@ To have interrupt mode support function.
 //}
 
 /*********************************
- * dm9051 delay times procedures
+ * dm9051 macro
  *********************************/
-
 #define	board_printf(format, args...) //int board_printf(const char *format, args...) { return 0; }
 
+/*********************************
+ * dm9051 delay times procedures
+ *********************************/
 void dm_delay_us(uint32_t nus) {
 //	void delay_us(uint32_t nus);
 	board_printf("test %d ,because rxb %02x (is %d times)\r\n", rstccc, rxbyteee, timesss);
