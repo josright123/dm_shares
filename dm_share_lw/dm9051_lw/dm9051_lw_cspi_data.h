@@ -1,18 +1,17 @@
 /* pattern-fill */
 #define	MUX_NULL()	\
 	GPIO_MODE_MUX, GPIO_PINSRC_NULL, GPIO_MUX_NULL
-	
+
 //#define OUTPUT_DATA()	\
 //	GPIO_MODE_OUTPUT,	GPIO_PINSRC_NULL,	GPIO_MUX_NULL
-	
+
 /* used in struct data declaration */
 #define SPI_PINSTD(spiname,spinum,crmclk,iom)				{spiname, spinum, crmclk, iom}
-
-#define GPIO_PINMUX(gpport,pin,crmclk, ptrmux)			{gpport,pin,crmclk, ptrmux} //, MUX_DATA(S, M)
+#define GPIO_PINMUX(gpport,pin,crmclk, ptrmux)				{gpport,pin,crmclk, ptrmux} //, MUX_DATA(S, M)
 #define GPIO_PINOUT(gpport,pin,crmclk, ptrmux)				{gpport,pin,crmclk, ptrmux} //, OUTPUT_DATA()
 #define GPIO_PINNORM(gpport,pin,crmclk, ptrmux)				{gpport,pin,crmclk, ptrmux} //used (AT32F413/415)
 #define GPIO_PININ(gpport,pin,crmclk, ptrmux)				{gpport,pin,crmclk, ptrmux} //used (AT32F413/415)
-		
+
 #define MUX_DATA(src,muxto)	\
 	GPIO_MODE_MUX, src, muxto,
 
@@ -76,17 +75,17 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				intrcfg, \
 			}
 		//AT32F437xx
-		
+
 		devconf_at437_spi1("AT32F437", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", &devconf_at437_intr_c7), //DM9051A BENCH BOARD V1.0
 		devconf_at437_spi1("AT32F437", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", NULL), //Note: NULL got no interrupt, and could faii crash! Need debug.
 																					//DM9051A BENCH BOARD V1.0
-			
+
 		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", &devconf_at437_intr_a0),
 		devconf_at437_spi4("AT32F437", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4", &devconf_at437_intr_c7),
-		
+
 		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", &devconf_at437_intr_a0),
 		//devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", &devconf_at437_intr_a0),
-		
+
 //		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", TBD),
 //		devconf_at437_spi4("AT32F437", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4", TBD),
 //		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", TBD),
@@ -152,7 +151,7 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				GPIO_PINOUT(gp_port,	gp_pin,			gp_crm_clk,				&mode_output), /* //(PA4) */ \
 			}
 		//AT32F4xx
-		
+
 		devconf_at413_spi2("AT32F413 ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12"),
 		devconf_at413_spi1a("AT32F413 ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15",
 			GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK, IO_CRM_CLOCK),
@@ -161,6 +160,7 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 
 		devconf_at413_spi1a("AT32F413 ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa4",
 			GPIOA, GPIO_PINS_4, CRM_GPIOA_PERIPH_CLOCK, IO_MUX_NULL),
+
 	#elif defined (AT32F403Axx) || defined (AT32F403xx) || defined (AT32F407xx)
 		#define devconf_at403a_spi2(info, spi_setting_name, cs_setting_name) \
 			{ \
@@ -185,12 +185,25 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				cs_setting_name, \
 				{gpport,	pin, 			gpio_crm_clk, 			&mode_output }, /* //(PA4) Test-ISP2 OK */ /* GPIO_MODE_OUTPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL */ \
 			}
+		#define devconf_at403a_spi1a(info, spi_setting_name, cs_setting_name, gpport, pin, gpio_crm_clk, intrcfg) \
+			{ \
+				info, \
+				{"SPI1a", SPI1, CRM_SPI1_PERIPH_CLOCK, IO_CRM_CLOCK}, \
+				spi_setting_name, \
+				{GPIOA,		GPIO_PINS_5, 	CRM_GPIOA_PERIPH_CLOCK, &mode_null },  /* //ISCK */ \
+				{GPIOA,		GPIO_PINS_6, 	CRM_GPIOA_PERIPH_CLOCK, &mode_null }, /* //IMISO */ \
+				{GPIOA,		GPIO_PINS_7, 	CRM_GPIOA_PERIPH_CLOCK, &mode_null }, /* //IMOSI */ \
+				cs_setting_name, \
+				{gpport,	pin, 			gpio_crm_clk, 			&mode_output }, /* //(PA4) Test-ISP2 OK */ /* GPIO_MODE_OUTPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL */ \
+				intrcfg, \
+			}
 		//AT32F4xx
-		
+
+		devconf_at403a_spi1a("AT32F403A ETHERNET SPI1a", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK, &devconf_at403a_intr_c7),
 		devconf_at403a_spi1("AT32F403A ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa4", GPIOA, GPIO_PINS_4, CRM_GPIOA_PERIPH_CLOCK),
-		devconf_at403a_spi2("AT32F403A ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12"),	
+		devconf_at403a_spi2("AT32F403A ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12"),
 		/*!< pa15 must jtag-dp disabled and sw-dp enabled */
-		// devconf_at403a_spi1("AT32F403A ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK), /*GPIOB, GPIO_PINS_12, CRM_GPIOB_PERIPH_CLOCK*/ 
+		// devconf_at403a_spi1("AT32F403A ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK), /*GPIOB, GPIO_PINS_12, CRM_GPIOB_PERIPH_CLOCK*/
 	#else
 		#error "not defined board"
 	#endif

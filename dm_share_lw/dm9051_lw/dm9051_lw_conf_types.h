@@ -83,7 +83,7 @@ typedef struct extint_init_st {
 } extint_init_t;
 
 struct extscfg_st { //struct linescfg_st
-	const char *irq_enable_inf;	
+	const char *irq_enable_inf;
 	struct extline_st {
 		crm_periph_clock_type intr_crm_clk; //CRM_GPIOC_PERIPH_CLOCK,
 		uint32_t extline; //= LINE
@@ -100,12 +100,12 @@ struct extscfg_st { //struct linescfg_st
 // 	(((struct modscfg_st *)intr_pack)->extend->extline.extline)
 
 typedef struct gp_set_st {
-	const char *gp_info;	
+	const char *gp_info;
 	const gpio_t gp;
 } gp_set_t;
 
 struct modscfg_st {
-	const char *scfg_inf;	
+	const char *scfg_inf;
 	struct extint_init_st scfg_init; //extint_init_t
 	struct extscfg_st *extend; //struct linescfg_st *extend; //essential
 	struct gp_set_st *option; //gp_set_t
@@ -153,6 +153,8 @@ typedef struct {
 //extern const struct modscfg_st devconf_at437_intr_a0;
 extern const struct modscfg_st devconf_at437_intr_a0;
 extern const struct modscfg_st devconf_at437_intr_c7;
+extern const struct modscfg_st devconf_at403a_intr_c6;
+extern const struct modscfg_st devconf_at403a_intr_c7;
 
 extern const spi_dev_t devconf[BOARD_SPI_COUNT];
 extern int pin_code;
