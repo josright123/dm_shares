@@ -277,9 +277,25 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				{gpport,	pin, 			gpio_crm_clk, 				GPIO_MODE_OUTPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL}, /* //(PA4) Test-ISP2 OK */ \
 				intrcfg, \
 			}
+
+		#define devconf_at403a_spi1a(info, spi_setting_name, cs_setting_name, gpport, pin, gpio_crm_clk, intrcfg) \
+			{ \
+				info, \
+				{"SPI1a",	SPI1,			CRM_SPI1_PERIPH_CLOCK, IO_CRM_CLOCK}, \
+				spi_setting_name, \
+				{GPIOA,		GPIO_PINS_5, 	CRM_GPIOA_PERIPH_CLOCK, 	GPIO_MODE_MUX, 	GPIO_PINSRC_NULL, GPIO_MUX_NULL},  /* //ISCK */ \
+				{GPIOA,		GPIO_PINS_6, 	CRM_GPIOA_PERIPH_CLOCK, 	GPIO_MODE_MUX,	GPIO_PINSRC_NULL, GPIO_MUX_NULL}, /* //IMISO */ \
+				{GPIOA,		GPIO_PINS_7, 	CRM_GPIOA_PERIPH_CLOCK, 	GPIO_MODE_MUX,	GPIO_PINSRC_NULL, GPIO_MUX_NULL}, /* //IMOSI */ \
+				cs_setting_name, \
+				{gpport,	pin, 			gpio_crm_clk, 				GPIO_MODE_OUTPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL}, /* //(PA4) Test-ISP2 OK */ \
+				intrcfg, \
+			}
+
 		//AT32F4xx
 		// devconf_at403a_spi2("AT32F403A ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12", &devconf_at403a_intr_c6),
 		// devconf_at403a_spi1("AT32F403A ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa4", GPIOA, GPIO_PINS_4, CRM_GPIOA_PERIPH_CLOCK, &devconf_at403a_intr_c7),
+		devconf_at403a_spi1a("AT32F403A ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK, &devconf_at403a_intr_c7),
+		devconf_at403a_spi1("AT32F403A ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK, &devconf_at403a_intr_c7),
 		// devconf_at403a_spi2("AT32F403A ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12", &devconf_at403a_intr_c6),
 		devconf_at403a_spi1("AT32F403A ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa4", GPIOA, GPIO_PINS_4, CRM_GPIOA_PERIPH_CLOCK, NULL),
 		devconf_at403a_spi2("AT32F403A ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12", NULL),

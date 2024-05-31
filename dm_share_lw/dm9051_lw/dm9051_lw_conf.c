@@ -39,7 +39,7 @@
 //#endif
 
 /*
-In xxx_int.c, 
+In xxx_int.c,
 
 To have interrupt mode support function.
 
@@ -51,11 +51,11 @@ To have interrupt mode support function.
 //void dm9051_irqlines_proc(void)
 //{
 ////  void xxethernetif_exint_proc(int i);
-//  
+//
 //	  printf("dm9051_irqlines_proc()-ethernetif _exint _proc()\r\n");
 //	  if (!exint_exister()) //[To be enum , e.g. intr_pack[i], if multi-cards]
 //		return;
-//  
+//
 //	  if (exint_flag_get(exint_extline()) != RESET) //if (exint_flag_get(EXINT_LINE_7) != RESET)
 //	  {
 //		#if ETHERNET_INTERRUPT_MODE
@@ -65,7 +65,7 @@ To have interrupt mode support function.
 //			int pin = 0;
 //			if (exint_extline() == EXINT_LINE_7)
 //				pin = 0;
-//			
+//
 //			xxethernetif_exint_proc(pin);
 //		}
 //		#endif
@@ -200,7 +200,7 @@ void intr_add(void)
   } confi = {
 	  GPIO_PULL_UP, EXINT_TRIGGER_FALLING_EDGE,
   };
- 
+
   if (intr_gpio_mptr()) {
 	  printf("................................ dm9051 gpio_pin_config(for intr)\r\n");
 	  printf("gpio_pin_config: INTR-gpio\r\n");
@@ -212,7 +212,7 @@ void intr_add(void)
 
 //[Enable int]
 static void exint_enable(const struct extscfg_st *pexint_set) {
-	
+
 //	printf(": %s :                 exint-enable/ %s\r\n", "config", exint_enable_info()); //pexint_set
 	bannerline_log();
 	printf("irq_priority: priority = 0x%x !\r\n", pexint_set->extline.priority); //or "NVIC_PRIORITY_GROUP_0"
@@ -250,7 +250,7 @@ void dm9051_board_irq_enable(void)
 
 //  exint_default_para_init(&exint_init_struct);
 //  exint_init_struct.line_enable = TRUE;
-//  
+//
 //  exint_init_struct.line_mode = EXINT_LINE_INTERRUPUT;
 //  exint_init_struct.line_select = EXINT_LINE_0;
 //  exint_init_struct.line_polarity = EXINT_TRIGGER_FALLING_EDGE; //EXINT_TRIGGER_RISING_EDGE;
@@ -319,17 +319,18 @@ static void spi_add(void) //=== pins_config(); //total_eth_count++;
   //Setting of Non-f437
   if (spi_number() == SPI1) {
 	  if  (spi_iomux() & IO_CRM_CLOCK) {
-
-		#ifndef AT32F437xx //.
+		#ifndef AT32F437xx
 	    crm_periph_clock_enable(CRM_IOMUX_PERIPH_CLOCK, TRUE); //Non-f437,iomux-config
 	    gpio_pin_remap_config(SWJTAG_GMUX_010, TRUE); //Non-f437,iomux-config
-		#endif //.
+      printf("gpio_pin_remap_config: SWJTAG_GMUX_010\r\n");
+		#endif
 	  }
-	  if  (spi_iomux() & IO_MUX_PINREMAP) {
 
-		#ifndef AT32F437xx //.
+	  if  (spi_iomux() & IO_MUX_PINREMAP) {
+		#ifndef AT32F437xx
 		  gpio_pin_remap_config(SPI1_MUX_01, TRUE); //Non-f437,remap
-		#endif //.
+      printf("gpio_pin_remap_config: SPI1_MUX_01\r\n");
+		#endif
 	  }
   }
 //.#endif
@@ -361,7 +362,7 @@ void interface_all_add(int pin)
 	rst_add();
 	intr_add();
 //	exint_line0_config();
-	
+
 //	exint_line4_config();
 }
 
@@ -416,10 +417,10 @@ void LIST_EXTLINE(uint32_t exint_line)
 		printf("Enter exint_line 0x%06x\r\n", exint_line);
 	else
 		printf("Enter EXINT_LINE_NONE 0x%06x\r\n", exint_line);
-		
+
 	for (pin = 0; pin < ETHERNET_COUNT; pin++)
 		printf("List%d = 0x%06x\r\n", pin, DataObj.intrconf[pin]->extend->extline.extline);
-		
+
 	if (exint_line)
 		printf("Exit exint_line 0x%06x NOT found!\r\n", exint_line);
 	else
@@ -433,7 +434,7 @@ int DataObj_EXINT_Pin(uint32_t exint_line)
 		if (DataObj.intrconf[pin]->extend->extline.extline == exint_line)
 			return pin;
 	}
-	
+
 //	printf("Enter exint_line 0x%06x\r\n", exint_line);
 //	for (pin = 0; pin < ETHERNET_COUNT; pin++)
 //		printf("List%d = 0x%06x\r\n", pin, DataObj.intrconf[pin]->extend->extline.extline);
@@ -495,7 +496,7 @@ void cspiSemaphoreDoYield(int pntlog, char *headstr, SemaphoreHandle_t semaphore
 
 #define INIT_CSPI_CORE() \
 	int rc;
-	
+
 #define LOCK_CSPI_CORE(log) \
 	if (freeRTOS_ENABLE_MUTEX) \
 		rc = cspiSemaphoreDoOwn(log, "empty", NULL);
