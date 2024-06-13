@@ -98,6 +98,8 @@ void dm_delay_ms(uint16_t nms) {
 void rst_add(void)
 {
   if (rst_pin_mexist()) {
+	/* rst_gpio_ptr() should be correct pin define.
+	 */
 	printf("gpio_pin_config: RST-gpio %d\r\n", de_pin(rst_gpio_ptr())); //&gpio_wire_mi()//&rst_gpio_ptr()
 	gpio_pin_config(rst_gpio_ptr(), GPIO_PULL_UP); //=(rst_gpio_ptr(_pinCode), GPIO_PULL_UP); //,GPIO_MODE_OUTPUT
   }
