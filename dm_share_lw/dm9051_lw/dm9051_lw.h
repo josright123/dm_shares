@@ -240,7 +240,7 @@ extern sys_mutex_t lock_dm9051_core;
 #endif
 
 #if DM9051OPTS_API
-void dm9051_boards_initialize(int n);
+void dm9051_boards_initialize(void);
 //void dm9051_spi_configuration(int n);
 
 const uint8_t *dm9051_init(const uint8_t *adr);

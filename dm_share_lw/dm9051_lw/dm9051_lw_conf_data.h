@@ -59,7 +59,8 @@ const struct modscfg_st devconf_at437_intr_c7 = {
 // };
 
 //-
-#elif defined (AT32F403Axx) || defined (AT32F403xx) || defined (AT32F407xx)
+#elif defined (AT32F403Axx) || defined (AT32F403xx) || defined (AT32F407xx) || \
+	  defined (AT32F413xx)
 //[CRM_SCFG_PERIPH_CLOCK] //essential
 struct extscfg_st pe_c7 = {
 	"enable SCFG, extline pc7",

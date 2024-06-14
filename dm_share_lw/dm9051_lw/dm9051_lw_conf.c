@@ -260,3 +260,12 @@ void cspiSemaphoreDoYield(int pntlog, char *headstr, SemaphoreHandle_t semaphore
 #define LOCK_CSPI_CORE(log)
 #define UNLOCK_CSPI_CORE()
 #endif
+
+//static
+void dm9051_delay_in_core_process(uint16_t nms, char *zhead) //finally, dm9051_lw.c
+{
+	if (nms)
+		printf(": dm9051_driver[%d] ::: %s delay %u ms.. : \r\n", mstep_get_net_index(), zhead, nms);
+	if (nms)
+	  dm_delay_ms(nms); //_delay_ms(nms); //from James' advice! to be determined with a reproduced test cases!!
+}

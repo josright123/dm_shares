@@ -9,17 +9,14 @@
 #ifndef __DM9051_OPTS_H
 #define __DM9051_OPTS_H
 
-#include "stdint.h"
-#include <string.h>
-#include "../dm9051_lw_usr.h"
+#include "../dm9051_lw_predefine.h"
+#include "../dm9051_lw_userdefine.h"
 
 /*
  * dm9051_declaration_support
  */
 #define ETHERNET_COUNT_MAX						4 // Correspond to mcu target board's specification
 #define ETHERNET_COUNT								1 //2 //1 //4 //2 //2 //3 //2 //#define get_eth_interfaces() ETH_COUNT
-// #define _AT32F403Axx
-#define _AT32F437xx
 
 #define	ETHERNET_INTERRUPT_MODE					1 // Please keep define to 1, INT or POLLING by _data.h
 

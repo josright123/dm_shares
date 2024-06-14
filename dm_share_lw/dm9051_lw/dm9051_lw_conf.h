@@ -141,4 +141,6 @@ char *mstep_conf_type(void);
 
 int mstep_dm9051_index(void);
 
+void dm9051_delay_in_core_process(uint16_t nms, char *zhead);
+
 #endif //__DM9051_ENV_H

@@ -83,8 +83,8 @@ void exint_mconfig(exint_polarity_config_type polarity)
 {
   if (intr_pointer())
   {
-    printf(".exint_mconfig (INT)\r\n");
     const struct extscfg_st *pexint_set = (const struct extscfg_st *)exint_scfg_ptr();
+    printf(".exint_mconfig (INT)\r\n");
     if (pexint_set)
     {
       exint_config(pexint_set, polarity);
