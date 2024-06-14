@@ -32,14 +32,7 @@
 #include "dm9051_lw_cint.h"
 #include "dm9051_lw_debug.h"
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
-
 #include "dm9051_lw_conf_data.h" //1.yicheng 2.later than 'board_printf'
-
-//#ifdef AT32F437xx
-//#include "dm9051_lw_conf_at437x2spi.h" //1.yicheng
-//#else
-//#include "dm9051_lw_conf_at437x2spi.h" //or "dm9051_lw_conf_at415x2spi.h"
-//#endif
 
 /*
 In xxx_int.c, 
@@ -77,34 +70,6 @@ To have interrupt mode support function.
 //	  }
 //}
 
-/*********************************
- * dm9051 macro
- *********************************/
-#define	board_printf(format, args...) //int board_printf(const char *format, args...) { return 0; }
-
-/*********************************
- * dm9051 delay times procedures
- *********************************/
-void dm_delay_us(uint32_t nus) {
-//	void delay_us(uint32_t nus);
-	board_printf("test %d ,because rxb %02x (is %d times)\r\n", rstccc, rxbyteee, timesss);
-	dmf.dly_us(nus); //delay_us(nus);
-}
-void dm_delay_ms(uint16_t nms) {
-//	void delay_ms(uint16_t nms);
-	dmf.dly_ms(nms); //delay_ms(nms);
-}
-
-void rst_add(void)
-{
-  if (rst_pin_mexist()) {
-	/* rst_gpio_ptr() should be correct pin define.
-	 */
-	printf("gpio_pin_config: RST-gpio %d\r\n", de_pin(rst_gpio_ptr())); //&gpio_wire_mi()//&rst_gpio_ptr()
-	gpio_pin_config(rst_gpio_ptr(), GPIO_PULL_UP); //=(rst_gpio_ptr(_pinCode), GPIO_PULL_UP); //,GPIO_MODE_OUTPUT
-  }
-}
-
 void interface_all_add(int pin)
 {
 	DM_UNUSED_ARG(pin);
@@ -112,20 +77,7 @@ void interface_all_add(int pin)
 	spi_add();
 	rst_add();
 	intr_add();
-//	exint_line0_config();
-	
-//	exint_line4_config();
 }
-
-/*
- * pDevObj[] is
- * waiting to be used!
- */
-//const spi_dev_t *pDevObj[BOARD_SPI_COUNT]; //To be used, in case 'pin_code' can be eliminated mass-quantity.
-
-//void DevObj_store(int pin) {
-//	pDevObj[pin] = PTR_SPIDEV(pin); //'pin_code'
-//}
 
 /*
  * DataObj.devconf[] and DataObj.intrconf[] are
@@ -138,23 +90,9 @@ typedef struct {
 
 conf_list_t DataObj;
 
-//Example:
-// = {
-//	{
-//		&devconf[0], //devconf_at437_spi4("AT32F437", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4"),
-//		&devconf[1], //devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
-//	},
-//	{
-//		&devconf_at437_intr_c7,
-//		&devconf_at437_intr_a0,
-//	},
-//};
 void DataObj_store(int pin) {
-	DataObj.devconf[pin] = &devconf[pin]; //PTR_SPIDEV(pin); //'pin_code'
-//	if (_intr_packPT)
-	DataObj.intrconf[pin] = intr_pointer(); //instead of, ((const struct modscfg_st **)_intr_packPT)[pin];
-							//Can it in case NULL ok ?
-//	  DataObj.intrconf[pin] = &((struct modscfg_st *)intr_packPT)[pin];
+	DataObj.devconf[pin] = &devconf[pin];
+	DataObj.intrconf[pin] = intr_pointer(); //Can it in case NULL ok ?
 }
 
 uint32_t DataObj_EXINT_extline(int pin)
@@ -192,7 +130,6 @@ int DataObj_EXINT_Pin(uint32_t exint_line)
 //		printf("List%d = 0x%06x\r\n", pin, DataObj.intrconf[pin]->extend->extline.extline);
 //	printf("Exit exint_line 0x%06x NOT found!\r\n", exint_line);
 	LIST_EXTLINE(exint_line);
-
 	return 0;
 }
 
@@ -221,18 +158,6 @@ void board_conf_configuration(void)
 //	dm9051_init(_get_eth_mac());
 //  }
 //}
-
-static void rst_pin_pulse(void) {
-	gpio_bits_reset(rst_gpio_ptr()->gpport, rst_gpio_ptr()->pin); //rstpin_lo();
-	dm_delay_ms(1);
-	gpio_bits_set(rst_gpio_ptr()->gpport, rst_gpio_ptr()->pin); //rstpin_hi();
-}
-
-void cpin_poweron_reset(void)
-{
-	if (rst_pin_exister())
-		rst_pin_pulse(); //.dm9051_if->rstb_pulse()
-}
 
 /*
  * Include user defined options first. Anything not defined in these files

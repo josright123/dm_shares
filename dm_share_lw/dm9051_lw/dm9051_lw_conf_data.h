@@ -5,8 +5,6 @@
 //
 #define board_conf_type	"\"dm9051_at32_mf\""
 
-const gp_set_t *option_rst_common = NULL;
-
 //-
 
 #ifdef AT32F437xx
@@ -363,13 +361,7 @@ IS_DECL_FUNCTION(enable_t, generic_core_rst)
 
 #define intr_data_scfg()			PTR_EXINTD(extend)
 
-#define rst_gpio_data()				(option_rst_common)
-#define rst_gpio_exister()			(rst_gpio_data() ? 1 : 0)
-
 #define intr_gpio_info()			PTR_EXINTD(option->gp_info) //NO_USED
-
-#define rst_gpio_info()				PTR_RSTGPIO(gp_info)
-#define rst_gpio_ptr()				((const gpio_t *)(&PTR_RSTGPIO(gp)))
 
 #define mstep_set_index(i)			pin_code = i //empty for 1 eth project
 #define mstep_get_index()			pin_code
@@ -584,17 +576,3 @@ bmcrmode_t mstep_opts_bmcrmode(void) {
 //uint32_t extline_A(void) {
 //	return exint_extline();
 //}
-
-//-
-
-static int rst_pin_exister(void) {
-	return rst_gpio_exister();
-}
-
-static int rst_pin_mexist(void) {
-	if (rst_pin_exister()) {
-		printf(": %s :                 rst-pin/ %s\r\n", "config", rst_gpio_info());
-		return 1;
-	}
-	return 0;
-}

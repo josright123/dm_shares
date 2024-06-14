@@ -238,7 +238,7 @@ u8 first_log_get(int i);
 //	MULTI_TRANS,
 //};
 
-void dm9051_board_counts(const char *project_name);
+void dm9051_board_counts_display(const char *project_name);
 void dm9051_lock_arch_show(const char *project_name);
 
 #if DM9051OPTS_API

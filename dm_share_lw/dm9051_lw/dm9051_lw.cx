@@ -45,8 +45,7 @@
 #include "dm9051opts.h"
 #include "dm9051_lw.h"
 #include "dm9051_lw_cspi.h"
-#include "dm9051_lw_debug.h"
-
+#include "dm9051_lw_debug
 // printf("(dm9 xfer) %.8x: %s", i, linebuf);
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 //#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG, ("lw.c: " fmt, ##__VA_ARGS__))
@@ -64,9 +63,9 @@ static u16 unlink_count[ETHERNET_COUNT], unlink_stamp[ETHERNET_COUNT];
 
 //#define UNLINK_COUNT_RESET	60000
 
-#if freeRTOS
-sys_mutex_t lock_dm9051_core;
-#endif
+//#if freeRTOS
+//sys_mutex_t lock_dm9051_core;
+//#endif
 
 //void dm9051_poweron_rst(void)
 //{

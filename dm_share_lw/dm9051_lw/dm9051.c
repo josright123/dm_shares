@@ -381,7 +381,7 @@ void impl_dm9051_tx0(uint8_t *buf, uint16_t len)
 void dm9051_boards_initialize(void)
 {
   //DM_UNUSED_ARG(n);
-  dm9051_board_counts(PROJECT_NAME); //printf("x2web start: [BOARD_SPI COUNT] %d  /  Operating: [ETHERNET COUNT] %d\r\n", BOARD_SPI_COUNT, ETHERNET_COUNT);
+  dm9051_board_counts_display(PROJECT_NAME); //printf("x2web start: [BOARD_SPI COUNT] %d  /  Operating: [ETHERNET COUNT] %d\r\n", BOARD_SPI_COUNT, ETHERNET_COUNT);
   dm9051_opts_display();
   printf("DM9051_DEBUGF-->dm9051_boards_initialize() ..\r\n"); //DM9051_DEBUGF(DM9051_LW_CONF,("DM9051_DEBUGF-->dm9051_boards_initialize() ..\r\n"));
   
@@ -393,6 +393,10 @@ void dm9051_boards_initialize(void)
   dm9051_lock_arch_show("dm9051-demo");
 #endif
 }
+
+#if freeRTOS
+sys_mutex_t lock_dm9051_core;
+#endif
 
 const uint8_t *dm9051_init(const uint8_t *adr)
 {

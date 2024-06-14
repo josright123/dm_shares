@@ -49,6 +49,23 @@
 char *display_identity_bannerline_title = NULL;
 char *display_identity_bannerline_default =  ": Read device";
 
+/* dm9051 macro */
+
+#define	board_printf(format, args...) //int board_printf(const char *format, args...) { return 0; }
+
+/* dm9051 delay times procedures */
+
+void dm_delay_us(uint32_t nus)
+{
+	board_printf("test %d ,because rxb %02x (is %d times)\r\n", rstccc, rxbyteee, timesss);
+	dmf.dly_us(nus); //delay_us(nus);
+}
+
+void dm_delay_ms(uint16_t nms)
+{
+	dmf.dly_ms(nms); //delay_ms(nms);
+}
+
 /* eeprom && phy */
 
 uint16_t eeprom_read(uint16_t wordnum)
@@ -442,23 +459,6 @@ const uint8_t *hdlr_reset_process(const uint8_t *macaddr, enable_t en)
 
 #define	TIMES_TO_RST	10
 
-//static
-void dm9051_link_to_hexdump(const void *buffer, size_t len) {
-//	#undef printf
-//	#define printf(fmt, ...) TASK_DM9051_DEBUGF(TASK_SEMAPHORE_HEX_DUMP, SEMA_ON, NULL, (fmt, ##__VA_ARGS__))
-	#undef printf
-	#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
-	if (dm9051_link_log_reset_hexdump(buffer, len)) {
-		uint16_t rwpa_w, mdra_ingress;
-		impl_read_rx_pointers(&rwpa_w, &mdra_ingress);
-		printf("  rwpa %04x / igrss %04x\r\n", /*rx_modle_count[RX_ANY].allow_num,*/ rwpa_w, mdra_ingress);
-	}
-	#undef printf
-	#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
-//	#undef printf
-//	#define printf(fmt, ...) TASK_DM9051_DEBUGF(0, SEMA_OFF, "[xx]", (fmt, ##__VA_ARGS__))
-}
-
 int display_identity(char *spiname, uint16_t id, uint8_t *ids, uint8_t id_adv, uint16_t idin, char *tail)
 {
 #undef printf
@@ -503,25 +503,6 @@ int display_identity(char *spiname, uint16_t id, uint8_t *ids, uint8_t id_adv, u
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 } //spiname
-
-uint8_t rx_pointers_isr_show(char *headstr)
-{
-#undef printf
-#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
-
-	u16 rwpa_w, mdra_ingress;
-	uint8_t isr;
-	impl_read_rx_pointers(&rwpa_w, &mdra_ingress);
-	isr = DM9051_Read_Reg(DM9051_ISR);
-	printf("%s[%d] %s rwpa %04x / igrss %04x\r\n",
-			headstr, mstep_get_net_index(), mstep_spi_conf_name(), rwpa_w, mdra_ingress);
-	printf("%s[%d] %s isr 0x%02x\r\n",
-			headstr, mstep_get_net_index(), mstep_spi_conf_name(), isr);
-	return isr;
-
-#undef printf
-#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
-}
 
 static void dm9051_show_rxbstatistic(u8 *htc, int n)
 {
