@@ -357,13 +357,13 @@ void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
 				printf(" ");
 
 			if (prefix_str) {
-				printf("(%s) %.8x: %s", prefix_str, i, linebuf); //"%s", ec->str //CHECK (XXX >> )
+				printf("(%s) %.3x %s", prefix_str, i, linebuf); //"%s", ec->str //CHECK (XXX >> )
 				while (titledn) {
 					titledn--;
 					prefix_str[titlec++] = ' ';
 				}
 			} else {
-				printf("(dm9 xfer) %.8x: %s", i, linebuf); //"%s", ec->str
+				printf("(dm9 xfer) %.3x %s", i, linebuf); //"%s", ec->str
 			}
 
 			if ((i+rowsize) < se)
@@ -688,7 +688,7 @@ void dm9051_txlog_monitor_tx_all(int hdspc, const uint8_t *buffer, size_t len)
 
 		heads = (char *) malloc(HEAD_LEN); // note: memory allocation WITH <stdlib.h>!
 		  n = sprintf(heads, "%d/%d len %lu", tx_all_modle_keep.allow_num, tx_all_modle.allow_num, len);
-		  sprintf(heads, "txALL[%d]>> len %lu %d/%d", mstep_get_net_index(), len,
+		  sprintf(heads, "txALL[%d]>>len %lu %d/%d", mstep_get_net_index(), len,
 			tx_all_modle_keep.allow_num, tx_all_modle.allow_num);
 
 		  bannerline_log();

@@ -42,12 +42,65 @@
 #include "dm9051opts.h"
 #include "dm9051_lw.h"
 #include "dm9051_lw_cspi.h"
+#include "dm9051_lw_cint.h"
 #include "dm9051_lw_debug.h"
 
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 
 char *display_identity_bannerline_title = NULL;
 char *display_identity_bannerline_default =  ": Read device";
+
+/*
+ * DataObj.devconf[] and DataObj.intrconf[] are
+ * waiting to be used!
+ */
+typedef struct {
+	const spi_dev_t *devconf[BOARD_SPI_COUNT];
+	const struct modscfg_st *intrconf[BOARD_SPI_COUNT];
+} conf_list_t;
+
+/*
+ * DataObj.devconf[] and DataObj.intrconf[] are
+ * waiting to be used!
+ */
+
+conf_list_t DataObj;
+
+uint32_t DataObj_EXINT_extline(int pin)
+{
+	return DataObj.intrconf[pin] ? DataObj.intrconf[pin]->extend->extline.extline : 0;
+}
+
+void DataObj_store(int pin) {
+	DataObj.devconf[pin] = &devconf[pin];
+	DataObj.intrconf[pin] = intr_pointer(); //Can it in case NULL ok ?
+}
+
+void interface_all_add(int pin)
+{
+	DM_UNUSED_ARG(pin);
+
+	spi_add();
+	rst_add();
+	intr_add();
+}
+
+void board_conf_configuration(void)
+{
+  /*for (i = 0; i < n; i++) { //get_eth_interfaces()
+	mstep_set_net_index(i);
+	interface_all_add(i);
+  }*/
+
+//  ETH_COUNT_VOIDFN(DevObj_store);
+  ETH_COUNT_VOIDFN(DataObj_store);
+  LIST_EXTLINE(EXINT_LINE_NONE);
+
+  ETH_COUNT_VOIDFN(interface_all_add); //voidfn_dual
+
+  cpin_poweron_reset();
+  dmf.dly_ms(30);
+}
 
 /* dm9051 macro */
 
@@ -64,6 +117,14 @@ void dm_delay_us(uint32_t nus)
 void dm_delay_ms(uint16_t nms)
 {
 	dmf.dly_ms(nms); //delay_ms(nms);
+}
+
+void dm9051_delay_in_core_process(uint16_t nms, char *zhead) //finally, dm9051_lw.c
+{
+	if (nms)
+		printf(": dm9051_driver[%d] ::: %s delay %u ms.. : \r\n", mstep_get_net_index(), zhead, nms);
+	if (nms)
+	  dm_delay_ms(nms); //_delay_ms(nms); //from James' advice! to be determined with a reproduced test cases!!
 }
 
 /* eeprom && phy */
@@ -366,7 +427,7 @@ static void display_rw_mac(char *head, const uint8_t *adr)
 	int i;
 	
 	bannerline_log();
-	printf(": %s[%d] ::: eeprom[] ", head, mstep_get_net_index());
+	printf(": %s[%d] :: eeprom[] ", head, mstep_get_net_index());
 	for (i = 0; i < 3; i++) {
 		uint16_t value = dm9051_eeprom_read(i);
 		printf("%04x ", value);

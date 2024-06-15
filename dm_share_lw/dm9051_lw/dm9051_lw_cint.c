@@ -110,7 +110,7 @@ void intr_add(void)
 
   if (intr_gpio_mptr())
   {
-    printf("................................ dm9051 gpio_pin_config (INT)\r\n");
+    //printf("................................ dm9051 gpio_pin_config (INT)\r\n");
 
     if (intr_gpio_data())
     {
@@ -156,6 +156,7 @@ static void exint_enable(const struct extscfg_st *pexint_set)
 
 void dm9051_board_irq_enable(void)
 {
+  printf("\r\n");
   if (intr_pointer())
   {
     const struct extscfg_st *pexint_set = (const struct extscfg_st *)exint_scfg_ptr();

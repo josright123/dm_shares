@@ -28,6 +28,30 @@
 
 #include "dm9051_lw_conf_types.h"
 
+/*
+ * Include user defined options first. Anything not defined in these files
+ * will be set to standard values. Override anything you don't like!
+ */
+
+#if freeRTOS_CONF && freeRTOS_ENABLE_MUTEX
+int cspiSemaphoreDoOwn(int pntlog, char *headstr, SemaphoreHandle_t semaphore_hdlr);
+void cspiSemaphoreDoYield(int pntlog, char *headstr, SemaphoreHandle_t semaphore_hdlr);
+
+#define INIT_CSPI_CORE() \
+	int rc;
+	
+#define LOCK_CSPI_CORE(log) \
+	if (freeRTOS_ENABLE_MUTEX) \
+		rc = cspiSemaphoreDoOwn(log, "empty", NULL);
+#define UNLOCK_CSPI_CORE() \
+	if (freeRTOS_ENABLE_MUTEX) \
+		if (rc) cspiSemaphoreDoYield(0, "empty", NULL);
+#else
+#define INIT_CSPI_CORE()
+#define LOCK_CSPI_CORE(log)
+#define UNLOCK_CSPI_CORE()
+#endif
+
 #define spi_conf_name()				FIELD_SPIDEV(spidef.spi_name) //spihead().spi_name
 #define spi_number()				FIELD_SPIDEV(spidef.spi_num) //spihead().spi_num //= spi_no()
 #define spi_crm()					FIELD_SPIDEV(spidef.spi_crm_clk) //spihead().spi_crm_clk
@@ -40,7 +64,6 @@
 #define gpio_cs()					FIELD_SPIDEV(wire_cs)
 
 void gpio_pin_config(const gpio_t *gpio, gpio_pull_type gppull);
-void spi_add(void);
 
 extern const gpio_mux_t src1_mux6; //= { MUX_DATA(GPIO_PINS_SOURCE1, GPIO_MUX_6)};
 extern const gpio_mux_t src2_mux5; //= { MUX_DATA(GPIO_PINS_SOURCE2, GPIO_MUX_5)};

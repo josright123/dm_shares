@@ -32,6 +32,4 @@
 
 int intr_gpio_mptr(void);
 
-void intr_add(void);
-
 #endif //__DM9051_CINT_H

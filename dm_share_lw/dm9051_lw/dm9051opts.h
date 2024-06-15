@@ -284,6 +284,10 @@ void ETH_COUNT_VOIDTX(voidtx_t pinfunc, uint8_t *buf, uint16_t len); //internal,
 //------------------
 uint32_t DataObj_EXINT_extline(int pin);
 int DataObj_EXINT_Pin(uint32_t exint_line);
+
+void spi_add(void);
+void intr_add(void);
+void rst_add(void);
 void interface_all_add(int pin);
 
 #define TO_ADD_CODE_LATER_BACK	0
