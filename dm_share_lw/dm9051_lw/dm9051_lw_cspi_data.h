@@ -76,9 +76,12 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 			}
 		//AT32F437xx
 
+#ifdef intrAPP_READY
 		devconf_at437_spi1("AT32F437", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", &devconf_at437_intr_c7), //DM9051A BENCH BOARD V1.0
+#else
 		devconf_at437_spi1("AT32F437", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", NULL), //Note: NULL got no interrupt, and could faii crash! Need debug.
 																					//DM9051A BENCH BOARD V1.0
+#endif
 
 		devconf_at437_spi2("AT32F437", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0", &devconf_at437_intr_a0),
 		devconf_at437_spi4("AT32F437", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4", &devconf_at437_intr_c7),
@@ -152,7 +155,10 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 			}
 		//AT32F4xx
 
+#ifdef intrAPP_READY
+#else
 		devconf_at413_spi2("AT32F413 ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12"),
+#endif
 		devconf_at413_spi1a("AT32F413 ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15",
 			GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK, IO_CRM_CLOCK),
 		devconf_at413_spi1b("AT32F413 ETHERNET SPI1", "sck/mi/mo/ pb3/pb4/pb5", "cs/ pa15",
@@ -199,7 +205,10 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 			}
 		//AT32F4xx
 
+#ifdef intrAPP_READY
 		devconf_at403a_spi1a("AT32F403A ETHERNET SPI1a", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK, &devconf_at403a_intr_c7),
+#else
+#endif
 		devconf_at403a_spi1("AT32F403A ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa4", GPIOA, GPIO_PINS_4, CRM_GPIOA_PERIPH_CLOCK),
 		devconf_at403a_spi2("AT32F403A ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12"),
 		/*!< pa15 must jtag-dp disabled and sw-dp enabled */

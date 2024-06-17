@@ -95,14 +95,6 @@ void gpio_pin_config(const gpio_t *gpio, gpio_pull_type gppull) //, gpio_mode_ty
 		gpio_pin_mux_config(gpio->gpport, gpio->pmux->pinsrc, gpio->pmux->muxsel);
 		return;
   }
-	
-  //Display-print for '&mode_null' found in f437
-  #if 0
-    // only for inter-gpio
-	/*if (intr_gpio_exister())*/
-	printf("f437 : %s, no gpio_pin_mux_config()\r\n", intr_gpio_info());
-  #endif
-
  #endif
 }
 

@@ -83,7 +83,7 @@ void exint_mconfig(exint_polarity_config_type polarity)
 {
   if (intr_pointer())
   {
-    const struct extscfg_st *pexint_set = (const struct extscfg_st *)exint_scfg_ptr();
+    const struct extscfg_st *pexint_set = (const struct extscfg_st *)intr_data_scfg(); //exint_scfg_ptr();
     printf(".exint_mconfig (INT)\r\n");
     if (pexint_set)
     {
@@ -132,7 +132,7 @@ int is_dm9051_board_irq(void)
   if (intr_pointer())
   {
     printf(".is_dm9051_irq (INT)\r\n");
-    pexint_set = (const struct extscfg_st *)exint_scfg_ptr();
+    pexint_set = (const struct extscfg_st *)intr_data_scfg(); //exint_scfg_ptr();
   }
   else
     printf(".is_dm9051_irq (POLLING)\r\n");
@@ -159,7 +159,7 @@ void dm9051_board_irq_enable(void)
   printf("\r\n");
   if (intr_pointer())
   {
-    const struct extscfg_st *pexint_set = (const struct extscfg_st *)exint_scfg_ptr();
+    const struct extscfg_st *pexint_set = (const struct extscfg_st *)intr_data_scfg(); //exint_scfg_ptr();
     printf(".dm9051_board_irq_enable (INT)\r\n");
     if (pexint_set)
     {

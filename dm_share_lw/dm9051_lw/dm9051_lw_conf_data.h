@@ -7,110 +7,6 @@
 
 //-
 
-#ifdef AT32F437xx
-//optional
-gp_set_t gp = {
-	"GPIO pc7",
-	{GPIOC, GPIO_PINS_7,  CRM_GPIOC_PERIPH_CLOCK, &mode_input, }, //(PC7) INT-pin //GPIO_MODE_INPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL
-};
-gp_set_t gp_a0 = {
-	"GPIO pa0",
-	{GPIOA, GPIO_PINS_0,  CRM_GPIOA_PERIPH_CLOCK, &mode_input, }, //(PA0) INT-pin //GPIO_MODE_INPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL
-};
-
-//[CRM_SCFG_PERIPH_CLOCK] //essential
-struct extscfg_st pe = {
-	"enable SCFG, extline pc7",
-	{ CRM_GPIOC_PERIPH_CLOCK, EXINT_LINE_7, EXINT9_5_IRQn, NVIC_PRIORITY_GROUP_0}, // correspond to and with PC7
-};
-
-//[CRM_SCFG_PERIPH_CLOCK] //essential
-struct extscfg_st pe_a0 = {
-	"enable SCFG, extline pa0",
-	{ CRM_GPIOA_PERIPH_CLOCK, EXINT_LINE_0, EXINT0_IRQn, NVIC_PRIORITY_GROUP_4}, // correspond to and with PA0
-};
-
-	//AT32F437xx
-	#define devconf_intr_a0 \
-			"SCFG pa0", \
-			{CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOA, SCFG_PINS_SOURCE0}, \
-		/*	{CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},*/ \
-			&pe_a0, /*extend (essential)*/ \
-			&gp_a0 /*NULL*/
-	#define devconf_intr_c7 \
-			"SCFG pc7", \
-			{CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7}, \
-		/*	{CRM_GPIOC_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},*/ \
-			&pe, /*extend (essential)*/ \
-			&gp
-
-const struct modscfg_st devconf_at437_intr_a0 = {
-	devconf_intr_a0,
-};
-const struct modscfg_st devconf_at437_intr_c7 = {
-	devconf_intr_c7,
-};
-
-// const struct modscfg_st *intrconf_PT[BOARD_SPI_COUNT] = {
-// 	&devconf_at437_intr_c7,
-// 	&devconf_at437_intr_a0,
-// };
-
-//-
-#elif defined (AT32F403Axx) || defined (AT32F403xx) || defined (AT32F407xx) || \
-	  defined (AT32F413xx)
-//[CRM_SCFG_PERIPH_CLOCK] //essential
-struct extscfg_st pe_c7 = {
-	"enable SCFG, extline pc7",
-	{ CRM_GPIOC_PERIPH_CLOCK, EXINT_LINE_7, EXINT9_5_IRQn, NVIC_PRIORITY_GROUP_0}, // correspond to and with PC7
-};
-
-//[CRM_SCFG_PERIPH_CLOCK] //essential
-struct extscfg_st pe_c6 = {
-	"enable SCFG, extline pc6",
-	{ CRM_GPIOC_PERIPH_CLOCK, EXINT_LINE_6, EXINT9_5_IRQn, NVIC_PRIORITY_GROUP_0}, // or NVIC_PRIORITY_GROUP_4, correspond to and with PC7
-};
-
-	//AT32F403xxx
-	#define devconf_intr_c6 \
-		"GPIO pc6", \
-		{CRM_IOMUX_PERIPH_CLOCK, GPIO_PORT_SOURCE_GPIOC, GPIO_PINS_SOURCE6}, \
-		/*	{CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},*/ \
-			&pe_c6, /*essential*/ \
-			NULL	// NULL for 403a, &gp for 437.
-
-	#define devconf_intr_c7 \
-			"GPIO pc7", \
-					{CRM_IOMUX_PERIPH_CLOCK, GPIO_PORT_SOURCE_GPIOC, GPIO_PINS_SOURCE7}, \
-		/*	{CRM_GPIOC_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},*/ \
-			&pe_c7, /*essential*/ \
-			NULL	// &gp  // for 437.
-
-
-const struct modscfg_st devconf_at403a_intr_c6 = {
-	devconf_intr_c6,
-};
-const struct modscfg_st devconf_at403a_intr_c7 = {
-	devconf_intr_c7,
-};
-
-//-
-
-// const struct modscfg_st *intrconf_PT[BOARD_SPI_COUNT] = {
-// 	&devconf_at403a_intr_c7,		// For SPI1
-// 	&devconf_at403a_intr_c6,		// For SPI2
-// };
-
-#else
-	#error "not defined intrconf_PT"
-#endif
-
-//const struct modscfg_st *intrconf_PT[BOARD_SPI_COUNT] = {
-//	&devconf_at437_intr_a0,
-//	&devconf_at437_intr_c7,
-//};
-//const void **intr_packPT = (const void **)intrconf_PT; //const void *intr_pack = intrconf; //[All interr.] //= or all NULL;
-
 //-
 
 optsex_t dm9051optsex[BOARD_SPI_COUNT] = { //const
@@ -358,10 +254,6 @@ IS_DECL_FUNCTION(enable_t, generic_core_rst)
 #define cpu_spi_conf_name()			FIELD_SPIDEV(cpu_spi_info) //devconf[pin_code].cpu_api_info
 #define cpu_cs_conf_name()			FIELD_SPIDEV(cpu_cs_info)
 #define spihead()					FIELD_SPIDEV(spidef)
-
-#define intr_data_scfg()			PTR_EXINTD(extend)
-
-#define intr_gpio_info()			PTR_EXINTD(option->gp_info) //NO_USED
 
 #define mstep_set_index(i)			pin_code = i //empty for 1 eth project
 #define mstep_get_index()			pin_code

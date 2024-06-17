@@ -517,21 +517,22 @@ int dm9051_rx_isr_check(int pin)
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
 
-	int check = 0;
+	//int check = 0;
 	uint16_t isrs;
 	if (sys_now() > isr_local_time[pin]) {
+		printf("*INFO[%d]: > isr_local_time %lu\r\n", pin, isr_local_time[pin]);
 		isrs = dm9051_isr_clean();
 		if (isrs & 1) {
-			check = 1; // or _rx_handler_direct(pin, FALSE/TRUE);
 			printf("*INFO[%d]: isr_check(%d) enter ... isr %02x\r\n", pin, ++test_line7_ienter[pin], isrs & 0xff);
 			//isr = DM9051_Read_Reg(DM9051_ISR);
 			printf("*INFO[%d]: isr_check(%d) exit ... isr %02x\r\n", pin, test_line7_ienter[pin], isrs >> 8);
 			isr_local_time[pin] = sys_now() + ICHK_FREQ_MS;
+			return test_line7_ienter[pin];//check = 1; // or _rx_handler_direct(pin, FALSE/TRUE);
 		}
 		else
 			isr_local_time[pin] = sys_now() + ICHK_FREQ_MS_MIN;
 	}
-	return check;
+	return 0;
 		
 //	LOCK_TCPIP_COREx();
 

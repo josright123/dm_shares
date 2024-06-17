@@ -92,13 +92,6 @@ struct extscfg_st { //struct linescfg_st
 	} extline;
 };
 
-// line: intrconf.extend->extline.extline
-// void *intr_pack = &intrconf;
-//
-// exint_extline()	=  PTR_EXINTD(extend->extline.extline)
-// PTR_EXINTD(extend->extline.extline) =
-// 	(((struct modscfg_st *)intr_pack)->extend->extline.extline)
-
 typedef struct gp_set_st {
 	const char *gp_info;
 	const gpio_t gp;
@@ -150,7 +143,6 @@ typedef struct {
 //#define gpio_mux_sel_type_system_declaration	1
 #endif
 
-//extern const struct modscfg_st devconf_at437_intr_a0;
 extern const struct modscfg_st devconf_at437_intr_a0;
 extern const struct modscfg_st devconf_at437_intr_c7;
 extern const struct modscfg_st devconf_at403a_intr_c6;

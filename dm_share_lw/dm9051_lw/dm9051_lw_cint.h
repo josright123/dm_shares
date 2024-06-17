@@ -26,9 +26,7 @@
 #ifndef __DM9051_CINT_H
 #define __DM9051_CINT_H
 
-/* [extern] */
 #define intr_pointer()				FIELD_SPIDEV(intr_cfg)
-#define intr_gpio_data()			PTR_EXINTD(option)
 
 int intr_gpio_mptr(void);
 

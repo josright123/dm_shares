@@ -8,8 +8,9 @@ const gp_set_t *option_rst_common = NULL;
 #define rst_gpio_data()				(option_rst_common)
 #define rst_gpio_exister()			(rst_gpio_data() ? 1 : 0)
 
-#define rst_gpio_info()				PTR_RSTGPIO(gp_info)
+#define PTR_RSTGPIO(field)			((option_rst_common)->field)
 #define rst_gpio_ptr()				((const gpio_t *)(&PTR_RSTGPIO(gp)))
+#define rst_gpio_info()				PTR_RSTGPIO(gp_info)
 
 /* [intern] */
 static int rst_pin_exister(void) {

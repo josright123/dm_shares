@@ -220,15 +220,6 @@ u8 first_log_get(int i);
 #define FIELD_SPIDEV(field) \
 	devconf[pin_code].field
 
-#define PTR_EXINTD(field) \
-	FIELD_SPIDEV(intr_cfg)->field
-//	(((const struct modscfg_st **)intr_packPT)[pin_code]->field)
-//	(((struct modscfg_st *)intr_packPT)[pin_code].field)
-//	(((struct modscfg_st *)intr_packPT)[pin_code]->field)
-
-#define PTR_RSTGPIO(field) \
-	((option_rst_common)->field)
-
 //------------------
 
 #define DM_UNUSED_ARG(x) (void)x
