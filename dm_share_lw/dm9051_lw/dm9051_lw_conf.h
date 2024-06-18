@@ -96,11 +96,19 @@ const uint8_t *identify_eth_mac(const uint8_t *macadr, int showflg);
 uint8_t *identify_tcpip_ip(uint8_t *ip4adr);
 uint8_t *identify_tcpip_gw(uint8_t *ip4adr);
 uint8_t *identify_tcpip_mask(uint8_t *ip4adr);
+uint8_t *identified_eth_mac(void);
+uint8_t *identified_tcpip_ip(void);
+uint8_t *identified_tcpip_gw(void);
+uint8_t *identified_tcpip_mask(void);
 
-uint8_t *mstep_eth_mac(void);
-uint8_t *mstep_eth_ip(void);
-uint8_t *mstep_eth_gw(void);
-uint8_t *mstep_eth_mask(void);
+#define	mstep_eth_mac()		identified_eth_mac()
+#define	mstep_eth_ip()		identified_tcpip_ip()
+#define	mstep_eth_gw()		identified_tcpip_gw()
+#define	mstep_eth_mask()	identified_tcpip_mask()
+//uint8_t *mstep_eth_mac(void);
+//uint8_t *mstep_eth_ip(void);
+//uint8_t *mstep_eth_gw(void);
+//uint8_t *mstep_eth_mask(void);
 
 //uint32_t extline_A(void);
 
@@ -142,7 +150,5 @@ char *mstep_conf_type(void);
 int mstep_dm9051_index(void);
 
 void dm9051_delay_in_core_process(uint16_t nms, char *zhead);
-
-void LIST_EXTLINE(uint32_t exint_line);
 
 #endif //__DM9051_ENV_H

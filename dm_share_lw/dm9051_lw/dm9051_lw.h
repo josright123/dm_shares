@@ -245,10 +245,19 @@ void dm9051_boards_initialize(void);
 
 const uint8_t *dm9051_init(const uint8_t *adr);
 uint16_t dm9051_rx(uint8_t *buff);
-uint16_t dm9051_rx_isr(uint8_t *buff);
-void dm9051_rx_isr_clean(void);
-int dm9051_rx_isr_check(int pin);
 void dm9051_tx(uint8_t *buf, uint16_t len);
+uint16_t dm9051_irq_isr_disab(void); //noused
+uint16_t dm9051_irq_isr_enab(void);
+uint32_t dm9051_irq_exint_line(int pin);
+int dm9051_irq_pincode(uint32_t exint_line);
+
+#define dm9051_rx_isr_clean()		dm9051_irq_isr_enab()
+#define	DataObj_EXINT_extline(pin)	dm9051_irq_exint_line(pin)
+#define	DataObj_EXINT_Pin(extline)	dm9051_irq_pincode(extline)
+//uint16_t dm9051_rx_isr_clean(void);
+//uint32_t DataObj_EXINT_extline(int pin);
+//int DataObj_EXINT_Pin(uint32_t exint_line);
+//int dm9051_timer_rx_isr_check(int pin);
 
 #define DM9051_NUM_LINKUP_RST	9
 #define DM9051_NUM_RXLOG_RST	7

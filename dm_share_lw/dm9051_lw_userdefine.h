@@ -24,11 +24,18 @@
 /* Yourselves */
 #if user_CONF
 
-/* undef defines */
-#undef _AT32F437xx
-#undef freeRTOS_CONF
-/* your update */
-#include "../dm9051_lw_usr.h"
+  /* undef defines */
+  #undef freeRTOS_CONF
+  #undef intrAPP_READY
+  #undef _AT32F437xx
+
+  /* user update define */
+  #include "../dm9051_lw_usr.h"
+
+#else
+
+  /* driver common default */
+  #include "dm9051_lw_usr.h"
 
 #endif
 

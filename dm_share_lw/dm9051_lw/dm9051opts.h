@@ -115,17 +115,6 @@ typedef struct dm_dly_st {
 		ex: _AT32F437xx,USE_STDPERIPH_DRIVER,AT_START_F437_V1 \r\n \ "
 #endif
 
-static const dm_dly_t dmf = {
-#if freeRTOS
-	uvTaskDelay, //here assign, define system's delay us function
-	vTaskDelay, //here assign, define system's delay ms function
-#else
-	delay_us, //here assign, define system's delay us function
-	delay_ms, //here assign, define system's delay ms function
-#endif
-};
-
-
 /*
  * dm9051 include files : assembly
  */
@@ -273,8 +262,6 @@ void ETH_COUNT_VOIDFN(voidpin_t f); //internal, voidfn_dual
 void ETH_COUNT_VOIDTX(voidtx_t pinfunc, uint8_t *buf, uint16_t len); //internal, voidtx_dual
 
 //------------------
-uint32_t DataObj_EXINT_extline(int pin);
-int DataObj_EXINT_Pin(uint32_t exint_line);
 
 void spi_add(void);
 void intr_add(void);

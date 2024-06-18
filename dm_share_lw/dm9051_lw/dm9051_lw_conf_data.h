@@ -3,11 +3,10 @@
 // - spi configuration data
 // - mac addresses data
 //
+#include "dm9051_lw_debug.h"
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
+
 #define board_conf_type	"\"dm9051_at32_mf\""
-
-//-
-
-//-
 
 optsex_t dm9051optsex[BOARD_SPI_COUNT] = { //const
 	#define dmopts_normal(iomode, iomode_name) \
@@ -440,31 +439,33 @@ uint8_t *identify_tcpip_mask(uint8_t *ip4adr) {
 //#else
 //#endif
 
-//const
-uint8_t *mstep_eth_mac(void) {
+uint8_t *identified_eth_mac(void) {
 	return DM_GET_FIELD(mac_t, final_mac);
 }
-
-//const
-uint8_t *mstep_eth_ip(void) {
+uint8_t *identified_tcpip_ip(void) {
 	return DM_GET_FIELD(ip_t, ip);
 }
-//const
-uint8_t *mstep_eth_gw(void) {
+uint8_t *identified_tcpip_gw(void) {
 	return DM_GET_FIELD(ip_t, gw);
 }
-//const
-uint8_t *mstep_eth_mask(void) {
+uint8_t *identified_tcpip_mask(void) {
 	return DM_GET_FIELD(ip_t, mask);
 }
+
+//uint8_t *mstep_eth_mac(void) {
+//	return DM_GET_FIELD(mac_t, final_mac);
+//}
+//uint8_t *mstep_eth_ip(void) {
+//	return DM_GET_FIELD(ip_t, ip);
+//}
+//uint8_t *mstep_eth_gw(void) {
+//	return DM_GET_FIELD(ip_t, gw);
+//}
+//uint8_t *mstep_eth_mask(void) {
+//	return DM_GET_FIELD(ip_t, mask);
+//}
 
 //-
 bmcrmode_t mstep_opts_bmcrmode(void) {
 	return DM_GET_FIELD(bmcrmode_t, bmcrmode);
 }
-
-//-
-
-//uint32_t extline_A(void) {
-//	return exint_extline();
-//}

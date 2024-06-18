@@ -44,7 +44,6 @@
 #include "dm9051_lw_cspi.h"
 #include "dm9051_lw_cint.h"
 #include "dm9051_lw_debug.h"
-
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 
 char *display_identity_bannerline_title = NULL;
@@ -64,17 +63,75 @@ typedef struct {
  * waiting to be used!
  */
 
-conf_list_t DataObj;
+static conf_list_t DataObj;
 
-uint32_t DataObj_EXINT_extline(int pin)
+static void LIST_EXTLINE(uint32_t exint_line) {
+	int pin;
+	if (exint_line)
+		printf("Enter exint_line 0x%06x\r\n", exint_line);
+	else
+		printf("Enter EXINT_LINE_NONE 0x%06x\r\n", exint_line);
+		
+	for (pin = 0; pin < ETHERNET_COUNT; pin++)
+		printf("List%d = 0x%06x\r\n", pin, dm9051_irq_exint_line(pin));
+		
+	if (exint_line)
+		printf("Exit exint_line 0x%06x NOT found!\r\n", exint_line);
+	else
+		printf("Exit EXINT_LINE_NONE 0x%06x\r\n", exint_line);
+}
+
+static uint8_t Is_DataObj_Exist(uint32_t exint_line) {
+	int pin;
+	for (pin = 0; pin < ETHERNET_COUNT; pin++) {
+		if (dm9051_irq_exint_line(pin) == exint_line)
+			return 1;
+	}
+	return 0;
+}
+
+static int Get_DataObj_Pin(uint32_t exint_line) {
+	int pin;
+	for (pin = 0; pin < ETHERNET_COUNT; pin++) {
+		if (dm9051_irq_exint_line(pin) == exint_line)
+			return pin;
+	}
+	return -1; //Not the pin
+}
+
+/* ret: EXINT_LINE_0 ~ EXINT_LINE_22
+ */
+uint32_t dm9051_irq_exint_line(int pin)
 {
 	return DataObj.intrconf[pin] ? DataObj.intrconf[pin]->extend->extline.extline : 0;
+}
+
+
+/* ret: pincode
+ */
+int dm9051_irq_pincode(uint32_t exint_line)
+{
+	if (Is_DataObj_Exist(exint_line))
+		return Get_DataObj_Pin(exint_line);
+	
+	LIST_EXTLINE(exint_line);
+	return 0;
 }
 
 void DataObj_store(int pin) {
 	DataObj.devconf[pin] = &devconf[pin];
 	DataObj.intrconf[pin] = intr_pointer(); //Can it in case NULL ok ?
 }
+
+static const dm_dly_t dmf = {
+#if freeRTOS
+	uvTaskDelay, //here assign, define system's delay us function
+	vTaskDelay, //here assign, define system's delay ms function
+#else
+	delay_us, //here assign, define system's delay us function
+	delay_ms, //here assign, define system's delay ms function
+#endif
+};
 
 void interface_all_add(int pin)
 {
