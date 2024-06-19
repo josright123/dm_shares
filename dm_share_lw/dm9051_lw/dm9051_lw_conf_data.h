@@ -13,7 +13,7 @@ const gp_set_t *option_rst_common = NULL;
 #define GPIO_PINNORM(gpport,pin,crm_clk)			{gpport,pin,crm_clk, GPIO_MODE_MUX, GPIO_PINSRC_NULL, GPIO_MUX_NULL}
 #define GPIO_PINMUX(gpport,pin,crm_clk,pinsrc,mux)	{gpport,pin,crm_clk, GPIO_MODE_MUX, pinsrc,mux}
 #define GPIO_PINOUT(gpport,pin,crm_clk)		{gpport,pin,crm_clk, GPIO_MODE_OUTPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL}
-	
+
 const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 	#ifdef AT32F437xx
 		//AT32F437xx
@@ -50,10 +50,11 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				cs_setting_name, \
 				GPIO_PINOUT(GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK), /* //(PA15) */ \
 			}
+		devconf_at437_spi1("AT32F437 ETHERNET", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15"),
 		devconf_at437_spi2("AT32F437 ETHERNET", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
 		devconf_at437_spi4("AT32F437 ETHERNET", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4"),
-		devconf_at437_spi2("AT32F437 ETHERNET", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
-		devconf_at437_spi2("AT32F437 ETHERNET", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
+//		devconf_at437_spi2("AT32F437 ETHERNET", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
+//		devconf_at437_spi2("AT32F437 ETHERNET", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
 		devconf_at437_spi1("AT32F437 ETHERNET", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15"),
 //		devconf_at437_spi2("AT32F437 ETHERNET SPI2", "sck/mi/mo/ pd1/pc2/pd4", "cs/ pd0"),
 //		devconf_at437_spi4("AT32F437 ETHERNET SPI4", "sck/mi/mo/ pe2/pe5/pe6", "cs/ pe4"),
@@ -153,7 +154,7 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 				{gpport,	pin, 			gpio_crm_clk, 				GPIO_MODE_OUTPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL}, /* //(PA4) Test-ISP2 OK */ \
 			}
 		devconf_at403a_spi1("AT32F403A ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa4", GPIOA, GPIO_PINS_4, CRM_GPIOA_PERIPH_CLOCK),
-		devconf_at403a_spi2("AT32F403A ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12"),	
+		devconf_at403a_spi2("AT32F403A ETHERNET SPI2", "sck/mi/mo/ pb13/pb14/pb15", "cs/ pb12"),
 		/*!< pa15 must jtag-dp disabled and sw-dp enabled */
 		// devconf_at403a_spi1("AT32F403A ETHERNET SPI1", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", /*GPIOB, GPIO_PINS_12, CRM_GPIOB_PERIPH_CLOCK*/ GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK),
 	#else
@@ -161,7 +162,7 @@ const spi_dev_t devconf[BOARD_SPI_COUNT] = {
 	#endif
 };
 
-optsex_t dm9051optsex[BOARD_SPI_COUNT] = { //const 
+optsex_t dm9051optsex[BOARD_SPI_COUNT] = { //const
 	#define dmopts_normal(iomode, iomode_name) \
 		{ \
 			/* .set_name */ \
@@ -338,7 +339,7 @@ const eth_node_t node_config[BOARD_SPI_COUNT] = { \
 		{255, 255, 255, 0}, \
 	}, \
 };
- 
+
 /*const uint8_t mac_addresse[BOARD_SPI_COUNT][MAC_ADDR_LENGTH] = { \
 	{0, 0x60, 0x6e, 0x00, 0x01, 0x17,}, \
 	{0, 0x60, 0x6e, 0x00, 0x01, 0x26,}, \
@@ -514,20 +515,20 @@ uint8_t *identify_tcpip_mask(uint8_t *ip4adr) {
 //#else
 //#endif
 
-//const 
+//const
 uint8_t *mstep_eth_mac(void) {
 	return DM_GET_FIELD(mac_t ,mac); //get_eth_mac();
 }
 
-//const 
+//const
 uint8_t *mstep_eth_ip(void) {
 	return DM_GET_FIELD(ip_t, ip); //get_eth_ip();
 }
-//const 
+//const
 uint8_t *mstep_eth_gw(void) {
 	return DM_GET_FIELD(ip_t, gw); //get_eth_gw();
 }
-//const 
+//const
 uint8_t *mstep_eth_mask(void) {
 	return DM_GET_FIELD(ip_t, mask); //get_eth_mask();
 }
