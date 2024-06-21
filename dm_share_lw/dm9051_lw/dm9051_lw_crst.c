@@ -41,6 +41,14 @@ void rst_add(void)
   }
 }
 
+void gen_gpio_add(void)
+{
+  if (gen_gpio_exister()) {
+	printf("gpio_pin_config: GEN-gpio %d of %s\r\n", de_pin(gen_gpio_ptr()), gen_gpio_info()); //gen_gpio_data()->gp_info
+	gpio_pin_config(gen_gpio_ptr(), GPIO_PULL_UP);
+  }
+}
+
 static void rst_pin_pulse(void) {
 	gpio_bits_reset(rst_gpio_ptr()->gpport, rst_gpio_ptr()->pin); //rstpin_lo();
 	dm_delay_ms(1);
@@ -51,4 +59,23 @@ void cpin_poweron_reset(void)
 {
 	if (rst_pin_exister())
 		rst_pin_pulse(); //.dm9051_if->rstb_pulse()
+}
+
+static void gpio_pin_level(int level) {
+	if (level == 0)
+		gpio_bits_reset(gen_gpio_ptr()->gpport, gen_gpio_ptr()->pin); //rstpin_lo();
+	else
+		gpio_bits_set(gen_gpio_ptr()->gpport, gen_gpio_ptr()->pin); //rstpin_hi();
+}
+
+void cpin_gpio_lo(void)
+{
+	if (gen_gpio_exister())
+		gpio_pin_level(0); //.dm9051_if->rstb_pulse()
+}
+
+void cpin_gpio_hi(void)
+{
+	if (gen_gpio_exister())
+		gpio_pin_level(1); //.dm9051_if->rstb_pulse()
 }

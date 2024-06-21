@@ -140,6 +140,8 @@ void interface_all_add(int pin)
 	spi_add();
 	rst_add();
 	intr_add();
+
+	gen_gpio_add();
 }
 
 void board_conf_configuration(void)

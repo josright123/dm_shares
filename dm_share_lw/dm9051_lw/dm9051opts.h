@@ -135,6 +135,8 @@ typedef enum {
 } bmcrmode_t;
 
 void cpin_poweron_reset(void);
+void cpin_gpio_lo(void);
+void cpin_gpio_hi(void);
 
 void board_conf_configuration(void);
 void cspi_read_regs(uint8_t reg, u8 *buf, u16 len, csmode_t csmode);
@@ -266,6 +268,7 @@ void ETH_COUNT_VOIDTX(voidtx_t pinfunc, uint8_t *buf, uint16_t len); //internal,
 void spi_add(void);
 void intr_add(void);
 void rst_add(void);
+void gen_gpio_add(void);
 void interface_all_add(int pin);
 
 #define TO_ADD_CODE_LATER_BACK	0
