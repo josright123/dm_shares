@@ -9,9 +9,6 @@
 #ifndef __DM9051_OPTS_H
 #define __DM9051_OPTS_H
 
-#include "../dm9051_lw_predefine.h"
-#include "../dm9051_lw_userdefine.h"
-
 /*
  * dm9051_declaration_support
  */
@@ -19,18 +16,6 @@
 #define ETHERNET_COUNT								1 //2 //1 //4 //2 //2 //3 //2 //#define get_eth_interfaces() ETH_COUNT
 
 #define	ETHERNET_INTERRUPT_MODE					1 // Please keep define to 1, INT or POLLING by _data.h
-
-#ifdef freeRTOS_CONF
-#define freeRTOS											freeRTOS_CONF
-#else
-#define freeRTOS											0
-#endif
-
-/* Sanity.
- */
-#if (ETHERNET_COUNT > ETHERNET_COUNT_MAX)
-#error "Please make sure that _ETHERNET_COUNT(config here) must less equal to _ETHERNET_COUNT_MAX"
-#endif
 
 #define DM9051OPTS_API							1
 #define DM9051OPTS_LOG_ENABLE					1 //0
@@ -42,9 +27,35 @@
 #define NON_CHIPID_STOP							1 //0 //0 // stop
 #define VER_CHIPID_ONLY							0 //1 //0
 
-/*
- * at32_cm4_device_support
- */
+//#include "../dm9051_lw_predefine.h"
+#include "../dm9051_lw_userdefine.h"
+
+/* Yourselves */
+#if user_CONF
+  /* undef defines */
+  #undef freeRTOS_CONF
+  #undef intrAPP_READY
+  #undef _AT32F437xx
+
+  /* user update define */
+  #include "../dm9051_lw_usr_default.h"
+#else
+  /* driver common default */
+  #include "../dm9051_lw_driver_default.h"
+#endif
+
+#ifdef freeRTOS_CONF
+//.......cccccccccccccccccc......
+#define freeRTOS											freeRTOS_CONF
+#else
+#define freeRTOS											0
+#endif
+
+#if freeRTOS
+//.......cccccccccccccccccc........
+#else
+#endif
+
 #if freeRTOS
 #include "FreeRTOS.h"
 #include "task.h"
@@ -57,8 +68,20 @@
 #warning "freeRTOS is defined"
 //#endif
 #endif
+#else
+
+#warning "freeRTOS is NOT defined"
 #endif
 
+/* Sanity.
+ */
+#if (ETHERNET_COUNT > ETHERNET_COUNT_MAX)
+#error "Please make sure that _ETHERNET_COUNT(config here) must less equal to _ETHERNET_COUNT_MAX"
+#endif
+
+/*
+ * at32_cm4_device_support
+ */
 typedef void (* dly_us_t)(uint32_t nus);
 typedef void (* dly_ms_t)(uint32_t nms);
 // 對於微秒級的延遲，您可能需要使用忙等待迴圈或硬體支援的計時器。

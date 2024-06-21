@@ -33,37 +33,6 @@
 // [Set to 0, for the program code to observ the using APIs of dm9051_lw driver, before add the dm9051_lw driver implement files.]
 //
 #if HELLO_DRIVER_INTERNAL //To support for being called by the program code from outside this dm9051_lw driver.
-
-//void set_dm9051opts_testplanlog(enable_t test_log);
-//enable_t get_dm9051opts_testplanlog(void);
-
-//uint8_t dm9051opts_iomode(void); // Driver's laydr2 control, for multi-spi-cards. depend on your definition of '_BOARD_SPI_COUNT'
-//char *dm9051opts_desciomode(void);
-
-//csmode_t dm9051opts_csmode(void);
-//char *dm9051opts_desccsmode(void);
-//bmcrmode_t dm9051opts_bmcrforcemode(void);
-//char *dm9051opts_descbmcrmode(void);
-
-//uint8_t dm9051opts_promismode(void);
-//char *dm9051opts_descpromismode(void);
-
-//-
-
-//#define OPTS_FUNC_EXT
-//#undef OPTS_FUNC_EXT
-	#if 0
-	/*#define DM_GET_FIELD(rtype, field) \
-		dm9051opts_##rtype##field()
-
-	#define DM_MACRO(rtype, field) \
-		rtype dm9051opts_##rtype##field(void); \
-		char *dm9051opts_desc##field(void);*/
-	#endif
-
-//#define _DM_TYPE		0
-//#include "_dm_types.h"
-
 /*
  * Below access to OPTs data:
  */
@@ -80,17 +49,8 @@
 //#define isflowcontrolmode			OPTS_DATA(enable_t, flowcontrolmode)
 //#define isrxmode_checksum_offload	OPTS_DATA(enable_t, rxmode_checksum_offload)
 
-//void cpin_poweron_reset(void);
-//void cspi_read_regs(uint8_t reg, u8 *buf, u16 len, csmode_t csmode);
-//uint8_t cspi_read_reg(uint8_t reg);
-//void cspi_write_reg(uint8_t reg, uint8_t val);
-//uint8_t cspi_read_mem2x(void);
-//void cspi_read_mem(u8 *buf, u16 len);
-//void cspi_write_mem(u8 *buf, u16 len);
-
 #endif //HELLO_DRIVER_INTERNAL
 
-//init
 const uint8_t *identify_eth_mac(const uint8_t *macadr, int showflg);
 #if DM9051OPTS_API
 uint8_t *identify_tcpip_ip(uint8_t *ip4adr);
@@ -105,12 +65,6 @@ uint8_t *identified_tcpip_mask(void);
 #define	mstep_eth_ip()		identified_tcpip_ip()
 #define	mstep_eth_gw()		identified_tcpip_gw()
 #define	mstep_eth_mask()	identified_tcpip_mask()
-//uint8_t *mstep_eth_mac(void);
-//uint8_t *mstep_eth_ip(void);
-//uint8_t *mstep_eth_gw(void);
-//uint8_t *mstep_eth_mask(void);
-
-//uint32_t extline_A(void);
 
 bmcrmode_t mstep_opts_bmcrmode(void);
 
@@ -119,8 +73,6 @@ bmcrmode_t mstep_opts_bmcrmode(void);
 
 void mstep_set_net_index(int i);
 int mstep_get_net_index(void);
-
-//void dm9051_irqlines_proc(void);
 
 #endif
 

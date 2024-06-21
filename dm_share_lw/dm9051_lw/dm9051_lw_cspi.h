@@ -33,7 +33,7 @@
  * will be set to standard values. Override anything you don't like!
  */
 
-#if freeRTOS_CONF && freeRTOS_ENABLE_MUTEX
+#if freeRTOS && freeRTOS_ENABLE_MUTEX
 int cspiSemaphoreDoOwn(int pntlog, char *headstr, SemaphoreHandle_t semaphore_hdlr);
 void cspiSemaphoreDoYield(int pntlog, char *headstr, SemaphoreHandle_t semaphore_hdlr);
 
