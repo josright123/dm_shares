@@ -6,17 +6,22 @@
 // PA9=USART1_TX, PA10=USART1_RX for USART1
 gp_set_t gp_a10 = {
   "GPIO pa10",
-  {GPIOA, GPIO_PINS_10,  CRM_GPIOA_PERIPH_CLOCK, &mode_output, }, //(PA0) INT-pin //GPIO_MODE_INPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL
+  {GPIOA, GPIO_PINS_10,  CRM_GPIOA_PERIPH_CLOCK, &mode_output, }, //(PA10) OUT-pin //GPIO_MODE_INPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL
 };
 
 gp_set_t gp_a08 = {
   "GPIO pa08",
-  {GPIOA, GPIO_PINS_8,  CRM_GPIOA_PERIPH_CLOCK, &mode_output, }, //(PA0) INT-pin //GPIO_MODE_INPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL
+  {GPIOA, GPIO_PINS_8,  CRM_GPIOA_PERIPH_CLOCK, &mode_output, }, //(PA8) OUT-pin //GPIO_MODE_INPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL
 };
 
+gp_set_t gp_b05 = {
+  "GPIO pb05",
+  {GPIOB, GPIO_PINS_5,  CRM_GPIOB_PERIPH_CLOCK, &mode_output, }, //(PB5) OUT-pin //GPIO_MODE_INPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL
+};
 
 const gp_set_t *option_rst_common = NULL;
-const gp_set_t *gen_gpio = &gp_a08; //DEDICATED! ONLY.
+//const gp_set_t *gen_gpio = &gp_a08; //DEDICATED! ONLY.
+const gp_set_t *gen_gpio = &gp_b05; //DEDICATED! ONLY.
 
 //[0] rst_common
 #define rst_gpio_data()         (option_rst_common)
