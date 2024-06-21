@@ -43,10 +43,14 @@ void rst_add(void)
 
 void gen_gpio_add(void)
 {
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
   if (gen_gpio_exister()) {
 	printf("gpio_pin_config: GEN-gpio %d of %s\r\n", de_pin(gen_gpio_ptr()), gen_gpio_info()); //gen_gpio_data()->gp_info
 	gpio_pin_config(gen_gpio_ptr(), GPIO_PULL_UP);
   }
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
 
 static void rst_pin_pulse(void) {
