@@ -34,10 +34,10 @@
 void rst_add(void)
 {
   if (rst_pin_mexist()) {
-	/* rst_gpio_ptr() should be correct pin define.
-	 */
-	printf("gpio_pin_config: RST-gpio %d\r\n", de_pin(rst_gpio_ptr())); //&gpio_wire_mi()//&rst_gpio_ptr()
-	gpio_pin_config(rst_gpio_ptr(), GPIO_PULL_UP); //=(rst_gpio_ptr(_pinCode), GPIO_PULL_UP); //,GPIO_MODE_OUTPUT
+  /* rst_gpio_ptr() should be correct pin define.
+   */
+  printf("gpio_pin_config: RST-gpio %d\r\n", de_pin(rst_gpio_ptr())); //&gpio_wire_mi()//&rst_gpio_ptr()
+  gpio_pin_config(rst_gpio_ptr(), GPIO_PULL_UP); //=(rst_gpio_ptr(_pinCode), GPIO_PULL_UP); //,GPIO_MODE_OUTPUT
   }
 }
 
@@ -46,40 +46,85 @@ void gen_gpio_add(void)
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
   if (gen_gpio_exister()) {
-	printf("gpio_pin_config: GEN-gpio %d of %s\r\n", de_pin(gen_gpio_ptr()), gen_gpio_info()); //gen_gpio_data()->gp_info
-	gpio_pin_config(gen_gpio_ptr(), GPIO_PULL_UP);
+  printf("gpio_pin_config: GEN-gpio %d of %s\r\n", de_pin(gen_gpio_ptr()), gen_gpio_info()); //gen_gpio_data()->gp_info
+  gpio_pin_config(gen_gpio_ptr(), GPIO_PULL_UP);
   }
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
 
 static void rst_pin_pulse(void) {
-	gpio_bits_reset(rst_gpio_ptr()->gpport, rst_gpio_ptr()->pin); //rstpin_lo();
-	dm_delay_ms(1);
-	gpio_bits_set(rst_gpio_ptr()->gpport, rst_gpio_ptr()->pin); //rstpin_hi();
+  gpio_bits_reset(rst_gpio_ptr()->gpport, rst_gpio_ptr()->pin); //rstpin_lo();
+  dm_delay_ms(1);
+  gpio_bits_set(rst_gpio_ptr()->gpport, rst_gpio_ptr()->pin); //rstpin_hi();
 }
 
 void cpin_poweron_reset(void)
 {
-	if (rst_pin_exister())
-		rst_pin_pulse(); //.dm9051_if->rstb_pulse()
+  if (rst_pin_exister())
+    rst_pin_pulse(); //.dm9051_if->rstb_pulse()
 }
 
 static void gpio_pin_level(int level) {
-	if (level == 0)
-		gpio_bits_reset(gen_gpio_ptr()->gpport, gen_gpio_ptr()->pin); //rstpin_lo();
-	else
-		gpio_bits_set(gen_gpio_ptr()->gpport, gen_gpio_ptr()->pin); //rstpin_hi();
+  if (level == 0)
+    gpio_bits_reset(gen_gpio_ptr()->gpport, gen_gpio_ptr()->pin); //rstpin_lo();
+  else
+    gpio_bits_set(gen_gpio_ptr()->gpport, gen_gpio_ptr()->pin); //rstpin_hi();
 }
 
+/**
+ * Sets the GPIO pin level to 0.
+ *
+ * @throws None
+ */
 void cpin_gpio_lo(void)
 {
-	if (gen_gpio_exister())
-		gpio_pin_level(0); //.dm9051_if->rstb_pulse()
+  if (gen_gpio_exister())
+    gpio_pin_level(0); //.dm9051_if->rstb_pulse()
 }
 
+/**
+ * Sets the GPIO pin level to 1.
+ *
+ * @throws None
+ */
 void cpin_gpio_hi(void)
 {
-	if (gen_gpio_exister())
-		gpio_pin_level(1); //.dm9051_if->rstb_pulse()
+  if (gen_gpio_exister())
+    gpio_pin_level(1); //.dm9051_if->rstb_pulse()
+}
+
+
+/**
+ * Reads the input value of the GPIO pin.
+ *
+ * @return The input value of the GPIO pin.
+ *
+ * @throws None.
+ */
+flag_status cpin_in_gpio_read(void)
+{
+  if (get_gpio_exister())
+    return gpio_input_data_bit_read(get_gpio_ptr()->gpport, get_gpio_ptr()->pin);
+  else
+    printf("get_gpio_exister() is not exist.\r\n");
+
+  return RESET;
+}
+
+/**
+ * Reads the output value of the GPIO pin.
+ *
+ * @return The output value of the GPIO pin.
+ *
+ * @throws None.
+ */
+flag_status cpin_out_gpio_read(void)
+{
+  if (gen_gpio_exister())
+    return gpio_output_data_bit_read(gen_gpio_ptr()->gpport, gen_gpio_ptr()->pin);
+  else
+    printf("get_gpio_exister() is not exist.\r\n");
+
+  return RESET;
 }

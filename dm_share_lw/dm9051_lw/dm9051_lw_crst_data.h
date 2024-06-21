@@ -19,9 +19,15 @@ gp_set_t gp_b05 = {
   {GPIOB, GPIO_PINS_5,  CRM_GPIOB_PERIPH_CLOCK, &mode_output, }, //(PB5) OUT-pin //GPIO_MODE_INPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL
 };
 
+gp_set_t ip_b05 = {
+  "GPIO pb05",
+  {GPIOB, GPIO_PINS_5,  CRM_GPIOB_PERIPH_CLOCK, &mode_input, }, //(PB5) OUT-pin //GPIO_MODE_INPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL
+};
+
 const gp_set_t *option_rst_common = NULL;
 //const gp_set_t *gen_gpio = &gp_a08; //DEDICATED! ONLY.
 const gp_set_t *gen_gpio = &gp_b05; //DEDICATED! ONLY.
+const gp_set_t *get_gpio = &ip_b05; //DEDICATED! ONLY.
 
 //[0] rst_common
 #define rst_gpio_data()         (option_rst_common)
@@ -38,6 +44,14 @@ const gp_set_t *gen_gpio = &gp_b05; //DEDICATED! ONLY.
 #define PTR_GENGPIO(field)      ((gen_gpio)->field)
 #define gen_gpio_ptr()          ((const gpio_t *)(&PTR_GENGPIO(gp)))
 #define gen_gpio_info()          PTR_GENGPIO(gp_info)
+
+//[2] get_gpio
+#define get_gpio_data()         (get_gpio)
+#define get_gpio_exister()      (get_gpio ? 1 : 0)
+
+#define PTR_GETGPIO(field)      ((get_gpio)->field)
+#define get_gpio_ptr()          ((const gpio_t *)(&PTR_GETGPIO(gp)))
+#define get_gpio_info()          PTR_GETGPIO(gp_info)
 
 /* [intern] */
 static int rst_pin_exister(void) {
