@@ -137,6 +137,8 @@ typedef enum {
 void cpin_poweron_reset(void);
 void cpin_gpio_lo(void);
 void cpin_gpio_hi(void);
+flag_status cpin_in_gpio_read(void);
+flag_status cpin_out_gpio_read(void);
 
 void board_conf_configuration(void);
 void cspi_read_regs(uint8_t reg, u8 *buf, u16 len, csmode_t csmode);
@@ -204,7 +206,7 @@ void first_log_init(void);
 u8 first_log_get(int i);
 
 //------------------
-	
+
 #define PTR_SPIDEV(pin) /* new */ \
 	&devconf[pin]
 
