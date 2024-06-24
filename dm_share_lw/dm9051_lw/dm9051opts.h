@@ -218,17 +218,22 @@ void ETH_COUNT_VOIDFN(voidpin_t f); //internal, voidfn_dual
 void ETH_COUNT_VOIDTX(voidtx_t pinfunc, uint8_t *buf, uint16_t len); //internal, voidtx_dual
 
 //------------------
-#define CPIN_PA08	0
-#define CPIN_PB05	1
+enum {
+  CPIN_ENUM_PA08 = 0,
+  CPIN_ENUM_PB05,
+  CPIN_ENUM_PB04,
+};
 
 void spi_add(void);
 void intr_add(void);
-void cpin_rst_add(void);
-void cpin_gpio_add(int cpin);
 
-void cpin_poweron_reset(void);
-void cpin_gpio_lo(int cpin);
-void cpin_gpio_hi(int cpin);
+void default_rst_add(void);
+void default_poweron_reset(void);
+
+void enum_gpio_add(int cpin_enum);
+flag_status enum__gpio_get_output_data_level(int cpin_enum);
+void enum_gpio_set_output_data_level(int cpin_enum, int level);
+flag_status enum_gpio_get_input_data_level(int cpin_enum);
 
 void interface_all_add(int pin);
 

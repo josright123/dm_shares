@@ -31,7 +31,7 @@
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 #include "dm9051_lw_crst_data.h"
 
-void cpin_rst_add(void)
+void default_rst_add(void)
 {
   if (rst_pin_mexist()) {
 	/* rst_gpio_ptr() should be correct pin define.
@@ -43,7 +43,7 @@ void cpin_rst_add(void)
 
 //.static void rst_pin_pulse(void) {}
 
-void cpin_poweron_reset(void)
+void default_poweron_reset(void)
 {
 	if (rst_pin_exister()) {
 		//=rst_pin_pulse();
@@ -53,23 +53,50 @@ void cpin_poweron_reset(void)
 	}
 }
 
-void cpin_gpio_add(int cpin)
+void enum_gpio_add(int cpin_enum)
 {
-	const gp_set_t *gpptr = get_cpin_init_dataptr(cpin);
+	const gp_set_t *gpptr = get_cpin_init_dataptr(cpin_enum);
 	if (gpptr)
 		gpio_pin_add(gpptr);
 }
 
-void cpin_gpio_lo(int cpin)
+flag_status enum_gpio_get_output_data_level(int cpin_enum)
 {
-	const gp_set_t *gpptr = get_cpin_init_dataptr(cpin);
+	const gp_set_t *gpptr = get_cpin_init_dataptr(cpin_enum);
 	if (gpptr)
-		gpio_pin_level(gpptr, 0);
+		return gpio_output_data_bit_read(gpptr->gp.gpport, gpptr->gp.pin);
+	return RESET;
 }
 
-void cpin_gpio_hi(int cpin)
+void enum_gpio_set_output_data_level(int cpin_enum, int level)
 {
-	const gp_set_t *gpptr = get_cpin_init_dataptr(cpin);
+	const gp_set_t *gpptr = get_cpin_init_dataptr(cpin_enum);
+	if (gpptr) {
+		if (level == 0)
+			gpio_bits_reset(gp_gpio_pt(gpptr)->gpport, gp_gpio_pt(gpptr)->pin); //(&gp_b05) //gen_gpio_ptr(), gen_gpio_ptr()
+		else
+			gpio_bits_set(gp_gpio_pt(gpptr)->gpport, gp_gpio_pt(gpptr)->pin); //(&gp_b05) //gen_gpio_ptr(), gen_gpio_ptr()
+	}
+}
+
+//void enum_gpio_set_output_data_lo(int cpin_enum)
+//{
+//	const gp_set_t *gpptr = get_cpin_init_dataptr(cpin_enum);
+//	if (gpptr)
+//		gpio_pin_set_level(gpptr, 0);
+//}
+
+//void enum_gpio_set_output_data_hi(int cpin_enum)
+//{
+//	const gp_set_t *gpptr = get_cpin_init_dataptr(cpin_enum);
+//	if (gpptr)
+//		gpio_pin_set_level(gpptr, 1);
+//}
+
+flag_status enum_gpio_get_input_data_level(int cpin_enum)
+{
+	const gp_set_t *gpptr = get_cpin_init_dataptr(cpin_enum);
 	if (gpptr)
-		gpio_pin_level(gpptr, 1);
+		return gpio_input_data_bit_read(gpptr->gp.gpport, gpptr->gp.pin);
+	return RESET;
 }

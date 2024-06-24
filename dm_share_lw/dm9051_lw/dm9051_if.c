@@ -140,9 +140,10 @@ void interface_all_add(int pin)
 
 	spi_add();
 	intr_add();
-	cpin_rst_add();
+	default_rst_add();
 
-	cpin_gpio_add(CPIN_PB05);
+	enum_gpio_add(CPIN_ENUM_PB05);
+	enum_gpio_add(CPIN_ENUM_PB04);
 }
 
 void board_conf_configuration(void)
@@ -158,7 +159,7 @@ void board_conf_configuration(void)
 
   ETH_COUNT_VOIDFN(interface_all_add); //voidfn_dual
 
-  cpin_poweron_reset();
+  default_poweron_reset();
   dmf.dly_ms(30);
 }
 

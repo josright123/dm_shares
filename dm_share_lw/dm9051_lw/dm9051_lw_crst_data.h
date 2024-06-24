@@ -19,6 +19,11 @@ const gp_set_t gp_b05 = {
   {GPIOB, GPIO_PINS_5,  CRM_GPIOB_PERIPH_CLOCK, &mode_output, }, //(PB5) OUT-pin //GPIO_MODE_INPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL
 };
 
+const gp_set_t gp_b04 = {
+  "GPIO pb04",
+  {GPIOB, GPIO_PINS_4,  CRM_GPIOB_PERIPH_CLOCK, &mode_input, },
+};
+
 const gp_set_t *option_rst_common = NULL;
 
 //.const gp_set_t *gen_gpio = &gp_a08; //DEDICATED! ONLY.
@@ -57,13 +62,15 @@ static int rst_pin_mexist(void) {
 }
 
 /* Such as create/alloc/ and also check. */
-static const gp_set_t *get_cpin_init_dataptr(int cpin)
+static const gp_set_t *get_cpin_init_dataptr(int cpin_enum)
 {
-	switch (cpin) {
-		case CPIN_PA08:
+	switch (cpin_enum) {
+		case CPIN_ENUM_PA08:
 			return &gp_a08;
-		case CPIN_PB05:
+		case CPIN_ENUM_PB05:
 			return &gp_b05;
+		case CPIN_ENUM_PB04:
+			return &gp_b04;
 	}
 	return NULL;
 }
@@ -80,11 +87,9 @@ static void gpio_pin_add(const gp_set_t *gpptr)
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
 
-static void gpio_pin_level(const gp_set_t *gpptr, int level) {
-  //if (gen_gpio_exister()) {
-	if (level == 0)
-		gpio_bits_reset(gp_gpio_pt(gpptr)->gpport, gp_gpio_pt(&gp_b05)->pin); //gen_gpio_ptr(), gen_gpio_ptr()
-	else
-		gpio_bits_set(gp_gpio_pt(gpptr)->gpport, gp_gpio_pt(&gp_b05)->pin); //gen_gpio_ptr(), gen_gpio_ptr()
-  //}
-}
+//static void gpio_pin_set_level(const gp_set_t *gpptr, int level) {
+//	if (level == 0)
+//		gpio_bits_reset(gp_gpio_pt(gpptr)->gpport, gp_gpio_pt(&gp_b05)->pin); //gen_gpio_ptr(), gen_gpio_ptr()
+//	else
+//		gpio_bits_set(gp_gpio_pt(gpptr)->gpport, gp_gpio_pt(&gp_b05)->pin); //gen_gpio_ptr(), gen_gpio_ptr()
+//}

@@ -82,12 +82,15 @@ char *mstep_spi_conf_name(void);
 void dm9051_extline_irq_enable(void); //void _dm9051_board_irq_enable(void);
 
 #if 1 //lw_config
-#define DM9051_Poweron_Reset	cpin_poweron_reset
-#define DM9051_Read_Reg			cspi_read_reg
-#define DM9051_Write_Reg		cspi_write_reg
-#define DM9051_Read_Mem2X		cspi_read_mem2x
-#define DM9051_Read_Mem			cspi_read_mem
-#define DM9051_Write_Mem		cspi_write_mem
+#define DM9051_Poweron_Reset			default_poweron_reset
+#define DM9051_Read_Reg					cspi_read_reg
+#define DM9051_Write_Reg				cspi_write_reg
+#define DM9051_Read_Mem2X				cspi_read_mem2x
+#define DM9051_Read_Mem					cspi_read_mem
+#define DM9051_Write_Mem				cspi_write_mem
+#define DM9051_Get_OutData_Level(e)		enum_gpio_get_output_data_level(e)
+#define DM9051_Set_OutData_Level(e,l)	enum_gpio_set_output_data_level(e,l)
+#define DM9051_Get_InData_Level(e)		enum_gpio_get_input_data_level(e)
 #endif
 
 /* dm9051 delay times procedures */
