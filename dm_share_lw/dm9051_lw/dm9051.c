@@ -380,10 +380,8 @@ void impl_dm9051_tx0(uint8_t *buf, uint16_t len)
 //void dm9051_spi_configuration(int n)
 void dm9051_boards_initialize(void)
 {
-  //DM_UNUSED_ARG(n);
   dm9051_board_counts_display(PROJECT_NAME); //printf("x2web start: [BOARD_SPI COUNT] %d  /  Operating: [ETHERNET COUNT] %d\r\n", BOARD_SPI_COUNT, ETHERNET_COUNT);
   dm9051_opts_display();
-  printf("DM9051_DEBUGF-->dm9051_boards_initialize() ..\r\n"); //DM9051_DEBUGF(DM9051_LW_CONF,("DM9051_DEBUGF-->dm9051_boards_initialize() ..\r\n"));
   
   board_conf_configuration();
   dm9051_link_log_reset();
@@ -494,8 +492,9 @@ uint16_t dm9051_rx(uint8_t *buff)
 uint16_t dm9051_irq_isr_disab(void) {
 	uint16_t isrs = 0;
 	LOCK_TCPIP_COREx();
+	isrs = DM9051_Read_Reg(DM9051_ISR);
 	ULOCK_TCPIP_COREx();
-	return isrs;
+	return (isrs & ISR_PR) | (isrs << 8);
 }
 
 uint16_t dm9051_irq_isr_enab(void) //static uint16_t dm9051_isr_clean(void)

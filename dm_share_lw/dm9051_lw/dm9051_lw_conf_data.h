@@ -365,14 +365,6 @@ void dm9051_opts_iomod_etc(void)
 												//dm9051opts_desconlybytemode() : dm9051opts_desciomode()
 		}
 
-//	#if TO_ADD_CODE_LATER_BACK
-//		for (i = 0; i< ETHERNET_COUNT; i++) {
-//			uint8_t *macaddr;
-//			mstep_set_net_index(i);
-//			macaddr = mstep_eth_mac();
-//			printf("config tobe mac[%d] %02x%02x%02x%02x%02x%02x\r\n", i, macaddr[0], macaddr[1], macaddr[2], macaddr[3], macaddr[4], macaddr[5]);
-//		}
-//	#endif
 	#if TO_ADD_CODE_LATER_BACK
 		for (i = 0; i< ETHERNET_COUNT; i++) {
 			mstep_set_net_index(i);

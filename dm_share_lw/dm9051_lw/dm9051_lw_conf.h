@@ -79,7 +79,7 @@ int mstep_get_net_index(void);
 //void mstep_next_net_index(void);
 char *mstep_conf_cpu_spi_ethernet(void);
 char *mstep_spi_conf_name(void);
-void dm9051_board_irq_enable(void); //void _dm9051_board_irq_enable(void);
+void dm9051_extline_irq_enable(void); //void _dm9051_board_irq_enable(void);
 
 #if 1 //lw_config
 #define DM9051_Poweron_Reset	cpin_poweron_reset

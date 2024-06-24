@@ -139,6 +139,17 @@ int is_dm9051_board_irq(void)
   return pexint_set ? 1 : 0;
 }
 
+//[board enab/disab]
+void dm9051_eth_irq_disab(IRQn_Type irqn)
+{
+	nvic_irq_disable(irqn);
+}
+void dm9051_eth_irq_enab(IRQn_Type irqn, nvic_priority_group_type priority)
+{
+  nvic_priority_group_config(priority);
+  nvic_irq_enable(irqn, 1, 0); // nvic_irq_enable(EXINT9_5_IRQn, 1, 0); //i.e.= //_misc
+}
+
 //[Enable int]
 static void exint_enable(const struct extscfg_st *pexint_set)
 {
@@ -150,17 +161,16 @@ static void exint_enable(const struct extscfg_st *pexint_set)
   bannerline_log();
 
   // NVIC_PRIORITY_GROUP_0/NVIC_PRIORITY_GROUP_4, //nvic_priority_group_type priority
-  nvic_priority_group_config(pexint_set->extline.priority);
-  nvic_irq_enable(pexint_set->extline.irqn, 1, 0); // nvic_irq_enable(EXINT9_5_IRQn, 1, 0); //i.e.= //_misc
+  dm9051_eth_irq_enab(pexint_set->extline.irqn, pexint_set->extline.priority);
 }
 
-void dm9051_board_irq_enable(void)
+void dm9051_extline_irq_enable(void)
 {
   printf("\r\n");
   if (intr_pointer())
   {
     const struct extscfg_st *pexint_set = (const struct extscfg_st *)intr_data_scfg(); //exint_scfg_ptr();
-    printf(".dm9051_board_irq_enable (INT)\r\n");
+    printf(".dm9051_board_extline_irq (INT)\r\n");
     if (pexint_set)
     {
       exint_enable(pexint_set);
@@ -170,7 +180,7 @@ void dm9051_board_irq_enable(void)
     }
   }
   else
-    printf(".dm9051_board_irq_enable (POLLING)\r\n");
+    printf(".dm9051_board_extline_irq (POLLING)\r\n");
 }
 
 /**

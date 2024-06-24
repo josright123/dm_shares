@@ -100,6 +100,7 @@ static int Get_DataObj_Pin(uint32_t exint_line) {
 }
 
 /* ret: EXINT_LINE_0 ~ EXINT_LINE_22
+ *      if (!DataObj.intrconf[pin]) return 0
  */
 uint32_t dm9051_irq_exint_line(int pin)
 {
@@ -138,10 +139,10 @@ void interface_all_add(int pin)
 	DM_UNUSED_ARG(pin);
 
 	spi_add();
-	rst_add();
 	intr_add();
+	cpin_rst_add();
 
-	gen_gpio_add();
+	cpin_gpio_add(CPIN_PB05);
 }
 
 void board_conf_configuration(void)
@@ -553,7 +554,7 @@ const uint8_t *dm9051_start1(const uint8_t *adr)
 #endif
 //	display_mac_action(bare_mac_tbl[1], adr); //[1]= ": wr-bare device"
 
-	dm9051_board_irq_enable(); //_dm9051_board_irq_enable(NVIC_PRIORITY_GROUP_0);
+	dm9051_extline_irq_enable(); //_dm9051_board_irq_enable(NVIC_PRIORITY_GROUP_0);
 	dm9051_mac_adr(adr);
 	dm9051_rx_mode();
 	return adr;

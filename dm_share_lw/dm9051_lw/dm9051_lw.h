@@ -205,6 +205,8 @@
 #define MBNDRY_BYTE			(1 << 7)
 //#define MBNDRY_DEFAULTx	MBNDRY_WORD //MBNDRY_BYTE
 
+#define ISR_PR				(1 << 0)
+
 #define IMR_PAR             (1 << 7)
 #define IMR_PRM             (1 << 0)
 
@@ -241,6 +243,8 @@ extern sys_mutex_t lock_dm9051_core;
 
 #if DM9051OPTS_API
 void dm9051_boards_initialize(void);
+void dm9051_eth_irq_disab(IRQn_Type irqn);
+void dm9051_eth_irq_enab(IRQn_Type irqn, nvic_priority_group_type priority);
 //void dm9051_spi_configuration(int n);
 
 const uint8_t *dm9051_init(const uint8_t *adr);

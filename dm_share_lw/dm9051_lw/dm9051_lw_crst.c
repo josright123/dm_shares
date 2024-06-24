@@ -27,11 +27,11 @@
 #include "dm9051_lw.h"
 
 #include "dm9051_lw_cspi.h"
-#include "dm9051_lw_crst_data.h"
 #include "dm9051_lw_debug.h"
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
+#include "dm9051_lw_crst_data.h"
 
-void rst_add(void)
+void cpin_rst_add(void)
 {
   if (rst_pin_mexist()) {
 	/* rst_gpio_ptr() should be correct pin define.
@@ -41,45 +41,35 @@ void rst_add(void)
   }
 }
 
-void gen_gpio_add(void)
-{
-#undef printf
-#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
-  if (gen_gpio_exister()) {
-	printf("gpio_pin_config: GEN-gpio %d of %s\r\n", de_pin(gen_gpio_ptr()), gen_gpio_info()); //gen_gpio_data()->gp_info
-	gpio_pin_config(gen_gpio_ptr(), GPIO_PULL_UP);
-  }
-#undef printf
-#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
-}
-
-static void rst_pin_pulse(void) {
-	gpio_bits_reset(rst_gpio_ptr()->gpport, rst_gpio_ptr()->pin); //rstpin_lo();
-	dm_delay_ms(1);
-	gpio_bits_set(rst_gpio_ptr()->gpport, rst_gpio_ptr()->pin); //rstpin_hi();
-}
+//.static void rst_pin_pulse(void) {}
 
 void cpin_poweron_reset(void)
 {
-	if (rst_pin_exister())
-		rst_pin_pulse(); //.dm9051_if->rstb_pulse()
+	if (rst_pin_exister()) {
+		//=rst_pin_pulse();
+		gpio_bits_reset(rst_gpio_ptr()->gpport, rst_gpio_ptr()->pin); //rstpin_lo();
+		dm_delay_ms(1);
+		gpio_bits_set(rst_gpio_ptr()->gpport, rst_gpio_ptr()->pin); //rstpin_hi();
+	}
 }
 
-static void gpio_pin_level(int level) {
-	if (level == 0)
-		gpio_bits_reset(gen_gpio_ptr()->gpport, gen_gpio_ptr()->pin); //rstpin_lo();
-	else
-		gpio_bits_set(gen_gpio_ptr()->gpport, gen_gpio_ptr()->pin); //rstpin_hi();
-}
-
-void cpin_gpio_lo(void)
+void cpin_gpio_add(int cpin)
 {
-	if (gen_gpio_exister())
-		gpio_pin_level(0); //.dm9051_if->rstb_pulse()
+	const gp_set_t *gpptr = get_cpin_init_dataptr(cpin);
+	if (gpptr)
+		gpio_pin_add(gpptr);
 }
 
-void cpin_gpio_hi(void)
+void cpin_gpio_lo(int cpin)
 {
-	if (gen_gpio_exister())
-		gpio_pin_level(1); //.dm9051_if->rstb_pulse()
+	const gp_set_t *gpptr = get_cpin_init_dataptr(cpin);
+	if (gpptr)
+		gpio_pin_level(gpptr, 0);
+}
+
+void cpin_gpio_hi(int cpin)
+{
+	const gp_set_t *gpptr = get_cpin_init_dataptr(cpin);
+	if (gpptr)
+		gpio_pin_level(gpptr, 1);
 }
