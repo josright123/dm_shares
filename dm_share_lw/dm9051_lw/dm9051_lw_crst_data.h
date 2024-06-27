@@ -14,6 +14,16 @@ const gp_set_t gp_a08 = {
   {GPIOA, GPIO_PINS_8,  CRM_GPIOA_PERIPH_CLOCK, &mode_output, }, //(PA8) OUT-pin //GPIO_MODE_INPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL
 };
 
+const gp_set_t gp_a00 = {
+  "GPIO pa00",
+  {GPIOA, GPIO_PINS_0,  CRM_GPIOA_PERIPH_CLOCK, &mode_output, }, //(PA0) OUT-pin //GPIO_MODE_INPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL
+};
+
+const gp_set_t gp_a01 = {
+  "GPIO pa01",
+  {GPIOA, GPIO_PINS_1,  CRM_GPIOA_PERIPH_CLOCK, &mode_output, }, //(PA0) OUT-pin //GPIO_MODE_INPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL
+};
+
 const gp_set_t gp_b05 = {
   "GPIO pb05",
   {GPIOB, GPIO_PINS_5,  CRM_GPIOB_PERIPH_CLOCK, &mode_output, }, //(PB5) OUT-pin //GPIO_MODE_INPUT, GPIO_PINSRC_NULL, GPIO_MUX_NULL
@@ -22,6 +32,11 @@ const gp_set_t gp_b05 = {
 const gp_set_t gp_b04 = {
   "GPIO pb04",
   {GPIOB, GPIO_PINS_4,  CRM_GPIOB_PERIPH_CLOCK, &mode_input, },
+};
+
+const gp_set_t gp_b10 = {
+  "GPIO pb10",
+  {GPIOB, GPIO_PINS_10,  CRM_GPIOB_PERIPH_CLOCK, &mode_output, },
 };
 
 const gp_set_t *option_rst_common = NULL;
@@ -67,10 +82,16 @@ static const gp_set_t *get_cpin_init_dataptr(int cpin_enum)
 	switch (cpin_enum) {
 		case CPIN_ENUM_PA08:
 			return &gp_a08;
+		case CPIN_ENUM_PA00:
+			return &gp_a00;
+		case CPIN_ENUM_PA01:
+			return &gp_a01;
 		case CPIN_ENUM_PB05:
 			return &gp_b05;
 		case CPIN_ENUM_PB04:
 			return &gp_b04;
+		case CPIN_ENUM_PB10:
+			return &gp_b10;		
 	}
 	return NULL;
 }

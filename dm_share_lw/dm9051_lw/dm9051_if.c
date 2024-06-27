@@ -144,6 +144,9 @@ void interface_all_add(int pin)
 
 	enum_gpio_add(CPIN_ENUM_PB05);
 	enum_gpio_add(CPIN_ENUM_PB04);
+//	enum_gpio_add(CPIN_ENUM_PA08);
+//	enum_gpio_add(CPIN_ENUM_PA00);
+	enum_gpio_add(CPIN_ENUM_PA01);
 }
 
 void board_conf_configuration(void)

@@ -222,6 +222,9 @@ enum {
   CPIN_ENUM_PA08 = 0,
   CPIN_ENUM_PB05,
   CPIN_ENUM_PB04,
+  CPIN_ENUM_PB10,
+	CPIN_ENUM_PA00,
+	CPIN_ENUM_PA01,
 };
 
 void spi_add(void);
