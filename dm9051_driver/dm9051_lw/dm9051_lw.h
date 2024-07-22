@@ -214,53 +214,33 @@
 
 extern const dm_dly_t dmf;
 
-//uint8_t DM9051_Read_Reg(uint8_t reg);
-//void DM9051_Write_Reg(uint8_t reg, uint8_t val);
-//uint8_t DM9051_Read_Mem2X(void);
-//void DM9051_Read_Mem(uint8_t *buf, uint16_t len);
-//void DM9051_Write_Mem(uint8_t *buf, uint16_t len);
-
 uint16_t eeprom_read(uint16_t uReg);
 
 void phy_write(uint16_t reg, uint16_t value);
 
 void dm9051_poweron_rst(void);
 
-//uint16_t dm9051_init(const uint8_t *adr);
-//uint16_t dm9051_rx(uint8_t *buff);
-//void dm9051_tx(uint8_t *buf, uint16_t len);
-//void dm9051_mac_adr(const uint8_t *macadd);
-//.uint16_t .dm9051_bmsr_update(void);
-//uint16_t impl_read_chip_id(void);
+//uint16_t _dm9051_init(const uint8_t *adr);
 
-#if freeRTOS
-/** The global semaphore to lock the stack. */
-extern sys_mutex_t lock_dm9051_core;
-#define LOCK_TCPIP_COREx()     sys_mutex_lock(&lock_dm9051_core)
-#define ULOCK_TCPIP_COREx()   sys_mutex_unlock(&lock_dm9051_core)
-#else
-#define LOCK_TCPIP_COREx()	//empty test
-#define ULOCK_TCPIP_COREx()	//empty test
-#endif
+//uint16_t _dm9051_rx(uint8_t *buff);
+//void _dm9051_tx(uint8_t *buf, uint16_t len);
 
 #if DM9051OPTS_API
 void dm9051_boards_initialize(void);
-void dm9051_eth_irq_disab(IRQn_Type irqn);
-void dm9051_eth_irq_enab(IRQn_Type irqn, nvic_priority_group_type priority);
+//void dm9051_eth_irq_disab(IRQn_Type irqn);
+//void dm9051_eth_irq_enab(IRQn_Type irqn, nvic_priority_group_type priority);
 //void dm9051_spi_configuration(int n);
 
 const uint8_t *dm9051_init(const uint8_t *adr);
 uint16_t dm9051_rx(uint8_t *buff);
 void dm9051_tx(uint8_t *buf, uint16_t len);
-uint16_t dm9051_irq_isr_disab(void); //noused
-uint16_t dm9051_irq_isr_enab(void);
-uint32_t dm9051_irq_exint_line(int pin);
-int dm9051_irq_pincode(uint32_t exint_line);
+uint16_t dm9051_isr_disab(void); //noused
+uint16_t dm9051_isr_enab(void);
+void dm9051_mcu_irq_disab(void);
+void dm9051_mcu_irq_enab(void);
 
-#define dm9051_rx_isr_clean()		dm9051_irq_isr_enab()
-#define	DataObj_EXINT_extline(pin)	dm9051_irq_exint_line(pin)
-#define	DataObj_EXINT_Pin(extline)	dm9051_irq_pincode(extline)
-//uint16_t dm9051_rx_isr_clean(void);
+//#define	DataObj_EXINT_extline(pin)	dm9051_irq_exint_line(pin)
+//#define	DataObj_EXINT_Pin(extline)	dm9051_irq_pincode(extline)
 //uint32_t DataObj_EXINT_extline(int pin);
 //int DataObj_EXINT_Pin(uint32_t exint_line);
 //int dm9051_timer_rx_isr_check(int pin);
@@ -268,15 +248,40 @@ int dm9051_irq_pincode(uint32_t exint_line);
 #define DM9051_NUM_LINKUP_RST	9
 #define DM9051_NUM_RXLOG_RST	7
 uint16_t dm9051_read_chip_id(void);
-void dm9051_read_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd);
+void dm9051_read_rx_pointers(uint16_t *rwpa_wt, uint16_t *mdra_rd);
 
 uint16_t dm9051_bmsr_update(void);
-uint16_t dm9051_err_hdlr(char *errstr, u32 invalue, u8 zerochk);
+uint16_t dm9051_err_hdlr(char *errstr, uint32_t invalue, uint8_t zerochk);
 //.void ldm9051_mac_adr(const uint8_t *macadd);
 
 #define ERR_HDLR_PRINT(errs, uval)						errs, uval
 #define ERR_HDLR_PRINT_NEW(errs, pincod_param, uval)	errs, uval
-#endif
+#endif //DM9051OPTS_API
+
+const uint8_t *identify_eth_mac(const uint8_t *macadr, int showflg);
+
+#if DM9051OPTS_API
+uint8_t *identify_tcpip_ip(uint8_t *ip4adr);
+uint8_t *identify_tcpip_gw(uint8_t *ip4adr);
+uint8_t *identify_tcpip_mask(uint8_t *ip4adr);
+uint8_t *identified_eth_mac(void);
+uint8_t *identified_tcpip_ip(void);
+uint8_t *identified_tcpip_gw(void);
+uint8_t *identified_tcpip_mask(void);
+
+#define	mstep_eth_mac()		identified_eth_mac()
+#define	mstep_eth_ip()		identified_tcpip_ip()
+#define	mstep_eth_gw()		identified_tcpip_gw()
+#define	mstep_eth_mask()	identified_tcpip_mask()
+
+bmcrmode_t mstep_opts_bmcrmode(void);
+
+#define PINCOD mstep_get_net_index()
+#define pincod mstep_get_index()
+
+void mstep_set_net_index(int i);
+int mstep_get_net_index(void);
+#endif //DM9051OPTS_API
 
 void DEBUG_refresh_isr_check(void);
 
@@ -292,51 +297,71 @@ uint16_t dm9051_link_show(void);
 
 #define DM9051_FLAG_LINK_UP							0x01U
 
-#define dm9051_set_flags(flg, set_flags)     		do { flg = (u8)(flg | (set_flags)); } while(0)
-#define dm9051_clear_flags(flg, clr_flags)   		do { flg = (u8)(flg & (u8)(~(clr_flags) & 0xff)); } while(0)
+#define dm9051_set_flags(flg, set_flags)     		do { flg = (uint8_t)(flg | (set_flags)); } while(0)
+#define dm9051_clear_flags(flg, clr_flags)   		do { flg = (uint8_t)(flg & (uint8_t)(~(clr_flags) & 0xff)); } while(0)
 #define dm9051_is_flag_set(flg, flag)        		((flg & (flag)) != 0)
 
 #define chipid_on_pin_code_log_s(str, fstr, id)		printf("...%s...          %s Read Chip ID OK: %02x (this CS_EACH_MODE)\r\n", fstr, str, id)
 #define chipid_on_pin_code_log_err(str, fstr, id)	printf("...%s...          %s Read Chip ID error: %02x (this CS_EACH_MODE)\r\n", fstr, str, id)
 
-//#define display_ids(fstr, ids)					printf("...%s...          chip ids: %02x %02x %02x %02x %02x (this %s)\r\n", \
-//															fstr, ids[0], ids[1], ids[2], ids[3], ids[4], DM_GET_DESC(csmode_t, csmode))
-//#define display_ida(fstr, id_adv)					printf("...%s...          chip rev: %02x\r\n", fstr, id_adv)
-
-int display_identity(char *spiname, uint16_t id, uint8_t *ids, uint8_t id_adv, uint16_t idin, char *tail);
 int display_verify_chipid(char *str, char *spiname, uint16_t id);
 void display_chipmac(void);
 
 /*
  * sub of dm9051.c
  */
+void impl_reset_pulse(void); //void dm9051_poweron_reset_pulse(void);
+const uint8_t *impl_dm9051_init(const uint8_t *adr);
+
+uint16_t impl_dm9051_isr_disab(void);
+uint16_t impl_dm9051_isr_enab(void);
+void impl_disable_mcu_irq(void);
+void impl_enable_mcu_irq(void);
+
 uint16_t impl_dm9051_rx1(uint8_t *buff);
 void impl_dm9051_tx1(uint8_t *buf, uint16_t len);
 
-u16 impl_dm9051_err_hdlr(char *errstr, int pincode, u32 invalue, u8 zerochk);
 uint16_t impl_read_chip_id(void);
-void impl_read_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd);
+void impl_read_rx_pointers(uint16_t *rwpa_wt, uint16_t *mdra_rd);
+void impl_read_par(uint8_t *buff);
+
 uint16_t impl_phy_read(uint16_t uReg);
+uint16_t impl_dm9051_err_hdlr(char *errstr, int pincode, uint32_t invalue, uint8_t zerochk);
 
-u16 ev_rxb(uint8_t rxb);
-u16 ev_status(uint8_t rx_status);
+void impl_dm9051_set_par(const uint8_t *macadd);
+void dm9051_set_mar(void);
+void dm9051_set_recv(void);
 
+uint16_t ev_rxb(uint8_t rxb);
+uint16_t ev_status(uint8_t rx_status);
+
+uint16_t dm9051_rx_read(uint8_t *buff);
+void dm9051_tx_write(uint8_t *buf, uint16_t len);
+void dm9051_tx_req(void);
+
+//rx
+uint16_t buff_rx(uint8_t *buff);
+//tx
+void buff_tx(uint8_t *buf, uint16_t len);
+
+void dm9051_pwron_reset(void);
+void dm9051_reset_pulse(void);
 int dm9051_init_setup(uint16_t *id);
 int check_chip_id(uint16_t id);
+
 void dm9051_phycore_on(uint16_t nms);
+void dm9051_ncr_reset(uint16_t nms);
+void dm9051_soft_default(void);
+
+void test_plan_mbndry(void);
+void read_chip_revision(uint8_t *ids, uint8_t *rev_ad);
+void dm9051_mac_adr(const uint8_t *macadd);
+void dm9051_rx_mode(void);
+
 const uint8_t *hdlr_reset_process(const uint8_t *macaddr, enable_t en);
+void dm9051_core_reset(void);
 
 void dm9051_link_to_hexdump(const void *buffer, size_t len) ;
-
-/*
- * export open functions
- */
-//void poweron_pin_rst(void);
-//#define spi_read_reg cspi_read_reg
-//#define spi_write_reg cspi_write_reg
-//uint8_t spi_read_mem2x(void);
-//void spi_read_mem(u8 *buf, u16 len);
-//void spi_write_mem(u8 *buf, u16 len);
 
 #ifdef __cplusplus
 }

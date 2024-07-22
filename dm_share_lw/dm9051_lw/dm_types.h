@@ -72,7 +72,7 @@ DM_MACRO(void,	ip_t, mask) //(uint8_t*, ip4_t, mask)
 			return (rtype) dm9051optsex[mstep_get_net_index()].##field; \
 		} \
 		char *DM_TYPES_GETDESC_FUNC(mtype, field) { \
-			return dm9051optsex[mstep_get_net_index()].desc##field##; \
+			return dm9051optsex[mstep_get_net_index()].desc##field; \
 		} \
 		void DM_TYPES_SET_FUNC(mtype, field, setval) { /* extended-set-data */ \
 			dm9051optsex[mstep_get_net_index()].##field = setval; \
@@ -80,10 +80,10 @@ DM_MACRO(void,	ip_t, mask) //(uint8_t*, ip4_t, mask)
 	#undef DM_RMACRO
 	#define DM_RMACRO(rtype, mtype, field, adr_len)  \
 		rtype DM_TYPES_GET_FUNC(mtype, field) { \
-			return dm9051optsex[mstep_get_net_index()].##field; \
+			return (rtype) dm9051optsex[mstep_get_net_index()].##field; \
 		} \
 		char *DM_TYPES_GETDESC_FUNC(mtype, field) { \
-			return dm9051optsex[mstep_get_net_index()].desc##field##; \
+			return dm9051optsex[mstep_get_net_index()].desc##field; \
 		} \
 		void DM_TYPES_SET_FUNC(mtype, field, setval) { /* extended-set-data */ \
 			/*dm9051optsex[mstep_get_net_index()].##field = val;*/ \

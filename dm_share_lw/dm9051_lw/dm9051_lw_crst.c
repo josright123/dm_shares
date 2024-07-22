@@ -50,6 +50,7 @@ void default_poweron_reset(void)
 		gpio_bits_reset(rst_gpio_ptr()->gpport, rst_gpio_ptr()->pin); //rstpin_lo();
 		dm_delay_ms(1);
 		gpio_bits_set(rst_gpio_ptr()->gpport, rst_gpio_ptr()->pin); //rstpin_hi();
+		dmf.dly_ms(30);
 	}
 }
 

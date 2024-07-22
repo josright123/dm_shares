@@ -124,7 +124,8 @@ void DataObj_store(int pin) {
 	DataObj.intrconf[pin] = intr_pointer(); //Can it in case NULL ok ?
 }
 
-static const dm_dly_t dmf = {
+//static 
+const dm_dly_t dmf = {
 #if freeRTOS
 	uvTaskDelay, //here assign, define system's delay us function
 	vTaskDelay, //here assign, define system's delay ms function
@@ -160,7 +161,6 @@ void board_conf_configuration(void)
   ETH_COUNT_VOIDFN(interface_all_add); //voidfn_dual
 
   default_poweron_reset();
-  dmf.dly_ms(30);
 }
 
 /* dm9051 macro */

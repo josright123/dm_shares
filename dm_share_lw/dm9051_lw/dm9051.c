@@ -172,7 +172,6 @@ uint16_t impl_dm9051_rx0(uint8_t *buff)
 	#endif
 
 	rxbyte = DM9051_Read_Rxb(); //DM9051_Read_Reg(DM9051_MRCMDX);
-	//DM9051_RXB_Basic(rxbyte); //(todo) Need sevice case.
 
 	#if TEST_PLAN_MODE //TestMode.RX
 	if (check_get() && !check_get_check_done()) { //(checkrxbcount > 1)
