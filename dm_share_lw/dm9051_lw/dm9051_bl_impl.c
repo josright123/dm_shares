@@ -136,13 +136,15 @@ u16 impl_dm9051_err_hdlr(char *errstr, int pincode, u32 invalue, u8 zerochk)
 	rx_pointers_isr_show("dm9051_err_hdlr");
 #endif
 
-	return 0;
+	return 0xffff;
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
 
 static uint16_t buff_rx(uint8_t *buff)
 {
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
 	uint16_t rx_len = 0;
 	uint8_t rxbyte, rx_status;
 	uint8_t ReceiveData[4];
@@ -160,6 +162,8 @@ static uint16_t buff_rx(uint8_t *buff)
 	rx_len = ReceiveData[2] + (ReceiveData[3] << 8);
 	
 	//instead of : err_hdlr("_dm9051f rx_status error : 0x%02x\r\n", rx_status, 0)
+	DM9051_RX_BREAK((rx_status & 0xbf), printf("ev_status: %02x %02x %02x %02x\r\n", 
+			ReceiveData[0],ReceiveData[1],ReceiveData[2],ReceiveData[3]));
 	DM9051_RX_BREAK((rx_status & 0xbf), return ev_status(rx_status));
 	//instead of : err_hdlr("_dm9051f rx_len error : %u\r\n", rx_len, 0));
 	DM9051_RX_BREAK((rx_len > RX_POOL_BUFSIZE), return impl_dm9051_err_hdlr("_dm9051f[%d] rx_len error : %u\r\n", PINCOD, rx_len, 0));
@@ -167,6 +171,8 @@ static uint16_t buff_rx(uint8_t *buff)
 	DM9051_Read_Mem(buff, rx_len);
 	DM9051_Write_Reg(DM9051_ISR, 0x80);
 	return rx_len;
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
 
 uint16_t impl_dm9051_rx1(uint8_t *buff)

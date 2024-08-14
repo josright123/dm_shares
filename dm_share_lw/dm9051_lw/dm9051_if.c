@@ -44,7 +44,7 @@
 #include "dm9051_lw_cspi.h"
 #include "dm9051_lw_cint.h"
 #include "dm9051_lw_debug.h"
-#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
 
 char *display_identity_bannerline_title = NULL;
 char *display_identity_bannerline_default =  ": Read device";
@@ -687,6 +687,8 @@ u16 ev_rxb(uint8_t rxb)
 //static
 u16 ev_status(uint8_t rx_status)
 {
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
 	bannerline_log();
 	printf(".(Err.status%2x) _dm9051f:", rx_status);
 	if (rx_status & RSR_RF) printf(" runt-frame");
@@ -699,4 +701,6 @@ u16 ev_status(uint8_t rx_status)
 	if (rx_status & RSR_FOE) printf(" rx-memory-overflow-err");
 	bannerline_log();
 	return impl_dm9051_err_hdlr("_dm9051f[%d] rx_status error : 0x%02x\r\n", PINCOD, rx_status, 0);
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
