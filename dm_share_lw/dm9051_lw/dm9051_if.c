@@ -690,7 +690,7 @@ u16 ev_status(uint8_t rx_status)
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
 	bannerline_log();
-	printf(".(Err.status%2x) _dm9051f:", rx_status);
+	printf(".(Err.status:0x%02X) _dm9051f:", rx_status);
 	if (rx_status & RSR_RF) printf(" runt-frame");
 
 	if (rx_status & RSR_LCS) printf(" late-collision");
