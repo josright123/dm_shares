@@ -47,7 +47,7 @@
 #include "dm9051_lw_debug.h"
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 
-//static 
+//static
 uint16_t impl_read_chip_id(void) {
 	u8 buff[2];
 	cspi_read_regs(DM9051_PIDL, buff, 2, CS_EACH);
@@ -103,6 +103,7 @@ uint16_t impl_phy_read(uint16_t uReg)
 #define DM9051_RX_BREAK(expression, handler) do { if ((expression)) { \
   handler;}} while(0)
 
+
 /*static*/
 u16 impl_dm9051_err_hdlr(char *errstr, int pincode, u32 invalue, u8 zerochk)
 {
@@ -118,17 +119,55 @@ u16 impl_dm9051_err_hdlr(char *errstr, int pincode, u32 invalue, u8 zerochk)
 #else
 	n += snprintf(buf+n, space_size-n, "----- [.]");
 	n += snprintf(buf+n, space_size-n, errstr, pincode, invalue);
-	
+
 	if (n >= 76) n = 75;
 	buf[n] = 0;
-	
+
+	bannerline_log();
+	printf("----- [.]");
+	printf(errstr, pincode, invalue); //or "0x%02x"
+	printf(buf);
+#endif
+
+	hdlr_reset_process(mstep_eth_mac(), OPT_CONFIRM(hdlr_confrecv)); //CH390 opts
+
+#if 1
+//	rx_pointer_show("dm9051_err_hdlr");
+//	rx_isr_show("dm9051_err_hdlr");
+	rx_pointers_isr_show("dm9051_err_hdlr");
+#endif
+
+	return 0;
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
+}
+
+/*static*/
+u16 impl_dm9051_err_hdlr_01(char *errstr, int pincode, u32 invalue, u8 zerochk)
+{
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
+	char buf[76];
+	int space_size = 76, n = 0;
+	if (zerochk && invalue == 0)
+		return 0; //.printf(": NoError as %u\r\n", valuecode);
+
+#if 0
+	printf(errstr, pincode, invalue); //or "0x%02x"
+#else
+	n += snprintf(buf+n, space_size-n, "----- [.]");
+	n += snprintf(buf+n, space_size-n, errstr, pincode, invalue);
+
+	if (n >= 76) n = 75;
+	buf[n] = 0;
+
 	bannerline_log();
 	printf("----- [.]");
 	printf(errstr, pincode, invalue); //or "0x%02x"
 	printf(buf);
 #endif
 	hdlr_reset_process(mstep_eth_mac(), OPT_CONFIRM(hdlr_confrecv)); //CH390 opts
-	
+
 #if 1
 //	rx_pointer_show("dm9051_err_hdlr");
 //	rx_isr_show("dm9051_err_hdlr");
@@ -140,33 +179,36 @@ u16 impl_dm9051_err_hdlr(char *errstr, int pincode, u32 invalue, u8 zerochk)
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
 
-static uint16_t buff_rx(uint8_t *buff)
+static uint16_t buff_rx_01(uint8_t *buff)
 {
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
 	uint16_t rx_len = 0;
 	uint8_t rxbyte, rx_status;
 	uint8_t ReceiveData[4];
-	
+
 	rxbyte = DM9051_Read_Mem2X(); //DM9051_Read_Rxb(); //DM9051_Read_Reg(DM9051_MRCMDX);
 	//DM9051_RXB_Basic(rxbyte); //(todo) Need sevice case.
 	buff[0] = rxbyte;
-	DM9051_RX_BREAK((rxbyte != 0x01 && rxbyte != 0), return ev_rxb(rxbyte));
+	buff[1] = rxbyte;
+	buff[2] = rxbyte;
+	buff[3] = rxbyte;
+	DM9051_RX_BREAK((rxbyte != 0x01 && rxbyte != 0), return ev_rxb_01(rxbyte));
 	DM9051_RX_BREAK((rxbyte == 0), return 0);
-		
+
 	DM9051_Read_Mem(ReceiveData, 4);
 	DM9051_Write_Reg(DM9051_ISR, 0x80);
-	
+
 	rx_status = ReceiveData[1];
 	rx_len = ReceiveData[2] + (ReceiveData[3] << 8);
-	
+
 	//instead of : err_hdlr("_dm9051f rx_status error : 0x%02x\r\n", rx_status, 0)
 	memcpy(buff, ReceiveData, 4);
-	DM9051_RX_BREAK((rx_status & 0xbf), printf("ev_status: %02x %02x %02x %02x\r\n", 
+	DM9051_RX_BREAK((rx_status & 0xbf), printf("ev_status: %02x %02x %02x %02x\r\n",
 			ReceiveData[0],ReceiveData[1],ReceiveData[2],ReceiveData[3]));
-	DM9051_RX_BREAK((rx_status & 0xbf), return ev_status(rx_status));
+	DM9051_RX_BREAK((rx_status & 0xbf), return ev_status_01(rx_status));
 	//instead of : err_hdlr("_dm9051f rx_len error : %u\r\n", rx_len, 0));
-	DM9051_RX_BREAK((rx_len > RX_POOL_BUFSIZE), return impl_dm9051_err_hdlr("_dm9051f[%d] rx_len error : %u\r\n", PINCOD, rx_len, 0));
+	DM9051_RX_BREAK((rx_len > RX_POOL_BUFSIZE), return impl_dm9051_err_hdlr_01("_dm9051f[%d] rx_len error : %u\r\n", PINCOD, rx_len, 0));
 
 	DM9051_Read_Mem(buff, rx_len);
 	DM9051_Write_Reg(DM9051_ISR, 0x80);
@@ -175,28 +217,28 @@ static uint16_t buff_rx(uint8_t *buff)
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
 
-static uint16_t buff_rx_01(uint8_t *buff)
+static uint16_t buff_rx(uint8_t *buff)
 {
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
 	uint16_t rx_len = 0;
 	uint8_t rxbyte, rx_status;
 	uint8_t ReceiveData[4];
-	
+
 	rxbyte = DM9051_Read_Mem2X(); //DM9051_Read_Rxb(); //DM9051_Read_Reg(DM9051_MRCMDX);
 	//DM9051_RXB_Basic(rxbyte); //(todo) Need sevice case.
-	
+
 	DM9051_RX_BREAK((rxbyte != 0x01 && rxbyte != 0), return ev_rxb(rxbyte));
 	DM9051_RX_BREAK((rxbyte == 0), return 0);
-		
+
 	DM9051_Read_Mem(ReceiveData, 4);
 	DM9051_Write_Reg(DM9051_ISR, 0x80);
-	
+
 	rx_status = ReceiveData[1];
 	rx_len = ReceiveData[2] + (ReceiveData[3] << 8);
-	
+
 	//instead of : err_hdlr("_dm9051f rx_status error : 0x%02x\r\n", rx_status, 0)
-	DM9051_RX_BREAK((rx_status & 0xbf), printf("ev_status: %02x %02x %02x %02x\r\n", 
+	DM9051_RX_BREAK((rx_status & 0xbf), printf("ev_status: %02x %02x %02x %02x\r\n",
 			ReceiveData[0],ReceiveData[1],ReceiveData[2],ReceiveData[3]));
 	DM9051_RX_BREAK((rx_status & 0xbf), return ev_status(rx_status));
 	//instead of : err_hdlr("_dm9051f rx_len error : %u\r\n", rx_len, 0));

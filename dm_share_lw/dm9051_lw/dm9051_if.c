@@ -71,10 +71,10 @@ static void LIST_EXTLINE(uint32_t exint_line) {
 		printf("Enter exint_line 0x%06x\r\n", exint_line);
 	else
 		printf("Enter EXINT_LINE_NONE 0x%06x\r\n", exint_line);
-		
+
 	for (pin = 0; pin < ETHERNET_COUNT; pin++)
 		printf("List%d = 0x%06x\r\n", pin, dm9051_irq_exint_line(pin));
-		
+
 	if (exint_line)
 		printf("Exit exint_line 0x%06x NOT found!\r\n", exint_line);
 	else
@@ -114,7 +114,7 @@ int dm9051_irq_pincode(uint32_t exint_line)
 {
 	if (Is_DataObj_Exist(exint_line))
 		return Get_DataObj_Pin(exint_line);
-	
+
 	LIST_EXTLINE(exint_line);
 	return 0;
 }
@@ -124,7 +124,7 @@ void DataObj_store(int pin) {
 	DataObj.intrconf[pin] = intr_pointer(); //Can it in case NULL ok ?
 }
 
-//static 
+//static
 const dm_dly_t dmf = {
 #if freeRTOS
 	uvTaskDelay, //here assign, define system's delay us function
@@ -486,7 +486,7 @@ static void display_rw_mac(char *head, const uint8_t *adr)
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
 	int i;
-	
+
 	bannerline_log();
 	printf(": %s[%d] :: eeprom[] ", head, mstep_get_net_index());
 	for (i = 0; i < 3; i++) {
@@ -508,7 +508,7 @@ int dm9051_init_setup(uint16_t *id)
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
 	uint8_t ids[5], id_adv;
-	
+
 	display_identity_bannerline_title = ": dm9051_init";
 
 	first_log_init();
@@ -522,7 +522,7 @@ int dm9051_init_setup(uint16_t *id)
 
 	//display_chipmac();
 	DM_SET_FIELD(uint16_t, read_chip_id, *id); //store into dm9051optsex[i].read_chip_id
-	
+
 	if (check_chip_id(*id)) {
 //		display_eeprom_action();
 		return 1;
@@ -590,14 +590,14 @@ int display_identity(char *spiname, uint16_t id, uint8_t *ids, uint8_t id_adv, u
 	static uint16_t psh_id1[ETHERNET_COUNT];
 #endif
 	static uint8_t psh_ids1[ETHERNET_COUNT][5], psh_id_adv1[ETHERNET_COUNT];
-	
+
 //	DM_UNUSED_ARG(spiname);
-	
+
 	DM_UNUSED_ARG(id);
 	if (ids) {
 #if 0
 		psh_id1[mstep_get_net_index()] = id;
-#endif	
+#endif
 		memcpy(&psh_ids1[mstep_get_net_index()][0], ids, 5);
 		psh_id_adv1[mstep_get_net_index()] = id_adv;
 	} else {
@@ -611,9 +611,9 @@ int display_identity(char *spiname, uint16_t id, uint8_t *ids, uint8_t id_adv, u
 		display_identity_bannerline_title ? display_identity_bannerline_title : display_identity_bannerline_default,
 		mstep_get_net_index(), spiname,
 		psh_ids1[mstep_get_net_index()][0], psh_ids1[mstep_get_net_index()][1],
-		psh_ids1[mstep_get_net_index()][2], psh_ids1[mstep_get_net_index()][3], 
+		psh_ids1[mstep_get_net_index()][2], psh_ids1[mstep_get_net_index()][3],
 		DM_GET_DESC(csmode_t, csmode), //dm9051opts_desccsmode()
-		psh_id_adv1[mstep_get_net_index()], 
+		psh_id_adv1[mstep_get_net_index()],
 		idin, //psh_id1[mstep_get_net_index()],
 		tail //ids ? "" : ".(Rst.process)"
 		);
@@ -666,7 +666,7 @@ static u8 ret_fire_time(u8 *histc, int csize, int i, u8 rxb)
 	return times; //0;
 }
 
-//static 
+//static
 u16 ev_rxb(uint8_t rxb)
 {
 	int i;
@@ -685,7 +685,25 @@ u16 ev_rxb(uint8_t rxb)
 }
 
 //static
-u16 ev_status(uint8_t rx_status)
+u16 ev_rxb_01(uint8_t rxb)
+{
+	int i;
+	static u8 histc[254] = { 0 }; //static int rff_c = 0 ...;
+	u8 times = 1;
+
+	for (i = 0 ; i < sizeof(histc); i++) {
+		if (rxb == (i+2)) {
+			histc[i]++;
+			times = ret_fire_time(histc, sizeof(histc), i, rxb);
+			return impl_dm9051_err_hdlr_01("_dm9051f[%d] : rxbErr %u times :: dm9051_core_reset()\r\n", PINCOD, times, 1); //As: Hdlr (times : TIMES_TO_RST or 0)
+			                //: Read device[0] :::
+		}
+	}
+	return impl_dm9051_err_hdlr_01(" _dm9051f[%d] rxb error times (No way!) : %u\r\n", PINCOD, times, 0); //As: Hdlr (times : 1, zerochk : 0)
+}
+
+//static
+u16 ev_status_01(uint8_t rx_status)
 {
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
@@ -701,12 +719,12 @@ u16 ev_status(uint8_t rx_status)
 	if (rx_status & RSR_FOE) printf(" rx-memory-overflow-err");
 	bannerline_log();
 	return 0xfffe;
-//	return impl_dm9051_err_hdlr("_dm9051f[%d] rx_status error : 0x%02x\r\n", PINCOD, rx_status, 0);
+//	return impl_dm9051_err_hdlr_01("_dm9051f[%d] rx_status error : 0x%02x\r\n", PINCOD, rx_status, 0);
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
 
-u16 ev_status_01(uint8_t rx_status)
+u16 ev_status(uint8_t rx_status)
 {
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))

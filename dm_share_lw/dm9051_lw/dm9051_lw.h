@@ -316,12 +316,14 @@ uint16_t impl_dm9051_rx1_01(uint8_t *buff);
 void impl_dm9051_tx1(uint8_t *buf, uint16_t len);
 
 u16 impl_dm9051_err_hdlr(char *errstr, int pincode, u32 invalue, u8 zerochk);
+u16 impl_dm9051_err_hdlr_01(char *errstr, int pincode, u32 invalue, u8 zerochk);
 uint16_t impl_read_chip_id(void);
 void impl_read_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd);
 uint16_t impl_phy_read(uint16_t uReg);
 
 u16 ev_rxb(uint8_t rxb);
 u16 ev_status(uint8_t rx_status);
+u16 ev_status_01(uint8_t rx_status);
 
 int dm9051_init_setup(uint16_t *id);
 int check_chip_id(uint16_t id);
