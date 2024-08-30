@@ -700,6 +700,27 @@ u16 ev_status(uint8_t rx_status)
 	if (rx_status & RSR_CE) printf(" crc-err");
 	if (rx_status & RSR_FOE) printf(" rx-memory-overflow-err");
 	bannerline_log();
+	return 0xfffe;
+//	return impl_dm9051_err_hdlr("_dm9051f[%d] rx_status error : 0x%02x\r\n", PINCOD, rx_status, 0);
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
+}
+
+u16 ev_status_01(uint8_t rx_status)
+{
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
+	bannerline_log();
+	printf(".(Err.status:0x%02X) _dm9051f:", rx_status);
+	if (rx_status & RSR_RF) printf(" runt-frame");
+
+	if (rx_status & RSR_LCS) printf(" late-collision");
+	if (rx_status & RSR_RWTO) printf(" watchdog-timeout");
+	if (rx_status & RSR_PLE) printf(" physical-layer-err");
+	if (rx_status & RSR_AE) printf(" alignment-err");
+	if (rx_status & RSR_CE) printf(" crc-err");
+	if (rx_status & RSR_FOE) printf(" rx-memory-overflow-err");
+	bannerline_log();
 	return impl_dm9051_err_hdlr("_dm9051f[%d] rx_status error : 0x%02x\r\n", PINCOD, rx_status, 0);
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))

@@ -127,7 +127,6 @@ u16 impl_dm9051_err_hdlr(char *errstr, int pincode, u32 invalue, u8 zerochk)
 	printf(errstr, pincode, invalue); //or "0x%02x"
 	printf(buf);
 #endif
-
 	hdlr_reset_process(mstep_eth_mac(), OPT_CONFIRM(hdlr_confrecv)); //CH390 opts
 	
 #if 1
@@ -142,6 +141,41 @@ u16 impl_dm9051_err_hdlr(char *errstr, int pincode, u32 invalue, u8 zerochk)
 }
 
 static uint16_t buff_rx(uint8_t *buff)
+{
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
+	uint16_t rx_len = 0;
+	uint8_t rxbyte, rx_status;
+	uint8_t ReceiveData[4];
+	
+	rxbyte = DM9051_Read_Mem2X(); //DM9051_Read_Rxb(); //DM9051_Read_Reg(DM9051_MRCMDX);
+	//DM9051_RXB_Basic(rxbyte); //(todo) Need sevice case.
+	buff[0] = rxbyte;
+	DM9051_RX_BREAK((rxbyte != 0x01 && rxbyte != 0), return ev_rxb(rxbyte));
+	DM9051_RX_BREAK((rxbyte == 0), return 0);
+		
+	DM9051_Read_Mem(ReceiveData, 4);
+	DM9051_Write_Reg(DM9051_ISR, 0x80);
+	
+	rx_status = ReceiveData[1];
+	rx_len = ReceiveData[2] + (ReceiveData[3] << 8);
+	
+	//instead of : err_hdlr("_dm9051f rx_status error : 0x%02x\r\n", rx_status, 0)
+	memcpy(buff, ReceiveData, 4);
+	DM9051_RX_BREAK((rx_status & 0xbf), printf("ev_status: %02x %02x %02x %02x\r\n", 
+			ReceiveData[0],ReceiveData[1],ReceiveData[2],ReceiveData[3]));
+	DM9051_RX_BREAK((rx_status & 0xbf), return ev_status(rx_status));
+	//instead of : err_hdlr("_dm9051f rx_len error : %u\r\n", rx_len, 0));
+	DM9051_RX_BREAK((rx_len > RX_POOL_BUFSIZE), return impl_dm9051_err_hdlr("_dm9051f[%d] rx_len error : %u\r\n", PINCOD, rx_len, 0));
+
+	DM9051_Read_Mem(buff, rx_len);
+	DM9051_Write_Reg(DM9051_ISR, 0x80);
+	return rx_len;
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
+}
+
+static uint16_t buff_rx_01(uint8_t *buff)
 {
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
@@ -184,6 +218,17 @@ uint16_t impl_dm9051_rx1(uint8_t *buff)
 //		return 0;
 //	}
 	return buff_rx(buff);
+}
+
+uint16_t impl_dm9051_rx1_01(uint8_t *buff)
+{
+//	if (!dm9051_get_flags()) {
+//		dm9051_unlink_inc();
+//		dm9051_bmsr_update();
+
+//		return 0;
+//	}
+	return buff_rx_01(buff);
 }
 
 #define DM9051_TX_DELAY(expression, handler) do { if ((expression)) { \

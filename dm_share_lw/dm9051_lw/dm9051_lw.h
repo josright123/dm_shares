@@ -251,6 +251,7 @@ void dm9051_eth_irq_enab(IRQn_Type irqn, nvic_priority_group_type priority);
 
 const uint8_t *dm9051_init(const uint8_t *adr);
 uint16_t dm9051_rx(uint8_t *buff);
+uint16_t dm9051_rx_01(uint8_t *buff);
 void dm9051_tx(uint8_t *buf, uint16_t len);
 uint16_t dm9051_irq_isr_disab(void); //noused
 uint16_t dm9051_irq_isr_enab(void);
@@ -311,6 +312,7 @@ void display_chipmac(void);
  * sub of dm9051.c
  */
 uint16_t impl_dm9051_rx1(uint8_t *buff);
+uint16_t impl_dm9051_rx1_01(uint8_t *buff);
 void impl_dm9051_tx1(uint8_t *buf, uint16_t len);
 
 u16 impl_dm9051_err_hdlr(char *errstr, int pincode, u32 invalue, u8 zerochk);
