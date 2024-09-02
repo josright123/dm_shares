@@ -206,7 +206,21 @@ static uint16_t buff_rx_01(uint8_t *buff)
 	memcpy(buff, ReceiveData, 4);
 	DM9051_RX_BREAK((rx_status & 0xbf), printf("ev_status: %02x %02x %02x %02x\r\n",
 			ReceiveData[0],ReceiveData[1],ReceiveData[2],ReceiveData[3]));
+
+	#if 	1		// 1= app check rx_len
 	DM9051_RX_BREAK((rx_status & 0xbf), return ev_status_01(rx_status));
+	#else
+	if (rx_status & 0xbf) {
+		// return ev_status_01(rx_status);
+		ev_status_01(rx_status);
+		printf("rx_len = %u\r\n", rx_len);
+		printf("\r\n");
+		DM9051_Read_Mem(buff, rx_len);
+		DM9051_Write_Reg(DM9051_ISR, 0x80);
+		return 0;
+	}
+#endif
+
 	//instead of : err_hdlr("_dm9051f rx_len error : %u\r\n", rx_len, 0));
 	DM9051_RX_BREAK((rx_len > RX_POOL_BUFSIZE), return impl_dm9051_err_hdlr_01("_dm9051f[%d] rx_len error : %u\r\n", PINCOD, rx_len, 0));
 
