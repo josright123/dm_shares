@@ -705,6 +705,7 @@ u16 ev_rxb_01(uint8_t rxb)
 //static
 u16 ev_status_01(uint8_t rx_status)
 {
+	uint32_t spi_t[6];
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
 	bannerline_log();
@@ -721,6 +722,16 @@ u16 ev_status_01(uint8_t rx_status)
 
 	if (rx_status & RSR_FOE){		//rx-memory-overflow-err
 		printf("  _dm9051f[%d] rx_status error : 0x%02X\r\n", PINCOD, rx_status);
+		// DM9051_Read_Reg(DM9051_MRCMDX, spi_t, 6, CS_EACH);
+		spi_t[0] = DM9051_Read_Reg(0x24);
+		spi_t[1] = DM9051_Read_Reg(0x25);
+		spi_t[2] = spi_t[1] << 8 | spi_t[0];
+		spi_t[3] = DM9051_Read_Reg(0x74);
+		spi_t[4] = DM9051_Read_Reg(0x75);
+		spi_t[5] = spi_t[4] << 8 | spi_t[3];
+		printf("Reg[0x25-24](RX_WR) = 0x%04X\r\n", spi_t[2]);
+		printf("Reg[0x75-74](RX_RD) = 0x%04X\r\n", spi_t[5]);
+
 		return impl_dm9051_err_hdlr_01("_dm9051f[%d] rx_status error : 0x%02x\r\n", PINCOD, rx_status, 0);
 	}
 
