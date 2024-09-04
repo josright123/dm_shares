@@ -204,7 +204,10 @@ static uint16_t buff_rx_01(uint8_t *buff)
 
 	//instead of : err_hdlr("_dm9051f rx_status error : 0x%02x\r\n", rx_status, 0)
 	memcpy(buff, ReceiveData, 4);
-	DM9051_RX_BREAK((rx_status & 0xbf), printf("ev_status: %02x %02x %02x %02x\r\n",
+	// for (int i = 0; i < 4; i++)
+	// 	buff[i] = ReceiveData[i];
+
+	DM9051_RX_BREAK((rx_status & 0xbf), printf("buff_rx_01 ev_status: %02x %02x %02x %02x\r\n",
 			ReceiveData[0],ReceiveData[1],ReceiveData[2],ReceiveData[3]));
 
 	#if 	1		// 1= app check return rx_len=0xFFFE

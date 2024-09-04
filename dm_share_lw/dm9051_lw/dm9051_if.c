@@ -718,8 +718,17 @@ u16 ev_status_01(uint8_t rx_status)
 	if (rx_status & RSR_CE) printf(" crc-err");
 	if (rx_status & RSR_FOE) printf(" rx-memory-overflow-err");
 	bannerline_log();
-	return 0xfffe;
-//	return impl_dm9051_err_hdlr_01("_dm9051f[%d] rx_status error : 0x%02x\r\n", PINCOD, rx_status, 0);
+
+	if (rx_status & RSR_FOE){		//rx-memory-overflow-err
+		printf("  _dm9051f[%d] rx_status error : 0x%02X\r\n", PINCOD, rx_status);
+		return impl_dm9051_err_hdlr_01("_dm9051f[%d] rx_status error : 0x%02x\r\n", PINCOD, rx_status, 0);
+	}
+
+	if (rx_status & RSR_CE){		//crc error
+		printf("  _dm9051f[%d] rx_status error : 0x%02X\r\n", PINCOD, rx_status);
+		return 0xfffe;
+	}
+	return impl_dm9051_err_hdlr_01("_dm9051f[%d] rx_status error : 0x%02x\r\n", PINCOD, rx_status, 0);
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
