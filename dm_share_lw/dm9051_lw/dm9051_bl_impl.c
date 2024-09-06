@@ -207,12 +207,12 @@ static uint16_t buff_rx_01(uint8_t *buff)
 	// for (int i = 0; i < 4; i++)
 	// 	buff[i] = ReceiveData[i];
 
-	DM9051_RX_BREAK((rx_status & 0xbf), printf("buff_rx_01 ev_status: %02x %02x %02x %02x\r\n",
+	DM9051_RX_BREAK((rx_status & 0xbf), printf("ev_status_01: %02x %02x %02x %02x\r\n",
 			ReceiveData[0],ReceiveData[1],ReceiveData[2],ReceiveData[3]));
 
 	#if 	1		// 1= app check return rx_len=0xFFFE
 //	DM9051_RX_BREAK((rx_status & 0xbf), return ev_status_01(rx_status));
-	DM9051_RX_BREAK((rx_status & (0xbf & ~RSR_PLE)), return ev_status_01(rx_status));
+	DM9051_RX_BREAK((rx_status & (0xbf & ~(RSR_PLE | RSR_CE | RSR_AE))), return ev_status_01(rx_status));
 	#else
 //	if (rx_status & 0xbf) {
 	if (rx_status & (0xbf & ~RSR_PLE)) {

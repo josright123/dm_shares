@@ -148,7 +148,8 @@
 #define RCR_RUNT            (1 << 2)
 #define RCR_PRMSC           (1 << 1)
 #define RCR_RXEN            (1 << 0)
-#define RCR_DEFAULT			(RCR_DIS_LONG | RCR_DIS_CRC)
+//#define RCR_DEFAULT			(RCR_DIS_LONG | RCR_DIS_CRC)
+#define RCR_DEFAULT					0					// Test mode.
 
 #define RSR_RF              (1 << 7)
 #define RSR_MF              (1 << 6)

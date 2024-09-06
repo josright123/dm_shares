@@ -99,6 +99,53 @@ optsex_t dm9051optsex[BOARD_SPI_COUNT] = { //const
 			/* //vs. DM_TRUE, "Generic core rst",/ DM_FALSE, "Traditional core rst",*/ \
 			DM_TRUE, "Long_delay core rst", \
 		}
+
+#define dmopts_normaldefault01(iomode, iomode_name) \
+		{ \
+			/* .set_name */ \
+			/*iomode_name,*/ \
+			/* .test_plan_include */ \
+			/*DM_FALSE,*/ \
+			\
+			/* to .assign .mac */ \
+			{ 0 }, ".assign .mac", \
+			/* to .assign .ip.addr */ \
+			{ 0 }, ".assign .ip.addr", \
+			/* to .assign .gw.addr */ \
+			{ 0 }, ".assign .gw.addr", \
+			/* to .assign .mask.addr */ \
+			{ 0 }, ".assign .mask.addr", \
+			\
+			/* to .read_chip_id */ \
+			0x0000, "read_chip_id", \
+			/* //.test_plan_log */ \
+			DM_FALSE, "some test log", \
+			/* //vs MBNDRY_BYTE, "8-bit",/ MBNDRY_WORD, "16-bit",*/ \
+			iomode, iomode_name, \
+			/* //vs CS_EACH, "CS_EACH_MODE",/ CS_LONG, "CS_LONG_MODE", */ \
+			CS_EACH, "CS_EACH_MODE", /*CS_EACH, "CS_EACH_MODE",*/ \
+			/* //vs. BMCR_RST_DEFAULT, "BMCR PwrOnRst-Default Mode",/ BMCR_FORCE_100MF, "BMCR_Force_100MF_mode"/ BMCR_AUTO_NEG, "BMCR_Auto_Negotiation_mode" */ \
+			BMCR_RST_DEFAULT, "BMCR PwrOnRst-Default Mode", /*NCR_FORCE_100MF, "NCR_Force_100MF_mode",*/ \
+			/* //vs. 0, "RX_CTRL Normal Mode",/ 1, "RX_CTRL Promiscuos mode" */ \
+			1, "RX_CTRL Promiscuos mode", /*0, "RX_CTRL Normal Mode",*/ \
+			/* //vs. DM_TRUE, "Normal RX",/ DM_FALSE, "Test RX Loop"*/ \
+			DM_TRUE, "Normal RX", /*DM_FALSE, "Test RX Mode",*/ \
+			/* //vs. DM_FALSE, "Checksum offload disable",/ DM_TRUE, "checksum offload enable", */ \
+			DM_FALSE, "Checksum offload disable", \
+			/* //vs. DM_FALSE, "Flow control disable",/ DM_TRUE, "Flow control enable", */ \
+			DM_FALSE, "Flow control disable", \
+			/* //vs. DM_FALSE, "Device support 8/16 bit modes",/ DM_TRUE, "Device is only 8 bit mode",*/ \
+			DM_TRUE, "Device is only 8 bit mode", \
+			/* //vs 0~255, "the delay for x2ms times in the hdlr",*/ \
+			150, "The delay for x2ms times in the hdlr", \
+			/* //vs. DM_FALSE, "No config set recv",/ DM_TRUE, "Hdlr without configure recv",*/ \
+			DM_TRUE, "Hdlr configure recv", \
+			/* //vs. DM_TRUE, "Davicom tx endbit",/ DM_FALSE, "No tx endbit",*/ \
+			DM_FALSE, "No tx endbit", \
+			/* //vs. DM_TRUE, "Generic core rst",/ DM_FALSE, "Traditional core rst",*/ \
+			DM_TRUE, "Long_delay core rst", \
+		}
+
 	#define dmopts_test1(iomode, iomode_name) \
 		{ \
 			/* .set_name */ \
@@ -147,7 +194,7 @@ optsex_t dm9051optsex[BOARD_SPI_COUNT] = { //const
 			/* //vs. DM_TRUE, "Generic core rst",/ DM_FALSE, "Traditional core rst",*/ \
 			DM_TRUE, "Long_delay core rst", \
 		}
-	dmopts_normaldefault(MBNDRY_BYTE, "8-bit"), //CH390 can not use (1, "RX_CTRL Promiscuos mode")
+	dmopts_normaldefault01(MBNDRY_BYTE, "8-bit"), //CH390 can not use (1, "RX_CTRL Promiscuos mode")
 	dmopts_normaldefault(MBNDRY_BYTE, "8-bit"),
 	dmopts_normaldefault(MBNDRY_WORD, "16-bit mode"),
 
