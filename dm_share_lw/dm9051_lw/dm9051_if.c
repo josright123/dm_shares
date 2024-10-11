@@ -687,10 +687,12 @@ u16 ev_rxb(uint8_t rxb)
 //static
 u16 ev_rxb_01(uint8_t rxb)
 {
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
 	int i;
 	static u8 histc[254] = { 0 }; //static int rff_c = 0 ...;
 	u8 times = 1;
-
+	printf("*** rxb=0x%0X\r\n", rxb);
 	for (i = 0 ; i < sizeof(histc); i++) {
 		if (rxb == (i+2)) {
 			histc[i]++;
@@ -700,6 +702,8 @@ u16 ev_rxb_01(uint8_t rxb)
 		}
 	}
 	return impl_dm9051_err_hdlr_01(" _dm9051f[%d] rxb error times (No way!) : %u\r\n", PINCOD, times, 0); //As: Hdlr (times : 1, zerochk : 0)
+#undef printf
+#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
 
 //static

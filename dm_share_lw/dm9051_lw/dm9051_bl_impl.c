@@ -193,7 +193,10 @@ static uint16_t buff_rx_01(uint8_t *buff)
 	buff[1] = rxbyte;
 	buff[2] = rxbyte;
 	buff[3] = rxbyte;
-	DM9051_RX_BREAK((rxbyte != 0x01 && rxbyte != 0), return ev_rxb_01(rxbyte));
+	// DM9051_RX_BREAK((rxbyte != 0x01 && rxbyte != 0), return ev_rxb_01(rxbyte));
+
+	// Set Receive Check Sum Status Register DM9000_REG_RCSSR bit.1 to 1
+	DM9051_RX_BREAK(((rxbyte & 0x03) != 0x01 && (rxbyte & 0x03) != 0), return ev_rxb_01(rxbyte));
 	DM9051_RX_BREAK((rxbyte == 0), return 0);
 
 	DM9051_Read_Mem(ReceiveData, 4);
@@ -231,6 +234,8 @@ static uint16_t buff_rx_01(uint8_t *buff)
 
 	DM9051_Read_Mem(buff, rx_len);
 	DM9051_Write_Reg(DM9051_ISR, 0x80);
+	printf("ReceiveData[0]=0x%02x, ReceiveData[1]=0x%02x, ReceiveData[2]=0x%02x, ReceiveData[3]=0x%02x\r\n",
+			ReceiveData[0],ReceiveData[1],ReceiveData[2],ReceiveData[3]);
 	return rx_len;
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
@@ -305,4 +310,3 @@ void impl_dm9051_tx1(uint8_t *buf, uint16_t len)
 	DM9051_Write_Reg(DM9051_TCR, TCR_TXREQ); /* Cleared after TX complete */
 	DM9051_TX_DELAY((DM9051_Read_Reg(DM9051_TCR) & TCR_TXREQ), dm_delay_us(5));
 }
-
