@@ -339,6 +339,68 @@ uint16_t impl_dm9051_rx1_cbstatus(uint8_t *buff, uint8_t *ReceiveStatus)
     return buff_rx_cbstatus(buff, ReceiveStatus);
 }
 
+// // Callback function type definition
+// typedef void (*ReceiveStatusCallback)(uint8_t *status, uint16_t len);
+
+static uint16_t buff_rx_cbstatus_01(uint8_t *buff, void (*callback)(uint8_t *status, uint16_t len))
+{
+    #undef printf
+    #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
+
+    uint16_t rx_len = 0;
+    uint8_t rxbyte, rx_status;
+    uint8_t ReceiveStatus[4];
+
+    rxbyte = DM9051_Read_Mem2X();
+    buff[0] = buff[1] = buff[2] = buff[3] = rxbyte;
+
+    // Set Receive Check Sum Status Register DM9000_REG_RCSSR bit.1 to 1
+    DM9051_RX_BREAK(((rxbyte & 0x03) != 0x01 && (rxbyte & 0x03) != 0), return ev_rxb_01(rxbyte));
+    DM9051_RX_BREAK((rxbyte == 0), return 0);
+
+    DM9051_Read_Mem(ReceiveStatus, 4);
+    DM9051_Write_Reg(DM9051_ISR, 0x80);
+
+    rx_status = ReceiveStatus[1];
+    rx_len = ReceiveStatus[2] + (ReceiveStatus[3] << 8);
+
+    memcpy(buff, ReceiveStatus, 4);
+
+    DM9051_RX_BREAK((rx_status & 0xbf), printf("buff_rx_cbstatus: %02x %02x %02x %02x\r\n",
+                    ReceiveStatus[0], ReceiveStatus[1], ReceiveStatus[2], ReceiveStatus[3]));
+
+    DM9051_RX_BREAK((rx_status & (0xbf & ~(RSR_PLE | RSR_CE | RSR_AE))), return ev_status_01(rx_status));
+
+    // Check if rx_len is valid
+    if (rx_len > RX_POOL_BUFSIZE) {
+        return impl_dm9051_err_hdlr_01("_dm9051f[%d] rx_len error : %u\r\n", PINCOD, rx_len, 0);
+    }
+
+    DM9051_Read_Mem(buff, rx_len);
+    DM9051_Write_Reg(DM9051_ISR, 0x80);
+
+    // Call the callback function with ReceiveStatus and rx_len
+    if (callback) {
+        callback(ReceiveStatus, rx_len);
+    }
+
+    return rx_len;
+
+    #undef printf
+    #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
+}
+
+//uint16_t impl_dm9051_rx1_cbstatus_01(uint8_t *buff, void (*callback)(uint8_t *status, uint16_t len))
+//{
+//  return buff_rx_cbstatus_01(buff, callback);
+//}
+
+
+uint16_t impl_dm9051_rx1_cbstatus01(uint8_t *buff, void (*callback)(uint8_t *status, uint16_t len))
+{
+    return buff_rx_cbstatus_01(buff, callback);
+}
+
 uint16_t impl_dm9051_rx1(uint8_t *buff)
 {
 //	if (!dm9051_get_flags()) {

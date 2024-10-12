@@ -11,7 +11,7 @@
 
 #define DM_TYPES_GETDESC_CALL(mtype, field)		dm9051opts_desc_##field()
 #define DM_TYPES_GETDESC_FUNC(mtype, field)		dm9051opts_desc_##field(void)
-		
+
 #if DM_TYPE == 0
 
 	// - type 0, definitions
@@ -26,12 +26,12 @@
 	#define DM_GET_FIELD(mtype, field)			DM_TYPES_GET_CALL(mtype, field)			/*= dm9051opts_get_##mtype##field()*/
 	#define DM_GET_DESC(mtype, field)			DM_TYPES_GETDESC_CALL(mtype, field)		/*dm9051opts_desc##field()*/
 	#define DM_SET_FIELD(mtype, field, setval)	DM_TYPES_SET_CALL(mtype, field, setval)	/*dm9051opts_set_##mtype##field(setval)*/
-		
+
 //	#define get_testplanlog(name)			DM_GET_FIELD(enable_t, name)
 
 	#define OPT_U8(name)					DM_GET_FIELD(uint8_t, name) //appcall
 	#define OPT_CS(name)					DM_GET_FIELD(csmode_t, name) //appcall
-	
+
 //	#define OPT_BMCR(name)					DM_GET_FIELD(bmcrmode_t, name) //appcall
 	#define OPT_CONFIRM(name)				DM_GET_FIELD(enable_t, name) //appcall (define isonlybytemode(), or OPT_CONFIRM(onlybytemode))
 

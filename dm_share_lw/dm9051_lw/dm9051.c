@@ -337,7 +337,7 @@ uint16_t impl_dm9051_rx0(uint8_t *buff)
 			   DM9051_NUM_RXLOG_RST, rwpa_w, mdra_ingress); //or "0x%02x"
 
 		hdlr_reset_process(mstep_eth_mac(), OPT_CONFIRM(hdlr_confrecv)); //CH390 opts //~return ev_rxb(rxbyte);
-		
+
 		impl_read_rx_pointers(&rwpa_w, &mdra_ingress);
 		printf("  rwpa %04x / igrss %04x\r\n", rwpa_w, mdra_ingress);
 		return 0;
@@ -381,10 +381,10 @@ void dm9051_boards_initialize(void)
 {
   dm9051_board_counts_display(PROJECT_NAME); //printf("x2web start: [BOARD_SPI COUNT] %d  /  Operating: [ETHERNET COUNT] %d\r\n", BOARD_SPI_COUNT, ETHERNET_COUNT);
   dm9051_opts_display();
-  
+
   board_conf_configuration();
   dm9051_link_log_reset();
-  
+
 #if 0
   dm9051_opts_iomod_etc();
   dm9051_lock_arch_show("dm9051-demo");
@@ -430,7 +430,7 @@ const uint8_t *dm9051_init(const uint8_t *adr)
 		printf(": dm9051_init_setup[%d] ::: FAIL ID %04x\r\n", mstep_get_net_index(), DM_GET_FIELD(uint16_t, read_chip_id));
 #endif
 	}
-	
+
 	ULOCK_TCPIP_COREx();
 	return mac;
 #undef printf
@@ -464,6 +464,15 @@ uint16_t dm9051_rx_cbstatus(uint8_t *buff, uint8_t *ReceiveStatus)
     return len;
 }
 
+uint16_t dm9051_rx_cbstatus01(uint8_t *buff, void (*callback)(uint8_t *status, uint16_t len))
+{
+    uint16_t len;
+    LOCK_TCPIP_COREx();
+    len = impl_dm9051_rx1_cbstatus01(buff, callback);
+    ULOCK_TCPIP_COREx();
+    return len;
+}
+
 //uint16_t dm9051_rx_isr(uint8_t *buff);
 //uint16_t dm9051_rx_isr(uint8_t *buff)
 //{
@@ -475,17 +484,17 @@ uint16_t dm9051_rx_cbstatus(uint8_t *buff, uint8_t *ReceiveStatus)
 
 //	uint8_t isr;
 //	uint16_t len;
-//	
+//
 //	LOCK_TCPIP_COREx();
-//	
+//
 //	pin = mstep_get_net_index();
-//	
+//
 //  isr = cspi_read_reg(DM9051_ISR);
 //  DM9051_Write_Reg(DM9051_ISR, isr);
 
 //	//if (isr & 1)
 //	isr_local_time[pin] = sys_now() + ICHK_FREQ_MS;
-//	
+//
 //	if ((isr & 1) && (test_line7_ienter[pin] < 3))
 //		xp = 1;
 
@@ -517,7 +526,7 @@ uint16_t dm9051_irq_isr_disab(void) {
 uint16_t dm9051_irq_isr_enab(void) //static uint16_t dm9051_isr_clean(void)
 {
 	uint16_t isrs;
-	
+
 	LOCK_TCPIP_COREx();
 	isrs = DM9051_Read_Reg(DM9051_ISR);
 	if (isrs & 1) {
@@ -539,7 +548,7 @@ uint16_t dm9051_irq_isr_enab(void) //static uint16_t dm9051_isr_clean(void)
 //void dm9051_irq_isr_enab(void)
 //{
 //  dm9051_irq_isr_enab();
-//  
+//
 //#if 0
 //#undef printf
 //#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
@@ -548,7 +557,7 @@ uint16_t dm9051_irq_isr_enab(void) //static uint16_t dm9051_isr_clean(void)
 //  int pin = mstep_get_net_index();
 //  uint16_t isrs;
 ////  int xp = 0;
-//  
+//
 //  isrs = dm9051_isr_clean();
 //  if ((isrs & 1) && (test_line_ienter[pin] < 3)) {
 ////	xp = 1;
@@ -562,9 +571,9 @@ uint16_t dm9051_irq_isr_enab(void) //static uint16_t dm9051_isr_clean(void)
 
 ////..........
 ////  LOCK_TCPIP_COREx();
-////  
+////
 ////  isr = DM9051_Read_Reg(DM9051_ISR);
-////	
+////
 ////	if ((isr & 1) && (test_line_ienter[pin] < 3))
 ////	  xp = 1;
 
@@ -577,7 +586,7 @@ uint16_t dm9051_irq_isr_enab(void) //static uint16_t dm9051_isr_clean(void)
 ////		isr = DM9051_Read_Reg(DM9051_ISR);
 ////		printf("INP.b[%d]: extline exit %d ... isr %02x\r\n", pin, test_line_ienter[pin], isr);
 ////	}
-////	
+////
 ////	ULOCK_TCPIP_COREx();
 
 //#undef printf
