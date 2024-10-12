@@ -692,7 +692,6 @@ u16 ev_rxb_01(uint8_t rxb)
 	int i;
 	static u8 histc[254] = { 0 }; //static int rff_c = 0 ...;
 	u8 times = 1;
-	printf("*** rxb=0x%0X\r\n", rxb);
 	for (i = 0 ; i < sizeof(histc); i++) {
 		if (rxb == (i+2)) {
 			histc[i]++;

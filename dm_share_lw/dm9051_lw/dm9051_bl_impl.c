@@ -49,55 +49,55 @@
 
 //static
 uint16_t impl_read_chip_id(void) {
-	u8 buff[2];
-	cspi_read_regs(DM9051_PIDL, buff, 2, CS_EACH);
-	return buff[0] | buff[1] << 8;
+  u8 buff[2];
+  cspi_read_regs(DM9051_PIDL, buff, 2, CS_EACH);
+  return buff[0] | buff[1] << 8;
 }
 
 //static
 void impl_read_rx_pointers(u16 *rwpa_wt, u16 *mdra_rd) {
-	*rwpa_wt = (uint32_t)DM9051_Read_Reg(0x24) | (uint32_t)DM9051_Read_Reg(0x25) << 8; //DM9051_RWPAL
-	*mdra_rd = (uint32_t)DM9051_Read_Reg(0x74) | (uint32_t)DM9051_Read_Reg(0x75) << 8; //DM9051_MRRL;
+  *rwpa_wt = (uint32_t)DM9051_Read_Reg(0x24) | (uint32_t)DM9051_Read_Reg(0x25) << 8; //DM9051_RWPAL
+  *mdra_rd = (uint32_t)DM9051_Read_Reg(0x74) | (uint32_t)DM9051_Read_Reg(0x75) << 8; //DM9051_MRRL;
 }
 
 //static
 uint16_t impl_phy_read(uint16_t uReg)
 {
-	int w = 0;
-	u16 uData;
+  int w = 0;
+  u16 uData;
 
 #if 1
   //_CH390
   //if (uReg == PHY_STATUS_REG)
   //{
-	//dm9051_phycore_on(0); //if (uReg == PHY_STATUS_REG)
+  //dm9051_phycore_on(0); //if (uReg == PHY_STATUS_REG)
   //}
   if (DM_GET_FIELD(uint16_t, read_chip_id) == 0x9151 && uReg == PHY_STATUS_REG)
-	dm9051_phycore_on(0);
+  dm9051_phycore_on(0);
 #endif
 
-	DM9051_Write_Reg(DM9051_EPAR, DM9051_PHY | uReg);
-	DM9051_Write_Reg(DM9051_EPCR, 0xc);
-	dm_delay_us(1);
-	while(DM9051_Read_Reg(DM9051_EPCR) & 0x1) {
-		dm_delay_us(1);
-		if (++w >= 500) //5
-			break;
-	} //Wait complete
+  DM9051_Write_Reg(DM9051_EPAR, DM9051_PHY | uReg);
+  DM9051_Write_Reg(DM9051_EPCR, 0xc);
+  dm_delay_us(1);
+  while(DM9051_Read_Reg(DM9051_EPCR) & 0x1) {
+    dm_delay_us(1);
+    if (++w >= 500) //5
+      break;
+  } //Wait complete
 
-	DM9051_Write_Reg(DM9051_EPCR, 0x0);
-	uData = (DM9051_Read_Reg(DM9051_EPDRH) << 8) | DM9051_Read_Reg(DM9051_EPDRL);
+  DM9051_Write_Reg(DM9051_EPCR, 0x0);
+  uData = (DM9051_Read_Reg(DM9051_EPDRH) << 8) | DM9051_Read_Reg(DM9051_EPDRL);
 
-	#if 0
-	if (uReg == PHY_STATUS_REG) {
-		if (uData  & PHY_LINKED_BIT)
-			dm9051_set_flags(lw_flag, DM9051_FLAG_LINK_UP);
-		else
-			dm9051_clear_flags(lw_flag, DM9051_FLAG_LINK_UP);
-	}
-	#endif
+  #if 0
+  if (uReg == PHY_STATUS_REG) {
+    if (uData  & PHY_LINKED_BIT)
+      dm9051_set_flags(lw_flag, DM9051_FLAG_LINK_UP);
+    else
+      dm9051_clear_flags(lw_flag, DM9051_FLAG_LINK_UP);
+  }
+  #endif
 
-	return uData;
+  return uData;
 }
 
 #define DM9051_RX_BREAK(expression, handler) do { if ((expression)) { \
@@ -109,35 +109,35 @@ u16 impl_dm9051_err_hdlr(char *errstr, int pincode, u32 invalue, u8 zerochk)
 {
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
-	char buf[76];
-	int space_size = 76, n = 0;
-	if (zerochk && invalue == 0)
-		return 0; //.printf(": NoError as %u\r\n", valuecode);
+  char buf[76];
+  int space_size = 76, n = 0;
+  if (zerochk && invalue == 0)
+    return 0; //.printf(": NoError as %u\r\n", valuecode);
 
 #if 0
-	printf(errstr, pincode, invalue); //or "0x%02x"
+  printf(errstr, pincode, invalue); //or "0x%02x"
 #else
-	n += snprintf(buf+n, space_size-n, "----- [.]");
-	n += snprintf(buf+n, space_size-n, errstr, pincode, invalue);
+  n += snprintf(buf+n, space_size-n, "----- [.]");
+  n += snprintf(buf+n, space_size-n, errstr, pincode, invalue);
 
-	if (n >= 76) n = 75;
-	buf[n] = 0;
+  if (n >= 76) n = 75;
+  buf[n] = 0;
 
-	bannerline_log();
-	printf("----- [.]");
-	printf(errstr, pincode, invalue); //or "0x%02x"
-	printf(buf);
+  bannerline_log();
+  printf("----- [.]");
+  printf(errstr, pincode, invalue); //or "0x%02x"
+  printf(buf);
 #endif
 
-	hdlr_reset_process(mstep_eth_mac(), OPT_CONFIRM(hdlr_confrecv)); //CH390 opts
+  hdlr_reset_process(mstep_eth_mac(), OPT_CONFIRM(hdlr_confrecv)); //CH390 opts
 
 #if 1
 //	rx_pointer_show("dm9051_err_hdlr");
 //	rx_isr_show("dm9051_err_hdlr");
-	rx_pointers_isr_show("dm9051_err_hdlr");
+  rx_pointers_isr_show("dm9051_err_hdlr");
 #endif
 
-	return 0;
+  return 0;
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
@@ -147,34 +147,34 @@ u16 impl_dm9051_err_hdlr_01(char *errstr, int pincode, u32 invalue, u8 zerochk)
 {
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
-	char buf[76];
-	int space_size = 76, n = 0;
-	if (zerochk && invalue == 0)
-		return 0; //.printf(": NoError as %u\r\n", valuecode);
+  char buf[76];
+  int space_size = 76, n = 0;
+  if (zerochk && invalue == 0)
+    return 0; //.printf(": NoError as %u\r\n", valuecode);
 
 #if 0
-	printf(errstr, pincode, invalue); //or "0x%02x"
+  printf(errstr, pincode, invalue); //or "0x%02x"
 #else
-	n += snprintf(buf+n, space_size-n, "----- [.]");
-	n += snprintf(buf+n, space_size-n, errstr, pincode, invalue);
+  n += snprintf(buf+n, space_size-n, "----- [.]");
+  n += snprintf(buf+n, space_size-n, errstr, pincode, invalue);
 
-	if (n >= 76) n = 75;
-	buf[n] = 0;
+  if (n >= 76) n = 75;
+  buf[n] = 0;
 
-	bannerline_log();
-	printf("----- [.]");
-	printf(errstr, pincode, invalue); //or "0x%02x"
-	printf(buf);
+  bannerline_log();
+  printf("----- [.]");
+  printf(errstr, pincode, invalue); //or "0x%02x"
+  printf(buf);
 #endif
-	hdlr_reset_process(mstep_eth_mac(), OPT_CONFIRM(hdlr_confrecv)); //CH390 opts
+  hdlr_reset_process(mstep_eth_mac(), OPT_CONFIRM(hdlr_confrecv)); //CH390 opts
 
 #if 1
 //	rx_pointer_show("dm9051_err_hdlr");
 //	rx_isr_show("dm9051_err_hdlr");
-	rx_pointers_isr_show("dm9051_err_hdlr");
+  rx_pointers_isr_show("dm9051_err_hdlr");
 #endif
 
-	return 0xffff;
+  return 0xffff;
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
@@ -183,60 +183,58 @@ static uint16_t buff_rx_01(uint8_t *buff)
 {
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
-	uint16_t rx_len = 0;
-	uint8_t rxbyte, rx_status;
-	uint8_t ReceiveData[4];
+  uint16_t rx_len = 0;
+  uint8_t rxbyte, rx_status;
+  uint8_t ReceiveData[4];
 
-	rxbyte = DM9051_Read_Mem2X(); //DM9051_Read_Rxb(); //DM9051_Read_Reg(DM9051_MRCMDX);
-	//DM9051_RXB_Basic(rxbyte); //(todo) Need sevice case.
-	buff[0] = rxbyte;
-	buff[1] = rxbyte;
-	buff[2] = rxbyte;
-	buff[3] = rxbyte;
-	// DM9051_RX_BREAK((rxbyte != 0x01 && rxbyte != 0), return ev_rxb_01(rxbyte));
+  rxbyte = DM9051_Read_Mem2X(); //DM9051_Read_Rxb(); //DM9051_Read_Reg(DM9051_MRCMDX);
+  //DM9051_RXB_Basic(rxbyte); //(todo) Need sevice case.
+  buff[0] = rxbyte;
+  buff[1] = rxbyte;
+  buff[2] = rxbyte;
+  buff[3] = rxbyte;
+  // DM9051_RX_BREAK((rxbyte != 0x01 && rxbyte != 0), return ev_rxb_01(rxbyte));
 
-	// Set Receive Check Sum Status Register DM9000_REG_RCSSR bit.1 to 1
-	DM9051_RX_BREAK(((rxbyte & 0x03) != 0x01 && (rxbyte & 0x03) != 0), return ev_rxb_01(rxbyte));
-	DM9051_RX_BREAK((rxbyte == 0), return 0);
+  // Set Receive Check Sum Status Register DM9000_REG_RCSSR bit.1 to 1
+  DM9051_RX_BREAK(((rxbyte & 0x03) != 0x01 && (rxbyte & 0x03) != 0), return ev_rxb_01(rxbyte));
+  DM9051_RX_BREAK((rxbyte == 0), return 0);
 
-	DM9051_Read_Mem(ReceiveData, 4);
-	DM9051_Write_Reg(DM9051_ISR, 0x80);
+  DM9051_Read_Mem(ReceiveData, 4);
+  DM9051_Write_Reg(DM9051_ISR, 0x80);
 
-	rx_status = ReceiveData[1];
-	rx_len = ReceiveData[2] + (ReceiveData[3] << 8);
+  rx_status = ReceiveData[1];
+  rx_len = ReceiveData[2] + (ReceiveData[3] << 8);
 
-	//instead of : err_hdlr("_dm9051f rx_status error : 0x%02x\r\n", rx_status, 0)
-	memcpy(buff, ReceiveData, 4);
-	// for (int i = 0; i < 4; i++)
-	// 	buff[i] = ReceiveData[i];
+  //instead of : err_hdlr("_dm9051f rx_status error : 0x%02x\r\n", rx_status, 0)
+  memcpy(buff, ReceiveData, 4);
+  // for (int i = 0; i < 4; i++)
+  // 	buff[i] = ReceiveData[i];
 
-	DM9051_RX_BREAK((rx_status & 0xbf), printf("ev_status_01: %02x %02x %02x %02x\r\n",
-			ReceiveData[0],ReceiveData[1],ReceiveData[2],ReceiveData[3]));
+  DM9051_RX_BREAK((rx_status & 0xbf), printf("ev_status_01: %02x %02x %02x %02x\r\n",
+      ReceiveData[0],ReceiveData[1],ReceiveData[2],ReceiveData[3]));
 
-	#if 	1		// 1= app check return rx_len=0xFFFE
+  #if 	1		// 1= app check return rx_len=0xFFFE
 //	DM9051_RX_BREAK((rx_status & 0xbf), return ev_status_01(rx_status));
-	DM9051_RX_BREAK((rx_status & (0xbf & ~(RSR_PLE | RSR_CE | RSR_AE))), return ev_status_01(rx_status));
-	#else
+  DM9051_RX_BREAK((rx_status & (0xbf & ~(RSR_PLE | RSR_CE | RSR_AE))), return ev_status_01(rx_status));
+  #else
 //	if (rx_status & 0xbf) {
-	if (rx_status & (0xbf & ~RSR_PLE)) {
-		// return ev_status_01(rx_status);
-		ev_status_01(rx_status);
-		printf("rx_len = %u\r\n", rx_len);
-		printf("\r\n");
-		DM9051_Read_Mem(buff, rx_len);
-		DM9051_Write_Reg(DM9051_ISR, 0x80);
-		return 0;
-	}
+  if (rx_status & (0xbf & ~RSR_PLE)) {
+    // return ev_status_01(rx_status);
+    ev_status_01(rx_status);
+    printf("rx_len = %u\r\n", rx_len);
+    printf("\r\n");
+    DM9051_Read_Mem(buff, rx_len);
+    DM9051_Write_Reg(DM9051_ISR, 0x80);
+    return 0;
+  }
 #endif
 
-	//instead of : err_hdlr("_dm9051f rx_len error : %u\r\n", rx_len, 0));
-	DM9051_RX_BREAK((rx_len > RX_POOL_BUFSIZE), return impl_dm9051_err_hdlr_01("_dm9051f[%d] rx_len error : %u\r\n", PINCOD, rx_len, 0));
+  //instead of : err_hdlr("_dm9051f rx_len error : %u\r\n", rx_len, 0));
+  DM9051_RX_BREAK((rx_len > RX_POOL_BUFSIZE), return impl_dm9051_err_hdlr_01("_dm9051f[%d] rx_len error : %u\r\n", PINCOD, rx_len, 0));
 
-	DM9051_Read_Mem(buff, rx_len);
-	DM9051_Write_Reg(DM9051_ISR, 0x80);
-	printf("ReceiveData[0]=0x%02x, ReceiveData[1]=0x%02x, ReceiveData[2]=0x%02x, ReceiveData[3]=0x%02x\r\n",
-			ReceiveData[0],ReceiveData[1],ReceiveData[2],ReceiveData[3]);
-	return rx_len;
+  DM9051_Read_Mem(buff, rx_len);
+  DM9051_Write_Reg(DM9051_ISR, 0x80);
+  return rx_len;
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
@@ -245,36 +243,100 @@ static uint16_t buff_rx(uint8_t *buff)
 {
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
-	uint16_t rx_len = 0;
-	uint8_t rxbyte, rx_status;
-	uint8_t ReceiveData[4];
+  uint16_t rx_len = 0;
+  uint8_t rxbyte, rx_status;
+  uint8_t ReceiveData[4];
 
-	rxbyte = DM9051_Read_Mem2X(); //DM9051_Read_Rxb(); //DM9051_Read_Reg(DM9051_MRCMDX);
-	//DM9051_RXB_Basic(rxbyte); //(todo) Need sevice case.
+  rxbyte = DM9051_Read_Mem2X(); //DM9051_Read_Rxb(); //DM9051_Read_Reg(DM9051_MRCMDX);
+  //DM9051_RXB_Basic(rxbyte); //(todo) Need sevice case.
 
-	DM9051_RX_BREAK((rxbyte != 0x01 && rxbyte != 0), return ev_rxb(rxbyte));
-	DM9051_RX_BREAK((rxbyte == 0), return 0);
+  DM9051_RX_BREAK((rxbyte != 0x01 && rxbyte != 0), return ev_rxb(rxbyte));
+  DM9051_RX_BREAK((rxbyte == 0), return 0);
 
-	DM9051_Read_Mem(ReceiveData, 4);
-	DM9051_Write_Reg(DM9051_ISR, 0x80);
+  DM9051_Read_Mem(ReceiveData, 4);
+  DM9051_Write_Reg(DM9051_ISR, 0x80);
 
-	rx_status = ReceiveData[1];
-	rx_len = ReceiveData[2] + (ReceiveData[3] << 8);
+  rx_status = ReceiveData[1];
+  rx_len = ReceiveData[2] + (ReceiveData[3] << 8);
 
-	//instead of : err_hdlr("_dm9051f rx_status error : 0x%02x\r\n", rx_status, 0)
-	DM9051_RX_BREAK((rx_status & 0xbf), printf("ev_status: %02x %02x %02x %02x\r\n",
-			ReceiveData[0],ReceiveData[1],ReceiveData[2],ReceiveData[3]));
+  //instead of : err_hdlr("_dm9051f rx_status error : 0x%02x\r\n", rx_status, 0)
+  DM9051_RX_BREAK((rx_status & 0xbf), printf("ev_status: %02x %02x %02x %02x\r\n",
+      ReceiveData[0],ReceiveData[1],ReceiveData[2],ReceiveData[3]));
 
 //	DM9051_RX_BREAK((rx_status & 0xbf), return ev_status(rx_status));
-	DM9051_RX_BREAK((rx_status & (0xbf & ~RSR_PLE)), return ev_status(rx_status));
-	//instead of : err_hdlr("_dm9051f rx_len error : %u\r\n", rx_len, 0));
-	DM9051_RX_BREAK((rx_len > RX_POOL_BUFSIZE), return impl_dm9051_err_hdlr("_dm9051f[%d] rx_len error : %u\r\n", PINCOD, rx_len, 0));
+  DM9051_RX_BREAK((rx_status & (0xbf & ~RSR_PLE)), return ev_status(rx_status));
+  //instead of : err_hdlr("_dm9051f rx_len error : %u\r\n", rx_len, 0));
+  DM9051_RX_BREAK((rx_len > RX_POOL_BUFSIZE), return impl_dm9051_err_hdlr("_dm9051f[%d] rx_len error : %u\r\n", PINCOD, rx_len, 0));
 
-	DM9051_Read_Mem(buff, rx_len);
-	DM9051_Write_Reg(DM9051_ISR, 0x80);
-	return rx_len;
+  DM9051_Read_Mem(buff, rx_len);
+  DM9051_Write_Reg(DM9051_ISR, 0x80);
+  return rx_len;
 #undef printf
 #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
+}
+
+static uint16_t buff_rx_cbstatus(uint8_t *buff, uint8_t *ReceiveStatus)
+{
+  #undef printf
+  #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
+
+  uint16_t rx_len = 0;
+  uint8_t rxbyte, rx_status;
+
+  rxbyte = DM9051_Read_Mem2X();
+  buff[0] = buff[1] = buff[2] = buff[3] = rxbyte;
+
+//    // Check if rxbyte is valid
+//    if ((rxbyte & 0x03) != 0x01 && (rxbyte & 0x03) != 0) {
+//        return ev_rxb_01(rxbyte);
+//    }
+//    if (rxbyte == 0) {
+//        return 0;
+//    }
+
+  // Set Receive Check Sum Status Register DM9000_REG_RCSSR bit.1 to 1
+  DM9051_RX_BREAK(((rxbyte & 0x03) != 0x01 && (rxbyte & 0x03) != 0), return ev_rxb_01(rxbyte));
+  DM9051_RX_BREAK((rxbyte == 0), return 0);
+
+  DM9051_Read_Mem(ReceiveStatus, 4);
+  DM9051_Write_Reg(DM9051_ISR, 0x80);
+
+  rx_status = ReceiveStatus[1];
+  rx_len = ReceiveStatus[2] + (ReceiveStatus[3] << 8);
+
+  memcpy(buff, ReceiveStatus, 4);
+
+//    // Check rx_status for errors
+//    if (rx_status & 0xbf) {
+//        printf("ev_status_cbstatus: %02x %02x %02x %02x\r\n", ReceiveStatus[0], ReceiveStatus[1], ReceiveStatus[2], ReceiveStatus[3]);
+//        if (rx_status & (0xbf & ~(RSR_PLE | RSR_CE | RSR_AE))) {
+//            return ev_status_01(rx_status);
+//        }
+//    }
+
+
+  DM9051_RX_BREAK((rx_status & 0xbf), printf("buff_rx_cbstatus: %02x %02x %02x %02x\r\n",
+      ReceiveStatus[0],ReceiveStatus[1],ReceiveStatus[2],ReceiveStatus[3]));
+
+  DM9051_RX_BREAK((rx_status & (0xbf & ~(RSR_PLE | RSR_CE | RSR_AE))), return ev_status_01(rx_status));
+
+  // Check if rx_len is valid
+  if (rx_len > RX_POOL_BUFSIZE) {
+      return impl_dm9051_err_hdlr_01("_dm9051f[%d] rx_len error : %u\r\n", PINCOD, rx_len, 0);
+  }
+
+  DM9051_Read_Mem(buff, rx_len);
+  DM9051_Write_Reg(DM9051_ISR, 0x80);
+
+  return rx_len;
+
+  #undef printf
+  #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
+}
+
+uint16_t impl_dm9051_rx1_cbstatus(uint8_t *buff, uint8_t *ReceiveStatus)
+{
+    return buff_rx_cbstatus(buff, ReceiveStatus);
 }
 
 uint16_t impl_dm9051_rx1(uint8_t *buff)
@@ -285,7 +347,7 @@ uint16_t impl_dm9051_rx1(uint8_t *buff)
 
 //		return 0;
 //	}
-	return buff_rx(buff);
+  return buff_rx(buff);
 }
 
 uint16_t impl_dm9051_rx1_01(uint8_t *buff)
@@ -296,7 +358,7 @@ uint16_t impl_dm9051_rx1_01(uint8_t *buff)
 
 //		return 0;
 //	}
-	return buff_rx_01(buff);
+  return buff_rx_01(buff);
 }
 
 #define DM9051_TX_DELAY(expression, handler) do { if ((expression)) { \
@@ -304,9 +366,9 @@ uint16_t impl_dm9051_rx1_01(uint8_t *buff)
 
 void impl_dm9051_tx1(uint8_t *buf, uint16_t len)
 {
-	DM9051_Write_Reg(DM9051_TXPLL, len & 0xff);
-	DM9051_Write_Reg(DM9051_TXPLH, (len >> 8) & 0xff);
-	DM9051_Write_Mem(buf, len);
-	DM9051_Write_Reg(DM9051_TCR, TCR_TXREQ); /* Cleared after TX complete */
-	DM9051_TX_DELAY((DM9051_Read_Reg(DM9051_TCR) & TCR_TXREQ), dm_delay_us(5));
+  DM9051_Write_Reg(DM9051_TXPLL, len & 0xff);
+  DM9051_Write_Reg(DM9051_TXPLH, (len >> 8) & 0xff);
+  DM9051_Write_Mem(buf, len);
+  DM9051_Write_Reg(DM9051_TCR, TCR_TXREQ); /* Cleared after TX complete */
+  DM9051_TX_DELAY((DM9051_Read_Reg(DM9051_TCR) & TCR_TXREQ), dm_delay_us(5));
 }
