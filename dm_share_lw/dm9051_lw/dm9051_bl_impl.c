@@ -193,10 +193,10 @@ static uint16_t buff_rx_01(uint8_t *buff)
   buff[1] = rxbyte;
   buff[2] = rxbyte;
   buff[3] = rxbyte;
-  // DM9051_RX_BREAK((rxbyte != 0x01 && rxbyte != 0), return ev_rxb_01(rxbyte));
+  DM9051_RX_BREAK((rxbyte != 0x01 && rxbyte != 0), return ev_rxb_01(rxbyte));
 
   // Set Receive Check Sum Status Register DM9000_REG_RCSSR bit.1 to 1
-  DM9051_RX_BREAK(((rxbyte & 0x03) != 0x01 && (rxbyte & 0x03) != 0), return ev_rxb_01(rxbyte));
+  // DM9051_RX_BREAK(((rxbyte & 0x03) != 0x01 && (rxbyte & 0x03) != 0), return ev_rxb_01(rxbyte));
   DM9051_RX_BREAK((rxbyte == 0), return 0);
 
   DM9051_Read_Mem(ReceiveData, 4);
@@ -207,8 +207,8 @@ static uint16_t buff_rx_01(uint8_t *buff)
 
   //instead of : err_hdlr("_dm9051f rx_status error : 0x%02x\r\n", rx_status, 0)
   memcpy(buff, ReceiveData, 4);
-  // for (int i = 0; i < 4; i++)
-  // 	buff[i] = ReceiveData[i];
+  for (int i = 0; i < 4; i++)
+  	buff[i] = ReceiveData[i];
 
   DM9051_RX_BREAK((rx_status & 0xbf), printf("ev_status_01: %02x %02x %02x %02x\r\n",
       ReceiveData[0],ReceiveData[1],ReceiveData[2],ReceiveData[3]));
@@ -366,7 +366,7 @@ static uint16_t buff_rx_cbstatus_01(uint8_t *buff, void (*callback)(uint8_t *sta
 
     memcpy(buff, ReceiveStatus, 4);
 
-    DM9051_RX_BREAK((rx_status & 0xbf), printf("buff_rx_cbstatus: %02x %02x %02x %02x\r\n",
+    DM9051_RX_BREAK((rx_status & 0xbf), printf("buff_rx_cbstatus_01: %02x %02x %02x %02x\r\n",
                     ReceiveStatus[0], ReceiveStatus[1], ReceiveStatus[2], ReceiveStatus[3]));
 
     DM9051_RX_BREAK((rx_status & (0xbf & ~(RSR_PLE | RSR_CE | RSR_AE))), return ev_status_01(rx_status));
