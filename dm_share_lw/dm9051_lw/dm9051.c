@@ -464,11 +464,11 @@ uint16_t dm9051_rx_cbstatus(uint8_t *buff, uint8_t *ReceiveStatus)
     return len;
 }
 
-uint16_t dm9051_rx_cbstatus01(uint8_t *buff, void (*callback)(uint8_t *status, uint16_t len))
+uint16_t dm9051_rx_cbstatus_01(uint8_t *buff, void (*callback)(uint8_t *status, uint16_t len))
 {
     uint16_t len;
     LOCK_TCPIP_COREx();
-    len = impl_dm9051_rx1_cbstatus01(buff, callback);
+    len = impl_dm9051_rx1_cbstatus_01(buff, callback);
     ULOCK_TCPIP_COREx();
     return len;
 }

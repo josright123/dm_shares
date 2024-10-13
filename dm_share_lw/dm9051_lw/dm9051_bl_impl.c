@@ -396,7 +396,7 @@ static uint16_t buff_rx_cbstatus_01(uint8_t *buff, void (*callback)(uint8_t *sta
 //}
 
 
-uint16_t impl_dm9051_rx1_cbstatus01(uint8_t *buff, void (*callback)(uint8_t *status, uint16_t len))
+uint16_t impl_dm9051_rx1_cbstatus_01(uint8_t *buff, void (*callback)(uint8_t *status, uint16_t len))
 {
     return buff_rx_cbstatus_01(buff, callback);
 }
