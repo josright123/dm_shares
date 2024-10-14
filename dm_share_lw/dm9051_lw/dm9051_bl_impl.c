@@ -365,6 +365,8 @@ static uint16_t buff_rx_cbstatus_01(uint8_t *buff, void (*callback)(uint8_t *sta
     rx_len = ReceiveStatus[2] + (ReceiveStatus[3] << 8);
 
     memcpy(buff, ReceiveStatus, 4);
+		for (int i = 0; i < 4; i++)
+			buff[i] = ReceiveStatus[i];
 
     DM9051_RX_BREAK((rx_status & 0xbf), printf("buff_rx_cbstatus_01: %02x %02x %02x %02x\r\n",
                     ReceiveStatus[0], ReceiveStatus[1], ReceiveStatus[2], ReceiveStatus[3]));
@@ -372,6 +374,7 @@ static uint16_t buff_rx_cbstatus_01(uint8_t *buff, void (*callback)(uint8_t *sta
     DM9051_RX_BREAK((rx_status & (0xbf & ~(RSR_PLE | RSR_CE | RSR_AE))), return ev_status_01(rx_status));
 
     // Check if rx_len is valid
+		//instead of : err_hdlr("_dm9051f rx_len error : %u\r\n", rx_len, 0));
     if (rx_len > RX_POOL_BUFSIZE) {
         return impl_dm9051_err_hdlr_01("_dm9051f[%d] rx_len error : %u\r\n", PINCOD, rx_len, 0);
     }
