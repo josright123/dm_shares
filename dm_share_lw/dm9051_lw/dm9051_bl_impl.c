@@ -368,7 +368,7 @@ static uint16_t buff_rx_cbstatus_01(uint8_t *buff, void (*callback)(uint8_t *sta
 		for (int i = 0; i < 4; i++)
 			buff[i] = ReceiveStatus[i];
 
-    DM9051_RX_BREAK((rx_status & 0xbf), printf("buff_rx_cbstatus_01: %02x %02x %02x %02x\r\n",
+    DM9051_RX_BREAK((rx_status & 0xbf), printf("buff_rx_cbstatus_01: 0x%02x %02x %02x %02x\r\n",
                     ReceiveStatus[0], ReceiveStatus[1], ReceiveStatus[2], ReceiveStatus[3]));
 
     DM9051_RX_BREAK((rx_status & (0xbf & ~(RSR_PLE | RSR_CE | RSR_AE))), return ev_status_01(rx_status));
